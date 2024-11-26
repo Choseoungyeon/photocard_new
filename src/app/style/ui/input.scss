@@ -1,0 +1,47 @@
+.inputContainer {
+  width: 100%;
+  height: auto;
+  margin-bottom: 10px;
+  & label {
+    display: block;
+    margin-bottom: 3px;
+  }
+
+  & .inputWrap {
+    width: 100%;
+    height: 40px;
+    display: flex;
+    border-radius: 5px;
+    border: 1px solid rgb(192, 192, 192);
+
+    & .inputFormWrap {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      height: auto;
+      padding: 0px 10px;
+    }
+
+    & input {
+      width: 100%;
+      height: 100%;
+      box-sizing: content-box;
+      background: none;
+
+      &::placeholder {
+        color: rgb(177, 177, 177);
+      }
+    }
+
+    & .password-icon {
+      width: 25px;
+      height: auto;
+      margin: 0px 10px;
+      & svg {
+        color: rgb(122, 122, 122);
+        width: 100%;
+        height: 100%;
+      }
+    }
+  }
+}
