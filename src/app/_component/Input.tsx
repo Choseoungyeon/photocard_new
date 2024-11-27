@@ -1,6 +1,7 @@
 import type { InputHTMLAttributes, TextareaHTMLAttributes, ReactNode } from 'react';
 import { IoMdEye } from 'react-icons/io';
 import { IoMdEyeOff } from 'react-icons/io';
+import clsx from 'clsx';
 import * as React from 'react';
 import '@/app/style/ui/input.scss';
 
@@ -9,6 +10,8 @@ type Props = {
   name?: string;
   prefixIcon?: ReactNode;
   showPassword?: boolean;
+  error?: string | null;
+  disabled?: boolean;
 } & TextareaHTMLAttributes<HTMLTextAreaElement> &
   InputHTMLAttributes<HTMLInputElement>;
 
@@ -30,6 +33,8 @@ export default React.forwardRef<InputRef, Props>(function Input(props, ref) {
     value,
     onChange,
     placeholder,
+    error,
+    disabled,
     ...restProps
   } = props;
 
@@ -46,7 +51,7 @@ export default React.forwardRef<InputRef, Props>(function Input(props, ref) {
   return (
     <div className="inputContainer">
       {label && <label htmlFor={name}>{label}</label>}
-      <div className="inputWrap">
+      <div className={clsx('inputWrap', error && 'error')}>
         {prefixIcon}
         {type !== 'textarea' ? (
           <>
@@ -57,6 +62,7 @@ export default React.forwardRef<InputRef, Props>(function Input(props, ref) {
                 value={value}
                 onChange={onChange}
                 placeholder={placeholder}
+                disabled={disabled}
                 ref={inputRef as React.LegacyRef<HTMLInputElement>}
               />
             </div>
@@ -72,10 +78,12 @@ export default React.forwardRef<InputRef, Props>(function Input(props, ref) {
             value={value}
             onChange={onChange}
             placeholder={placeholder}
+            disabled={disabled}
             ref={inputRef as React.LegacyRef<HTMLTextAreaElement>}
           />
         )}
       </div>
+      {error && <p className="input_error_message">{error}</p>}
     </div>
   );
 });

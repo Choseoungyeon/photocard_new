@@ -5,9 +5,11 @@ import { useMutation } from '@tanstack/react-query';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import VerifyModule from './_component/VerifyModule';
+import Input from '../_component/Input';
+import Button from '@/app/_component/Button';
+import '@/app/style/page/register.scss';
 
 export default function NextAuth() {
-  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({ email: '', password: '', name: '', emailToken: '' });
   const router = useRouter();
 
@@ -29,13 +31,11 @@ export default function NextAuth() {
     },
   });
 
-  const togglePassword = () => setShowPassword(!showPassword);
-
-  const submitForm = (formData: FormData) => {
-    const name = formData.get('name') as string;
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
-    const emailToken = formData.get('emailToken') as string;
+  const submitForm = () => {
+    const name = formData.name;
+    const email = formData.email as string;
+    const password = formData.password as string;
+    const emailToken = formData.emailToken as string;
 
     if (name && email && password && emailToken) {
       mutation.mutate({
@@ -48,58 +48,47 @@ export default function NextAuth() {
   };
 
   return (
-    <form action={submitForm}>
-      <div>
-        <div>
-          <label htmlFor="name">name</label>
-          <input
+    <div className="register_inputContainer">
+      <div className="register_inputWrap">
+        <form action={submitForm}>
+          <Input
             type="text"
-            id="name"
             name="name"
+            label="name"
             placeholder="JK"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           />
-        </div>
-        <div>
-          <label htmlFor="email">Email</label>
-          <input
+
+          <Input
             type="text"
-            id="email"
             name="email"
+            label="email"
             value={formData.email}
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             placeholder="johndoe@gmail.com"
           />
-        </div>
-        <VerifyModule
-          formData={formData}
-          onChange={(e) => setFormData({ ...formData, emailToken: e.target.value })}
-        />
-        <div>
-          <label htmlFor="password">Password</label>
-          <input
-            type={showPassword ? 'text' : 'password'}
-            id="password"
+
+          <VerifyModule
+            formData={formData}
+            onChange={(e) => setFormData({ ...formData, emailToken: e.target.value })}
+          />
+
+          <Input
             name="password"
-            placeholder="***************"
+            label="password"
+            showPassword={true}
+            placeholder="password"
             value={formData.password}
             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
           />
-          <button type="button">
-            {showPassword ? (
-              <i className="fas fa-eye-slash" onClick={togglePassword}></i>
-            ) : (
-              <i className="fas fa-eye" onClick={togglePassword}></i>
-            )}
-          </button>
-        </div>
 
-        <div className="flex">
-          <button type="submit">{'Login Now'}</button>
-          {mutation.error ? <p style={{ color: 'red' }}>{mutation.error.message}</p> : null}
-        </div>
+          <div className="flex">
+            <Button type="submit">{'Login Now'}</Button>
+            {mutation.error ? <p style={{ color: 'red' }}>{mutation.error.message}</p> : null}
+          </div>
+        </form>
       </div>
-    </form>
+    </div>
   );
 }

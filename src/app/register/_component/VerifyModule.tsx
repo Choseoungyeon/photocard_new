@@ -2,7 +2,9 @@
 import { useState } from 'react';
 import { registerEmailVerify, registerEmailTokenVerify } from '@/app/_hook/fetch';
 import { useMutation } from '@tanstack/react-query';
-import LaodingBar from '@/app/_component/LodaingBar';
+import { ChangeEvent } from 'react';
+import Input from '@/app/_component/Input';
+import Button from '@/app/_component/Button';
 
 type RegisterData = {
   email?: string;
@@ -51,30 +53,35 @@ export default function VerifyModule({ formData, onChange }: Props) {
     <div>
       {!showVerify ? (
         <>
-          <button onClick={verifySendEmail}>인증하기</button>
-          {emailVerifyMute.isPending ? <LaodingBar width="25px" height="25px" /> : null}
+          <Button onClick={verifySendEmail} loading={emailVerifyMute.isPending}>
+            이메일 인증하기
+          </Button>
+
           {emailVerifyMute.isError ? (
             <p style={{ color: 'red' }}>{emailVerifyMute.error?.message}</p>
           ) : null}
         </>
       ) : (
         <>
-          <label htmlFor="emailToken">Email_verify</label>
-          <input
-            type="text"
-            id="emailToken"
-            name="emailToken"
-            value={formData.emailToken}
-            onChange={onChange}
-          />
+          {!emailTokenVerifyMute.isSuccess && (
+            <Input
+              type="text"
+              id="emailToken"
+              name="emailToken"
+              label="email_verify"
+              value={formData.emailToken}
+              onChange={(e) => onChange(e as ChangeEvent<HTMLInputElement>)}
+              error={emailTokenVerifyMute.isError ? emailTokenVerifyMute.error?.message : null}
+            />
+          )}
 
-          <button onClick={verityEmailToken}>인증하기</button>
-          {emailTokenVerifyMute.isError ? (
-            <p style={{ color: 'red' }}>{emailTokenVerifyMute.error?.message}</p>
-          ) : null}
-          {emailTokenVerifyMute.isSuccess ? (
-            <p style={{ color: 'green' }}>인증이 완료되었습니다</p>
-          ) : null}
+          <Button
+            loading={emailTokenVerifyMute.isPending}
+            disabled={emailTokenVerifyMute.isSuccess}
+            onClick={verityEmailToken}
+          >
+            {emailTokenVerifyMute.isSuccess ? '이메일 인증완료' : '인증하기'}
+          </Button>
         </>
       )}
     </div>

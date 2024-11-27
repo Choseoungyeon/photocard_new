@@ -1,0 +1,38 @@
+.register_inputContainer {
+  width: 100%;
+  height: calc(100vh - 100px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  & .register_inputWrap {
+    max-width: 300px;
+    width: 100%;
+
+    & button {
+      margin-bottom: 8px;
+      margin-top: 5px;
+    }
+
+    & form {
+      width: 100%;
+      height: 100%;
+    }
+
+    & a {
+      font-size: 0.9rem;
+      color: rgb(173, 173, 173);
+      transition: 0.5s;
+
+      &:hover {
+        color: black;
+      }
+    }
+
+    & .login_socail_btn {
+      width: 90px;
+      display: flex;
+      justify-content: space-between;
+    }
+  }
+}

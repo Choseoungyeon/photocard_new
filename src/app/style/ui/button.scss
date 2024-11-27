@@ -1,7 +1,23 @@
 .buttonContainer {
   width: 100%;
   height: 50px;
-  background-color: rgb(187, 187, 187);
+  background-color: rgba(177, 177, 177, 0.9);
   border-radius: 5px;
   color: white;
+  transition: 0.5s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  & .button_loading_icon {
+    margin-right: 10px;
+  }
+
+  &:disabled {
+    background-color: rgb(229, 229, 229);
+  }
+
+  &:hover:not(:disabled) {
+    background-color: rgb(149, 149, 149);
+  }
 }
