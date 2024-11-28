@@ -2,6 +2,22 @@
   width: 100%;
   height: auto;
   margin-bottom: 10px;
+  &.disabled {
+    & label {
+      color: rgb(209, 209, 209);
+    }
+
+    & .inputWrap {
+      border: 1px solid rgb(209, 209, 209);
+    }
+  }
+
+  &.error {
+    & label {
+      color: red;
+    }
+  }
+
   & label {
     display: block;
     margin-bottom: 5px;
@@ -11,7 +27,7 @@
 
   & .input_error_message {
     color: red;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     margin-top: 5px;
   }
 
@@ -39,11 +55,13 @@
       height: 100%;
       box-sizing: border-box;
       background: none;
-      padding: 1px 0px;
-      margin-top: 3px;
 
       &::placeholder {
         color: rgb(177, 177, 177);
+      }
+
+      &:disabled {
+        color: rgb(209, 209, 209);
       }
     }
 

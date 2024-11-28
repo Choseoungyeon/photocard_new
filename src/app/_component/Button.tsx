@@ -14,7 +14,7 @@ type Props = {
   onClick?: () => void;
 };
 
-export default function Input(props: Props) {
+export default function Button(props: Props) {
   const {
     onClick,
     children,

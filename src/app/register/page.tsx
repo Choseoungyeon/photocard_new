@@ -52,7 +52,6 @@ export default function NextAuth() {
       <div className="register_inputWrap">
         <form action={submitForm}>
           <Input
-            type="text"
             name="name"
             label="name"
             placeholder="JK"
@@ -60,18 +59,10 @@ export default function NextAuth() {
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           />
 
-          <Input
-            type="text"
-            name="email"
-            label="email"
-            value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            placeholder="johndoe@gmail.com"
-          />
-
           <VerifyModule
             formData={formData}
             onChange={(e) => setFormData({ ...formData, emailToken: e.target.value })}
+            onEmailChange={(e) => setFormData({ ...formData, email: e.target.value })}
           />
 
           <Input

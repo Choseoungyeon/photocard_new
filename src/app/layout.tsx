@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import RQProvider from './RQProvider';
 import NavMenu from './_component/NavMenu';
 import AuthSession from './AuthSession';
+import RulesProvider from './RulesProvider';
 import '@/app/style/main.scss';
 
 export const metadata: Metadata = {
@@ -19,8 +20,10 @@ export default function RootLayout({
       <AuthSession>
         <body className="layoutWrap">
           <RQProvider>
-            <NavMenu />
-            {children}
+            <RulesProvider>
+              <NavMenu />
+              {children}
+            </RulesProvider>
           </RQProvider>
         </body>
       </AuthSession>

@@ -16,9 +16,10 @@ type RegisterData = {
 type Props = {
   formData: RegisterData;
   onChange: React.ChangeEventHandler<HTMLInputElement>;
+  onEmailChange: React.ChangeEventHandler<HTMLInputElement>;
 };
 
-export default function VerifyModule({ formData, onChange }: Props) {
+export default function VerifyModule({ formData, onChange, onEmailChange }: Props) {
   const [showVerify, setShowVerify] = useState(false);
 
   const emailVerifyMute = useMutation({
@@ -51,21 +52,23 @@ export default function VerifyModule({ formData, onChange }: Props) {
 
   return (
     <div>
+      <Input
+        name="email"
+        label="email"
+        value={formData.email}
+        onChange={(e) => onEmailChange(e as ChangeEvent<HTMLInputElement>)}
+        disabled={emailTokenVerifyMute.isSuccess}
+        error={emailVerifyMute.isError ? emailVerifyMute.error?.message : null}
+        placeholder="johndoe@gmail.com"
+      />
       {!showVerify ? (
-        <>
-          <Button onClick={verifySendEmail} loading={emailVerifyMute.isPending}>
-            이메일 인증하기
-          </Button>
-
-          {emailVerifyMute.isError ? (
-            <p style={{ color: 'red' }}>{emailVerifyMute.error?.message}</p>
-          ) : null}
-        </>
+        <Button onClick={verifySendEmail} loading={emailVerifyMute.isPending}>
+          이메일 인증하기
+        </Button>
       ) : (
         <>
           {!emailTokenVerifyMute.isSuccess && (
             <Input
-              type="text"
               id="emailToken"
               name="emailToken"
               label="email_verify"

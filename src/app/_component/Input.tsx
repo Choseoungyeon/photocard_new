@@ -1,6 +1,8 @@
 import type { InputHTMLAttributes, TextareaHTMLAttributes, ReactNode } from 'react';
 import { IoMdEye } from 'react-icons/io';
 import { IoMdEyeOff } from 'react-icons/io';
+import { Controller } from 'react-hook-form';
+import type { Control, RegisterOptions } from 'react-hook-form';
 import clsx from 'clsx';
 import * as React from 'react';
 import '@/app/style/ui/input.scss';
@@ -10,15 +12,17 @@ type Props = {
   name?: string;
   prefixIcon?: ReactNode;
   showPassword?: boolean;
-  error?: string | null;
+  error?: string | null | undefined;
   disabled?: boolean;
+  control?: Control<any>;
+  rules?: RegisterOptions;
 } & TextareaHTMLAttributes<HTMLTextAreaElement> &
   InputHTMLAttributes<HTMLInputElement>;
 
 interface InputRef {
   focus: () => void;
   blur: () => void;
-  input: HTMLInputElement | HTMLTextAreaElement | null;
+  inputRef: HTMLInputElement | HTMLTextAreaElement | null;
 }
 
 export default React.forwardRef<InputRef, Props>(function Input(props, ref) {
@@ -35,6 +39,8 @@ export default React.forwardRef<InputRef, Props>(function Input(props, ref) {
     placeholder,
     error,
     disabled,
+    control,
+    rules,
     ...restProps
   } = props;
 
@@ -45,26 +51,45 @@ export default React.forwardRef<InputRef, Props>(function Input(props, ref) {
     blur: () => {
       inputRef.current?.blur();
     },
-    input: inputRef.current,
+    inputRef: inputRef.current,
   }));
 
   return (
-    <div className="inputContainer">
+    <div className={clsx('inputContainer', disabled && 'disabled', error && 'error')}>
       {label && <label htmlFor={name}>{label}</label>}
       <div className={clsx('inputWrap', error && 'error')}>
         {prefixIcon}
         {type !== 'textarea' ? (
           <>
             <div className="inputFormWrap">
-              <input
-                type={showPassword ? (passwordVisible ? 'text' : 'password') : type}
-                name={name}
-                value={value}
-                onChange={onChange}
-                placeholder={placeholder}
-                disabled={disabled}
-                ref={inputRef as React.LegacyRef<HTMLInputElement>}
-              />
+              {control && name ? (
+                <Controller
+                  control={control}
+                  name={name}
+                  rules={rules}
+                  render={(data) => (
+                    <input
+                      type={showPassword ? (passwordVisible ? 'text' : 'password') : type}
+                      name={name}
+                      value={data.field.value}
+                      onChange={data.field.onChange}
+                      placeholder={placeholder}
+                      disabled={disabled}
+                      ref={inputRef as React.LegacyRef<HTMLInputElement>}
+                    />
+                  )}
+                />
+              ) : (
+                <input
+                  type={showPassword ? (passwordVisible ? 'text' : 'password') : type}
+                  name={name}
+                  value={value}
+                  onChange={onChange}
+                  placeholder={placeholder}
+                  disabled={disabled}
+                  ref={inputRef as React.LegacyRef<HTMLInputElement>}
+                />
+              )}
             </div>
             {showPassword && (
               <div className="password-icon" onClick={() => setPasswordVisible(!passwordVisible)}>
