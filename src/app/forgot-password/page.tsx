@@ -42,23 +42,26 @@ function ForgotPasswordForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <Input
-        type="text"
-        control={control}
-        rules={emailRules}
-        label="Email"
-        name="email"
-        error={
-          errors.email ? errors.email?.message : mutation.isError ? mutation.error.message : null
-        }
-        placeholder="johndoe@gmail.com"
-      />
+    <div className="form_inputContainer">
+      <form className="form_inputWrap" onSubmit={handleSubmit(onSubmit)}>
+        <Input
+          type="text"
+          control={control}
+          rules={emailRules}
+          label="Email"
+          name="email"
+          error={errors.email?.message || mutation.error?.message}
+          onChange={() => {
+            if (mutation.isError) mutation.reset();
+          }}
+          placeholder="johndoe@gmail.com"
+        />
 
-      <Button type="submit" loading={mutation.isPending}>
-        비밀번호 변경
-      </Button>
-    </form>
+        <Button type="submit" loading={mutation.isPending}>
+          비밀번호 변경
+        </Button>
+      </form>
+    </div>
   );
 }
 

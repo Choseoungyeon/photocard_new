@@ -1,25 +1,54 @@
 'use client';
-import { useState } from 'react';
+import React from 'react';
 import { registerUser } from '@/app/_hook/fetch';
 import { useMutation } from '@tanstack/react-query';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import type { UseFormReturn } from 'react-hook-form';
 import VerifyModule from './_component/VerifyModule';
+import { useRulesContext } from '@/app/_context/RulesProviper';
 import Input from '../_component/Input';
 import Button from '@/app/_component/Button';
 import '@/app/style/page/register.scss';
 
+type FormValues = {
+  email: string;
+  password: string;
+  name: string;
+  emailToken: string;
+};
+type useFormType = UseFormReturn<FormValues, any, undefined> | undefined;
+export const MyContext = React.createContext<useFormType>(undefined);
+
 export default function NextAuth() {
-  const [formData, setFormData] = useState({ email: '', password: '', name: '', emailToken: '' });
   const router = useRouter();
+  const { passwordRules } = useRulesContext();
+
+  const useFormReturn = useForm<FormValues>({
+    defaultValues: {
+      name: '',
+      email: '',
+      password: '',
+      emailToken: '',
+    },
+    mode: 'onChange',
+  });
+
+  const {
+    handleSubmit,
+    control,
+    getValues,
+    formState: { errors },
+  } = useFormReturn;
 
   const mutation = useMutation({
     mutationFn: registerUser,
-    onSuccess: async (data) => {
-      // 자동 로그인
+    onSuccess: async () => {
+      const data = getValues();
       const response = await signIn('credentials', {
-        email: formData.email,
-        password: formData.password,
+        email: data.email,
+        password: data.password,
         redirect: false,
       });
 
@@ -31,55 +60,39 @@ export default function NextAuth() {
     },
   });
 
-  const submitForm = () => {
-    const name = formData.name;
-    const email = formData.email as string;
-    const password = formData.password as string;
-    const emailToken = formData.emailToken as string;
-
-    if (name && email && password && emailToken) {
-      mutation.mutate({
-        name: name,
-        email: email,
-        password: password,
-        emailToken: emailToken,
-      });
-    }
+  const submitForm = (data: FormValues) => {
+    mutation.mutate({
+      name: data.name,
+      email: data.email,
+      password: data.password,
+      emailToken: data.emailToken,
+    });
   };
 
   return (
-    <div className="register_inputContainer">
-      <div className="register_inputWrap">
-        <form action={submitForm}>
-          <Input
-            name="name"
-            label="name"
-            placeholder="JK"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          />
+    <MyContext.Provider value={useFormReturn}>
+      <div className="register_inputContainer">
+        <div className="register_inputWrap">
+          <form onSubmit={handleSubmit(submitForm)}>
+            <Input name="name" label="name" placeholder="JK" control={control} />
+            <VerifyModule />
+            <Input
+              name="password"
+              label="password"
+              showPassword={true}
+              placeholder="password"
+              control={control}
+              error={errors.password?.message}
+              rules={passwordRules}
+            />
 
-          <VerifyModule
-            formData={formData}
-            onChange={(e) => setFormData({ ...formData, emailToken: e.target.value })}
-            onEmailChange={(e) => setFormData({ ...formData, email: e.target.value })}
-          />
-
-          <Input
-            name="password"
-            label="password"
-            showPassword={true}
-            placeholder="password"
-            value={formData.password}
-            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-          />
-
-          <div className="flex">
-            <Button type="submit">{'Login Now'}</Button>
-            {mutation.error ? <p style={{ color: 'red' }}>{mutation.error.message}</p> : null}
-          </div>
-        </form>
+            <div className="flex">
+              <Button type="submit">회원가입하기</Button>
+              {mutation.error ? <p style={{ color: 'red' }}>{mutation.error.message}</p> : null}
+            </div>
+          </form>
+        </div>
       </div>
-    </div>
+    </MyContext.Provider>
   );
 }

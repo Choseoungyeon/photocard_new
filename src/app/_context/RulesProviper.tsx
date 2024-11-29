@@ -4,6 +4,7 @@ import type { RegisterOptions } from 'react-hook-form';
 type RulesType = {
   emailRules?: RegisterOptions;
   passwordRules?: RegisterOptions;
+  emailTokenRules?: RegisterOptions;
 };
 
 const RulesContext = React.createContext<RulesType>({});
@@ -33,8 +34,22 @@ export const RulesContextProvider = ({ children }: Props) => {
     },
   };
 
+  const emailTokenRules: RegisterOptions = {
+    required: '인증번호를 입력해주세요',
+    minLength: {
+      value: 6,
+      message: '인증번호는 6자입니다',
+    },
+    maxLength: {
+      value: 6,
+      message: '인증번호는 6자입니다',
+    },
+  };
+
   return (
-    <RulesContext.Provider value={{ emailRules, passwordRules }}>{children}</RulesContext.Provider>
+    <RulesContext.Provider value={{ emailRules, passwordRules, emailTokenRules }}>
+      {children}
+    </RulesContext.Provider>
   );
 };
 

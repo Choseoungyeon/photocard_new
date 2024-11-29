@@ -16,6 +16,8 @@ type Props = {
   disabled?: boolean;
   control?: Control<any>;
   rules?: RegisterOptions;
+  onFocus?: React.FocusEventHandler<HTMLInputElement | HTMLTextAreaElement>;
+  onBlur?: React.FocusEventHandler<HTMLInputElement | HTMLTextAreaElement>;
 } & TextareaHTMLAttributes<HTMLTextAreaElement> &
   InputHTMLAttributes<HTMLInputElement>;
 
@@ -41,6 +43,8 @@ export default React.forwardRef<InputRef, Props>(function Input(props, ref) {
     disabled,
     control,
     rules,
+    onFocus,
+    onBlur,
     ...restProps
   } = props;
 
@@ -72,7 +76,12 @@ export default React.forwardRef<InputRef, Props>(function Input(props, ref) {
                       type={showPassword ? (passwordVisible ? 'text' : 'password') : type}
                       name={name}
                       value={data.field.value}
-                      onChange={data.field.onChange}
+                      onChange={(value) => {
+                        data.field.onChange(value);
+                        if (onChange) onChange(value);
+                      }}
+                      onFocus={onFocus}
+                      onBlur={onBlur}
                       placeholder={placeholder}
                       disabled={disabled}
                       ref={inputRef as React.LegacyRef<HTMLInputElement>}
@@ -85,6 +94,8 @@ export default React.forwardRef<InputRef, Props>(function Input(props, ref) {
                   name={name}
                   value={value}
                   onChange={onChange}
+                  onFocus={onFocus}
+                  onBlur={onBlur}
                   placeholder={placeholder}
                   disabled={disabled}
                   ref={inputRef as React.LegacyRef<HTMLInputElement>}
@@ -102,6 +113,8 @@ export default React.forwardRef<InputRef, Props>(function Input(props, ref) {
             name={name}
             value={value}
             onChange={onChange}
+            onFocus={onFocus}
+            onBlur={onBlur}
             placeholder={placeholder}
             disabled={disabled}
             ref={inputRef as React.LegacyRef<HTMLTextAreaElement>}

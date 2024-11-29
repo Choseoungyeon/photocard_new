@@ -5,3 +5,20 @@
   margin-top: 60px;
   padding: 20px;
 }
+
+.form_inputContainer {
+  width: 100%;
+  height: calc(100vh - 100px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  & .form_inputWrap {
+    max-width: 300px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: column;
+  }
+}

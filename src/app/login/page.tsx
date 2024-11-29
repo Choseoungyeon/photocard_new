@@ -7,7 +7,6 @@ import { useRulesContext } from '@/app/_context/RulesProviper';
 import Link from 'next/link';
 import Image from 'next/image';
 import Input from '../_component/Input';
-import Error from '../_component/Error';
 import Button from '../_component/Button';
 import '@/app/style/page/login.scss';
 
@@ -18,6 +17,7 @@ type FormValues = {
 
 export default function NextAuth() {
   const router = useRouter();
+  const { emailRules, passwordRules } = useRulesContext();
 
   const {
     handleSubmit,
@@ -39,6 +39,10 @@ export default function NextAuth() {
         redirect: false,
       });
 
+      if (response?.error) {
+        throw new Error(response?.code);
+      }
+
       return response;
     },
     onSuccess: () => {
@@ -54,7 +58,9 @@ export default function NextAuth() {
     await signIn('naver', { redirect: true, callbackUrl: '/' });
   };
 
-  if (mutation.isError) return <Error />;
+  const resetFun = () => {
+    if (mutation.isError) mutation.reset();
+  };
 
   return (
     <div className="login_inputContainer">
@@ -62,12 +68,23 @@ export default function NextAuth() {
         <form onSubmit={handleSubmit(submitForm)}>
           <div>
             <div>
-              <Input control={control} label="email" name="email" placeholder="johndoe@gmail.com" />
+              <Input
+                control={control}
+                rules={emailRules}
+                error={errors.email?.message}
+                label="email"
+                name="email"
+                placeholder="johndoe@gmail.com"
+                onChange={resetFun}
+              />
             </div>
             <div>
               <Input
                 control={control}
+                rules={passwordRules}
+                error={errors.password?.message}
                 showPassword={true}
+                onChange={resetFun}
                 label="password"
                 name="password"
                 placeholder="password"

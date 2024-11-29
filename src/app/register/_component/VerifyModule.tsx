@@ -1,26 +1,17 @@
 'use client';
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { registerEmailVerify, registerEmailTokenVerify } from '@/app/_hook/fetch';
+import { MyContext } from '../page';
 import { useMutation } from '@tanstack/react-query';
-import { ChangeEvent } from 'react';
+import { useRulesContext } from '@/app/_context/RulesProviper';
 import Input from '@/app/_component/Input';
 import Button from '@/app/_component/Button';
 
-type RegisterData = {
-  email?: string;
-  password?: string;
-  name?: string;
-  emailToken?: string;
-};
-
-type Props = {
-  formData: RegisterData;
-  onChange: React.ChangeEventHandler<HTMLInputElement>;
-  onEmailChange: React.ChangeEventHandler<HTMLInputElement>;
-};
-
-export default function VerifyModule({ formData, onChange, onEmailChange }: Props) {
+export default function VerifyModule() {
   const [showVerify, setShowVerify] = useState(false);
+
+  const useFormReturn = useContext(MyContext);
+  const { emailRules, emailTokenRules } = useRulesContext();
 
   const emailVerifyMute = useMutation({
     mutationFn: registerEmailVerify,
@@ -34,20 +25,40 @@ export default function VerifyModule({ formData, onChange, onEmailChange }: Prop
   });
 
   const verifySendEmail = () => {
-    if (formData.email && formData.name) {
+    const data = useFormReturn?.getValues();
+    if (data?.email && data?.name) {
       emailVerifyMute.mutate({
-        email: formData.email,
-        name: formData.name,
+        email: data.email,
+        name: data.name,
       });
     }
   };
 
   const verityEmailToken = () => {
-    if (formData.emailToken) {
+    const data = useFormReturn?.getValues();
+    if (data?.emailToken) {
       emailTokenVerifyMute.mutate({
-        emailToken: formData.emailToken,
+        emailToken: data.emailToken,
       });
     }
+  };
+
+  const verifyEmailError = () => {
+    const errorFormMessage = useFormReturn?.formState.errors;
+    return errorFormMessage?.email?.message || emailVerifyMute.error?.message;
+  };
+
+  const verifyEmailTokenError = () => {
+    const errorFormMessage = useFormReturn?.formState.errors;
+    return errorFormMessage?.emailToken?.message || emailTokenVerifyMute.error?.message;
+  };
+
+  const verifyEmailOnChange = () => {
+    if (emailTokenVerifyMute.isError) emailVerifyMute.reset();
+  };
+
+  const verifyEmailTokenOnChange = () => {
+    if (emailTokenVerifyMute.isError) emailTokenVerifyMute.reset();
   };
 
   return (
@@ -55,11 +66,12 @@ export default function VerifyModule({ formData, onChange, onEmailChange }: Prop
       <Input
         name="email"
         label="email"
-        value={formData.email}
-        onChange={(e) => onEmailChange(e as ChangeEvent<HTMLInputElement>)}
+        control={useFormReturn?.control}
+        rules={emailRules}
         disabled={emailTokenVerifyMute.isSuccess}
-        error={emailVerifyMute.isError ? emailVerifyMute.error?.message : null}
+        error={verifyEmailError()}
         placeholder="johndoe@gmail.com"
+        onChange={verifyEmailOnChange}
       />
       {!showVerify ? (
         <Button onClick={verifySendEmail} loading={emailVerifyMute.isPending}>
@@ -72,9 +84,10 @@ export default function VerifyModule({ formData, onChange, onEmailChange }: Prop
               id="emailToken"
               name="emailToken"
               label="email_verify"
-              value={formData.emailToken}
-              onChange={(e) => onChange(e as ChangeEvent<HTMLInputElement>)}
-              error={emailTokenVerifyMute.isError ? emailTokenVerifyMute.error?.message : null}
+              rules={emailTokenRules}
+              control={useFormReturn?.control}
+              error={verifyEmailTokenError()}
+              onChange={verifyEmailTokenOnChange}
             />
           )}
 

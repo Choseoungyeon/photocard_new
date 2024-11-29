@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import customFetch from '@/app/_hook/customFetch';
 import { useRouter } from 'next/navigation';
 import { useParams } from 'next/navigation';
+import Input from '@/app/_component/Input';
+import Button from '@/app/_component/Button';
 
 export default function Page() {
   const router = useRouter();
@@ -10,17 +12,11 @@ export default function Page() {
 
   const resetPassword = async (token: string, password: string) => {
     await customFetch.post(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/reset-password/${token}`, {
-      body: JSON.stringify({
-        password: password,
-      }),
-      headers: {
-        'Content-type': 'application/json; charset=UTF-8',
-      },
+      body: { password: password },
     });
     router.push('/nextAuth/login');
   };
 
-  const [showPassword, setShowPassword] = useState(false);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
@@ -32,11 +28,6 @@ export default function Page() {
     setConfirmPassword(e.target.value);
   };
 
-  const togglePassword = () => {
-    setShowPassword(!showPassword);
-  };
-
-  // handle submit
   const handleSubmit = (e: any) => {
     e.preventDefault();
     const token = params['reset-token'] as string;
@@ -47,45 +38,30 @@ export default function Page() {
   };
 
   return (
-    <main>
-      <form>
-        <div>
-          <h1>Reset Your Password!</h1>
-          <div>
-            <label htmlFor="email">New Password</label>
-            <input
-              type={showPassword ? 'text' : 'password'}
-              value={password}
-              onChange={handlePasswordChange}
-              id="password"
-              name="password"
-              placeholder="*********"
-            />
-            <button onClick={togglePassword} type="button">
-              {showPassword ? <i className="fas fa-eye-slash"></i> : <i className="fas fa-eye"></i>}
-            </button>
-          </div>
-          <div>
-            <label htmlFor="email">Confirm Password</label>
-            <input
-              type={showPassword ? 'text' : 'password'}
-              value={confirmPassword}
-              onChange={handleConfirmPasswordChange}
-              id="password_confirm"
-              name="password_confirm"
-              placeholder="*********"
-            />
-            <button onClick={togglePassword} type="button">
-              {showPassword ? <i className="fas fa-eye-slash"></i> : <i className="fas fa-eye"></i>}
-            </button>
-          </div>
-          <div className="flex">
-            <button type="submit" onClick={handleSubmit}>
-              Reset Password
-            </button>
-          </div>
-        </div>
+    <div className="form_inputContainer">
+      <form className="form_inputWrap">
+        <Input
+          type="password"
+          showPassword={true}
+          value={password}
+          onChange={handlePasswordChange}
+          label="새 비밀번호"
+          name="password"
+          placeholder="password"
+        />
+        <Input
+          type="password"
+          showPassword={true}
+          value={confirmPassword}
+          onChange={handleConfirmPasswordChange}
+          label="비밀번호 확인"
+          name="password_confirm"
+          placeholder="password confirm"
+        />
+        <Button type="submit" onClick={() => handleSubmit}>
+          비밀번호 리셋하기
+        </Button>
       </form>
-    </main>
+    </div>
   );
 }
