@@ -5,6 +5,7 @@ type RulesType = {
   emailRules?: RegisterOptions;
   passwordRules?: RegisterOptions;
   emailTokenRules?: RegisterOptions;
+  nameRules?: RegisterOptions;
 };
 
 const RulesContext = React.createContext<RulesType>({});
@@ -46,8 +47,12 @@ export const RulesContextProvider = ({ children }: Props) => {
     },
   };
 
+  const nameRules: RegisterOptions = {
+    required: '이름을 입력해주세요',
+  };
+
   return (
-    <RulesContext.Provider value={{ emailRules, passwordRules, emailTokenRules }}>
+    <RulesContext.Provider value={{ emailRules, passwordRules, emailTokenRules, nameRules }}>
       {children}
     </RulesContext.Provider>
   );

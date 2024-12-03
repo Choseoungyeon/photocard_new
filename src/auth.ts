@@ -13,6 +13,11 @@ class CustomError extends CredentialsSignin {
   }
 }
 
+type FetchError = {
+  resultCode: true;
+  message: string;
+};
+
 declare module 'next-auth' {
   interface Session {
     user: {
@@ -59,7 +64,7 @@ export const {
         });
 
         const user = await authResponse.json();
-        if (!authResponse.ok) throw new CustomError(user.message);
+        if (user.resultCode !== 200) throw new CustomError(user.message);
 
         return user;
       },
@@ -93,7 +98,7 @@ export const {
 
           const resData = await authResponse.json();
 
-          if (!authResponse.ok) throw new CustomError(resData.message);
+          if (resData.resultCode !== 200) throw new CustomError(resData.message);
           if (resData) token.accessToken = resData.token;
         }
       }

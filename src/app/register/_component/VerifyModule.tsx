@@ -26,7 +26,7 @@ export default function VerifyModule() {
 
   const verifySendEmail = () => {
     const data = useFormReturn?.getValues();
-    if (data?.email && data?.name) {
+    if (data?.email && data?.name && !emailVerifyMute.isPending) {
       emailVerifyMute.mutate({
         email: data.email,
         name: data.name,
@@ -36,7 +36,7 @@ export default function VerifyModule() {
 
   const verityEmailToken = () => {
     const data = useFormReturn?.getValues();
-    if (data?.emailToken) {
+    if (data?.emailToken && !emailTokenVerifyMute.isPending) {
       emailTokenVerifyMute.mutate({
         emailToken: data.emailToken,
       });

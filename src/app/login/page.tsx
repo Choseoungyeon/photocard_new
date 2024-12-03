@@ -8,6 +8,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import Input from '../_component/Input';
 import Button from '../_component/Button';
+import ErrorMessage from '../_component/ErrorMessage';
 import '@/app/style/page/login.scss';
 
 type FormValues = {
@@ -40,7 +41,11 @@ export default function NextAuth() {
       });
 
       if (response?.error) {
-        throw new Error(response?.code);
+        let errorMessage = response?.code;
+        if (response?.code == null) {
+          errorMessage = '잘못된 접근입니다. 잠시 후 다시한번 시도해주세요';
+        }
+        throw new Error(errorMessage);
       }
 
       return response;
@@ -51,7 +56,7 @@ export default function NextAuth() {
   });
 
   const submitForm = async (data: FormValues) => {
-    mutation.mutate(data);
+    if (!mutation.isPending) mutation.mutate(data);
   };
 
   const naverLogin = async () => {
@@ -93,6 +98,7 @@ export default function NextAuth() {
             <Button className="crendential_login_btn" type="submit" loading={mutation.isPending}>
               로그인
             </Button>
+            {mutation.isError ? <ErrorMessage>{mutation.error.message}</ErrorMessage> : null}
           </div>
         </form>
         <Link href={'/forgot-password'}>비밀번호를 잃어버리셨나요?</Link>

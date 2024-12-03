@@ -10,6 +10,7 @@ import VerifyModule from './_component/VerifyModule';
 import { useRulesContext } from '@/app/_context/RulesProviper';
 import Input from '../_component/Input';
 import Button from '@/app/_component/Button';
+import ErrorMessage from '../_component/ErrorMessage';
 import '@/app/style/page/register.scss';
 
 type FormValues = {
@@ -23,7 +24,7 @@ export const MyContext = React.createContext<useFormType>(undefined);
 
 export default function NextAuth() {
   const router = useRouter();
-  const { passwordRules } = useRulesContext();
+  const { passwordRules, nameRules } = useRulesContext();
 
   const useFormReturn = useForm<FormValues>({
     defaultValues: {
@@ -61,12 +62,14 @@ export default function NextAuth() {
   });
 
   const submitForm = (data: FormValues) => {
-    mutation.mutate({
-      name: data.name,
-      email: data.email,
-      password: data.password,
-      emailToken: data.emailToken,
-    });
+    if (!mutation.isPending) {
+      mutation.mutate({
+        name: data.name,
+        email: data.email,
+        password: data.password,
+        emailToken: data.emailToken,
+      });
+    }
   };
 
   return (
@@ -74,7 +77,14 @@ export default function NextAuth() {
       <div className="register_inputContainer">
         <div className="register_inputWrap">
           <form onSubmit={handleSubmit(submitForm)}>
-            <Input name="name" label="name" placeholder="JK" control={control} />
+            <Input
+              name="name"
+              label="name"
+              placeholder="JK"
+              control={control}
+              rules={nameRules}
+              error={errors.name?.message}
+            />
             <VerifyModule />
             <Input
               name="password"
@@ -86,10 +96,8 @@ export default function NextAuth() {
               rules={passwordRules}
             />
 
-            <div className="flex">
-              <Button type="submit">회원가입하기</Button>
-              {mutation.error ? <p style={{ color: 'red' }}>{mutation.error.message}</p> : null}
-            </div>
+            <Button type="submit">회원가입하기</Button>
+            {mutation.error ? <ErrorMessage>{mutation.error.message}</ErrorMessage> : null}
           </form>
         </div>
       </div>

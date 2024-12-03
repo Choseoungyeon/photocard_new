@@ -1,0 +1,11 @@
+.set_total_user {
+  & button {
+    margin-bottom: 8px;
+    margin-top: 5px;
+  }
+
+  & .error-message {
+    margin-top: 0px;
+    margin-bottom: 8px;
+  }
+}

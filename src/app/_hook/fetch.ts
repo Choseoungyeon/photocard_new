@@ -22,7 +22,6 @@ export const registerUser = async (registerData: RegisterData) => {
   const response = await customFetch.post(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/register`, {
     body: registerData,
   });
-
   return response;
 };
 

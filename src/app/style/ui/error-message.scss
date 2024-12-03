@@ -1,0 +1,12 @@
+.error-message {
+  color: red;
+  font-size: 0.9rem;
+  margin-top: 7px;
+  height: 15px;
+
+  & .error-icon {
+    margin-right: 5px;
+    margin-bottom: 4px;
+    float: left;
+  }
+}

@@ -2,7 +2,7 @@ import { auth } from '@/auth';
 import { getSession } from 'next-auth/react';
 
 type FetchError = {
-  error: true;
+  resultCode: true;
   message: string;
 };
 
@@ -37,15 +37,9 @@ const customFetch = {
     }
 
     const response = await fetch(url, option);
+    const json = await response.json();
+    if (json.resultCode !== 200) throw new Error(json.message);
 
-    if (!response.ok) {
-      const errorResponse = await response.json().catch(() => null);
-      const errorMessage =
-        errorResponse?.message || `Error ${response.status}: ${response.statusText}`;
-      throw new Error(errorMessage);
-    }
-
-    const json: T = await response.json();
     return json;
   },
 
