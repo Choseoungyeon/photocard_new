@@ -16,7 +16,7 @@ export const registerUser = async (registerData: RegisterData) => {
     !registerData.name ||
     !registerData.emailToken
   ) {
-    throw new Error('Please enter a valid email and name and password (min 6 characters)');
+    throw new Error('필수 정보가 누락되었습니다. 다시 시도해주세요');
   }
 
   const response = await customFetch.post(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/register`, {
