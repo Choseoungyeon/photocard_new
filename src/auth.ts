@@ -52,7 +52,7 @@ export const {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        const authResponse = await fetch(`http://localhost:8000/api/v1/login`, {
+        const authResponse = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/login`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -84,17 +84,20 @@ export const {
         if (account.provider == 'credentials') {
           if (user) token.accessToken = user.token;
         } else if (account.provider == 'naver') {
-          const authResponse = await fetch(`http://localhost:8000/api/v1/naver/login`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
+          const authResponse = await fetch(
+            `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/naver/login`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                email: token?.email,
+                name: token?.name,
+                photo: token?.picture,
+              }),
             },
-            body: JSON.stringify({
-              email: token?.email,
-              name: token?.name,
-              photo: token?.picture,
-            }),
-          });
+          );
 
           const resData = await authResponse.json();
 
