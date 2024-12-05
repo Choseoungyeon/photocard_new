@@ -1,7 +1,7 @@
 'use client';
 import { useState, useContext } from 'react';
 import { registerEmailVerify, registerEmailTokenVerify } from '@/app/_hook/fetch';
-import { MyContext } from '../page';
+import { MyContext } from '@/app/_context/MyContext';
 import { useMutation } from '@tanstack/react-query';
 import { useRulesContext } from '@/app/_context/RulesProviper';
 import Input from '@/app/_component/Input';

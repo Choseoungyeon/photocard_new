@@ -11,6 +11,7 @@ import { useRulesContext } from '@/app/_context/RulesProviper';
 import Input from '../_component/Input';
 import Button from '@/app/_component/Button';
 import ErrorMessage from '../_component/ErrorMessage';
+import { MyContext } from '../_context/MyContext';
 import '@/app/style/page/register.scss';
 
 type FormValues = {
@@ -20,7 +21,7 @@ type FormValues = {
   emailToken: string;
 };
 type useFormType = UseFormReturn<FormValues, any, undefined> | undefined;
-export const MyContext = React.createContext<useFormType>(undefined);
+// export const MyContext = React.createContext<useFormType>(undefined);
 
 export default function NextAuth() {
   const router = useRouter();
