@@ -18,6 +18,7 @@ export default function VerifyModule() {
     onSuccess: () => {
       setShowVerify(true);
     },
+    throwOnError: true,
   });
 
   const emailTokenVerifyMute = useMutation({
@@ -26,6 +27,7 @@ export default function VerifyModule() {
 
   const verifySendEmail = () => {
     const data = useFormReturn?.getValues();
+    if (!data?.email && !data?.name) useFormReturn?.trigger(['name', 'email']);
     if (data?.email && data?.name && !emailVerifyMute.isPending) {
       emailVerifyMute.mutate({
         email: data.email,

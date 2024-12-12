@@ -60,7 +60,7 @@ function ForgotPasswordForm() {
             rules={emailRules}
             label="Email"
             name="email"
-            error={errors.email?.message || mutation.error?.message}
+            error={errors.email?.message}
             onChange={() => {
               if (mutation.isError) mutation.reset();
             }}
