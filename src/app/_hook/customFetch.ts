@@ -36,11 +36,20 @@ const customFetch = {
       }
     }
 
-    const response = await fetch(url, option);
-    const json = await response.json();
-    if (json.resultCode !== 200) throw new Error(json.message);
+    try {
+      const response = await fetch(url, option);
+      const json = await response.json();
+      if (json.resultCode !== 200) throw json;
 
-    return json;
+      return json;
+    } catch (error) {
+      const typedError = error as any;
+      const resultCode = typedError.resultCode ? typedError.resultCode : 'Network Error';
+      throw {
+        resultCode: resultCode,
+        message: typedError.message,
+      };
+    }
   },
 
   async get<T = any>(resource: string, init?: RequestInit): Promise<CustomFetchResponse<T>> {

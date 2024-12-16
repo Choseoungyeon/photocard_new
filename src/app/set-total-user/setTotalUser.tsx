@@ -96,7 +96,7 @@ export default function SetTotalUser({ email }: Props) {
     const password = data.password;
     const emailToken = data.emailToken;
 
-    if (password && emailToken && !mutation.isPending) {
+    if (!mutation.isPending) {
       mutation.mutate({
         password: password,
         emailToken: emailToken,
