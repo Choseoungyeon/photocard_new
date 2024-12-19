@@ -20,8 +20,6 @@ type FormValues = {
   name: string;
   emailToken: string;
 };
-type useFormType = UseFormReturn<FormValues, any, undefined> | undefined;
-// export const MyContext = React.createContext<useFormType>(undefined);
 
 export default function NextAuth() {
   const router = useRouter();
