@@ -84,7 +84,7 @@ export default React.forwardRef<InputRef, Props>(function Input(props, ref) {
                       onBlur={onBlur}
                       placeholder={placeholder}
                       disabled={disabled}
-                      ref={inputRef as React.LegacyRef<HTMLInputElement>}
+                      ref={inputRef as React.Ref<HTMLInputElement>}
                     />
                   )}
                 />
@@ -98,7 +98,7 @@ export default React.forwardRef<InputRef, Props>(function Input(props, ref) {
                   onBlur={onBlur}
                   placeholder={placeholder}
                   disabled={disabled}
-                  ref={inputRef as React.LegacyRef<HTMLInputElement>}
+                  ref={inputRef as React.Ref<HTMLInputElement>}
                 />
               )}
             </div>
@@ -117,7 +117,7 @@ export default React.forwardRef<InputRef, Props>(function Input(props, ref) {
             onBlur={onBlur}
             placeholder={placeholder}
             disabled={disabled}
-            ref={inputRef as React.LegacyRef<HTMLTextAreaElement>}
+            ref={inputRef as React.Ref<HTMLTextAreaElement>}
           />
         )}
       </div>

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import clsx from 'clsx';
-import LoadingBar from './LodaingBar';
+import LoadingBar from '../LodaingBar';
 import '@/app/style/ui/button.scss';
 
 type Props = {

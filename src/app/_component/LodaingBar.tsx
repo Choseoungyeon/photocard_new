@@ -8,8 +8,16 @@ type Props = {
 };
 export default function Loading({ width, height, color, className }: Props) {
   return (
-    <div className={clsx('loadingBarSpinner', className)} style={{ width: width, height: height }}>
-      <div className="spinnerIcon" style={{ borderLeftColor: color, borderTopColor: color }}></div>
+    <div
+      aria-label="loading"
+      className={clsx('loadingBarSpinner', className)}
+      style={{ width: width, height: height }}
+    >
+      <div
+        aria-hidden="true"
+        className="spinnerIcon"
+        style={{ borderLeftColor: color, borderTopColor: color }}
+      ></div>
     </div>
   );
 }
