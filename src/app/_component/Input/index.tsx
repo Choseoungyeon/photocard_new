@@ -14,6 +14,7 @@ type Props = {
   showPassword?: boolean;
   error?: string | null | undefined;
   disabled?: boolean;
+  resizeTextArea?: boolean;
   control?: Control<any>;
   rules?: RegisterOptions;
   onFocus?: React.FocusEventHandler<HTMLInputElement | HTMLTextAreaElement>;
@@ -43,6 +44,7 @@ export default React.forwardRef<InputRef, Props>(function Input(props, ref) {
     disabled,
     control,
     rules,
+    resizeTextArea = true,
     onFocus,
     onBlur,
     ...restProps
@@ -58,10 +60,21 @@ export default React.forwardRef<InputRef, Props>(function Input(props, ref) {
     inputRef: inputRef.current,
   }));
 
+  const inputId = name ? `${name}-input` : undefined;
+
+  const textOnChangeHandler = (value: React.ChangeEvent<HTMLTextAreaElement>) => {
+    if (inputRef.current && type == 'textarea' && resizeTextArea) {
+      inputRef.current.style.height = 'auto';
+      inputRef.current.style.height = `${inputRef.current.scrollHeight}px`;
+    }
+
+    if (onChange) onChange(value);
+  };
+
   return (
     <div className={clsx('inputContainer', disabled && 'disabled', error && 'error')}>
-      {label && <label htmlFor={name}>{label}</label>}
-      <div className={clsx('inputWrap', error && 'error')}>
+      {label && <label htmlFor={inputId}>{label}</label>}
+      <div className={clsx('inputWrap', error && 'error', type == 'textarea' && 'textarea')}>
         {prefixIcon}
         {type !== 'textarea' ? (
           <>
@@ -71,13 +84,14 @@ export default React.forwardRef<InputRef, Props>(function Input(props, ref) {
                   control={control}
                   name={name}
                   rules={rules}
-                  render={(data) => (
+                  render={({ field }) => (
                     <input
+                      id={inputId}
                       type={showPassword ? (passwordVisible ? 'text' : 'password') : type}
                       name={name}
-                      value={data.field.value}
+                      value={field.value}
                       onChange={(value) => {
-                        data.field.onChange(value);
+                        field.onChange(value);
                         if (onChange) onChange(value);
                       }}
                       onFocus={onFocus}
@@ -85,11 +99,15 @@ export default React.forwardRef<InputRef, Props>(function Input(props, ref) {
                       placeholder={placeholder}
                       disabled={disabled}
                       ref={inputRef as React.Ref<HTMLInputElement>}
+                      aria-required={rules?.required ? 'true' : undefined}
+                      aria-invalid={!!error}
+                      {...restProps}
                     />
                   )}
                 />
               ) : (
                 <input
+                  id={inputId}
                   type={showPassword ? (passwordVisible ? 'text' : 'password') : type}
                   name={name}
                   value={value}
@@ -99,25 +117,37 @@ export default React.forwardRef<InputRef, Props>(function Input(props, ref) {
                   placeholder={placeholder}
                   disabled={disabled}
                   ref={inputRef as React.Ref<HTMLInputElement>}
+                  aria-required={rules?.required ? 'true' : undefined}
+                  aria-invalid={!!error}
+                  {...restProps}
                 />
               )}
             </div>
             {showPassword && (
-              <div className="password-icon" onClick={() => setPasswordVisible(!passwordVisible)}>
+              <button
+                type="button"
+                className="password-icon"
+                onClick={() => setPasswordVisible(!passwordVisible)}
+                aria-label={passwordVisible ? 'Hide password' : 'Show password'}
+              >
                 {passwordVisible ? <IoMdEyeOff /> : <IoMdEye />}
-              </div>
+              </button>
             )}
           </>
         ) : (
           <textarea
+            id={inputId}
             name={name}
             value={value}
-            onChange={onChange}
+            onChange={textOnChangeHandler}
             onFocus={onFocus}
             onBlur={onBlur}
             placeholder={placeholder}
             disabled={disabled}
             ref={inputRef as React.Ref<HTMLTextAreaElement>}
+            aria-required={rules?.required ? 'true' : undefined}
+            aria-invalid={!!error}
+            {...restProps}
           />
         )}
       </div>

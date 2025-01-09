@@ -42,3 +42,23 @@ it('버튼을 누르면 onClick이 작동된다', async () => {
   await user.click(button);
   expect(testFn).toHaveBeenCalledOnce();
 });
+
+it('버튼을 누르면 onClick이 작동된다', async () => {
+  const testFn = vi.fn();
+  render(<Button onClick={testFn}>테스트</Button>);
+  const button = screen.getByRole('button', { name: '테스트' });
+  await user.click(button);
+  expect(testFn).toHaveBeenCalledOnce();
+});
+
+it('버튼이 비활성화(disabled) 상태일 때 onClick이 호출되지 않는다', async () => {
+  const testFn = vi.fn();
+  render(
+    <Button onClick={testFn} disabled={true}>
+      테스트
+    </Button>,
+  );
+  const button = screen.getByRole('button', { name: '테스트' });
+  await user.click(button);
+  expect(testFn).not.toHaveBeenCalledOnce();
+});
