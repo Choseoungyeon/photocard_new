@@ -14,7 +14,7 @@ export default function NavMenu() {
   return (
     <div className={style.navWrap}>
       <div className={style.wrap}>
-        <h2 onClick={() => handleClick('/')}>Login</h2>
+        <h2 onClick={() => handleClick('/')}>PhotoCard</h2>
         <button onClick={() => setVisibleMenu(!visibleMenu)}>
           {visibleMenu ? <FiX className={style.icon} /> : <FiAlignLeft className={style.icon} />}
         </button>
