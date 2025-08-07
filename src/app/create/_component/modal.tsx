@@ -29,6 +29,10 @@ function Create(props: CreateProps) {
   const [isExpandDragging, setIsExpandDragging] = React.useState(false);
   const [isModalDragging, setIsModalDragging] = React.useState(false);
   const [offset, setOffset] = React.useState({ x: 0, y: 0 });
+  const [modalTop, setModalTop] = React.useState(0);
+  const [modalDraggingDirection, setModalDraggingDirection] = React.useState<
+    undefined | 'up' | 'down'
+  >(undefined);
   const [isModalOpen, setIsModalOpen] = React.useState(open);
   const [columnCount, setColumnCount] = React.useState(3);
 
@@ -65,23 +69,36 @@ function Create(props: CreateProps) {
     setIsExpandDragging(true);
   };
 
-  const handleModalDraggingMouseDown = (e: React.MouseEvent) => {
+  const handleModalDraggingMouseDown = (e: React.MouseEvent | React.TouchEvent) => {
+    let clientX: number, clientY: number;
+
+    if ('touches' in e && e.touches.length > 0) {
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+    } else if ('clientX' in e && 'clientY' in e) {
+      clientX = e.clientX;
+      clientY = e.clientY;
+    } else {
+      return;
+    }
+
     e.stopPropagation();
     if (modalRef.current) {
       const rect = modalRef.current.getBoundingClientRect();
       setOffset({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
+        x: clientX - rect.left,
+        y: clientY - rect.top,
       });
+      setModalTop(clientY);
     }
     setIsModalDragging(true);
     onClick();
   };
 
   const handleExpandMouseMove = React.useCallback(
-    (e: MouseEvent) => {
-      const x = e.clientX;
-      const y = e.clientY;
+    (e: MouseEvent | TouchEvent) => {
+      const x = 'clientX' in e ? e.clientX : e.touches[0].clientX;
+      const y = 'clientY' in e ? e.clientY : e.touches[0].clientY;
 
       if (isExpandDragging) {
         if (modalRef.current) {
@@ -102,22 +119,81 @@ function Create(props: CreateProps) {
   );
 
   const handleModalDraggingMouseMove = React.useCallback(
-    (e: MouseEvent) => {
-      if (isModalDragging && !isExpandDragging && modalRef.current) {
-        modalRef.current.style.left = `${e.clientX - offset.x}px`;
-        modalRef.current.style.top = `${e.clientY - offset.y}px`;
+    (e: MouseEvent | TouchEvent) => {
+      const moveY = 'clientY' in e ? e.clientY : e.touches[0].clientY;
+      const moveX = 'clientX' in e ? e.clientX : e.touches[0].clientX;
+
+      if (window.innerWidth < 600) {
+        if (isModalDragging && !isExpandDragging && modalRef.current) {
+          if (modalTop - moveY >= 0) {
+            setModalDraggingDirection('up');
+            if (window.innerHeight - moveY > 400) {
+              modalRef.current.style.top = 'calc(100% - 500px)';
+            } else {
+              modalRef.current.style.top = `${moveY}px`;
+            }
+          } else {
+            setModalDraggingDirection('down');
+            if (window.innerHeight - moveY < 100) {
+              modalRef.current.style.top = '-100%';
+              setIsModalOpen(false);
+              onClose();
+            } else {
+              modalRef.current.style.top = `${moveY}px`;
+            }
+          }
+        }
+      } else {
+        if (isModalDragging && !isExpandDragging && modalRef.current) {
+          modalRef.current.style.left = `${moveX}px`;
+          modalRef.current.style.top = `${moveY}px`;
+        }
       }
+
+      setModalTop(moveY);
     },
-    [isModalDragging, isExpandDragging, offset, modalRef],
+    [isModalDragging, isExpandDragging, modalRef, modalTop, onClose],
   );
 
   const hanldeExpandMouseUp = () => {
     setIsExpandDragging(false);
   };
 
-  const handleModalDraggingMouseUp = () => {
-    setIsModalDragging(false);
-  };
+  const handleModalDraggingMouseUp = React.useCallback(
+    (e: MouseEvent | TouchEvent) => {
+      let moveY: number | undefined;
+      if ('touches' in e) {
+        if (e.touches && e.touches.length > 0) {
+          moveY = e.touches[0].clientY;
+        } else if ('changedTouches' in e && e.changedTouches.length > 0) {
+          moveY = e.changedTouches[0].clientY;
+        }
+      } else if ('clientY' in e) {
+        moveY = e.clientY;
+      }
+
+      setIsModalDragging(false);
+
+      if (modalDraggingDirection === 'up') {
+        if (modalRef.current) {
+          modalRef.current.style.top = 'calc(100% - 500px)';
+        }
+      } else if (modalDraggingDirection === 'down') {
+        if (modalRef.current) {
+          if (typeof moveY === 'number' && window.innerHeight - moveY < 100) {
+            modalRef.current.style.top = '-100%';
+            setIsModalOpen(false);
+            onClose();
+          } else {
+            modalRef.current.style.top = 'calc(100% - 200px)';
+          }
+        }
+      }
+      setModalDraggingDirection(undefined);
+      setModalTop(0);
+    },
+    [modalDraggingDirection, modalRef, onClose],
+  );
 
   const closeButtonClick = () => {
     onClose();
@@ -126,14 +202,20 @@ function Create(props: CreateProps) {
 
   React.useEffect(() => {
     if (isExpandDragging && !isModalDragging) {
+      document.addEventListener('touchmove', handleExpandMouseMove);
+      document.addEventListener('touchend', hanldeExpandMouseUp);
       document.addEventListener('mousemove', handleExpandMouseMove);
       document.addEventListener('mouseup', hanldeExpandMouseUp);
     } else {
+      document.removeEventListener('touchmove', handleExpandMouseMove);
+      document.removeEventListener('touchend', hanldeExpandMouseUp);
       document.removeEventListener('mousemove', handleExpandMouseMove);
       document.removeEventListener('mouseup', hanldeExpandMouseUp);
     }
 
     return () => {
+      document.removeEventListener('touchmove', handleExpandMouseMove);
+      document.removeEventListener('touchend', hanldeExpandMouseUp);
       document.removeEventListener('mousemove', handleExpandMouseMove);
       document.removeEventListener('mouseup', hanldeExpandMouseUp);
     };
@@ -141,63 +223,81 @@ function Create(props: CreateProps) {
 
   React.useEffect(() => {
     if (isModalDragging && !isExpandDragging) {
+      document.addEventListener('touchmove', handleModalDraggingMouseMove);
+      document.addEventListener('touchend', handleModalDraggingMouseUp);
       document.addEventListener('mousemove', handleModalDraggingMouseMove);
       document.addEventListener('mouseup', handleModalDraggingMouseUp);
     } else {
+      document.removeEventListener('touchmove', handleModalDraggingMouseMove);
+      document.removeEventListener('touchend', handleModalDraggingMouseUp);
       document.removeEventListener('mousemove', handleModalDraggingMouseMove);
       document.removeEventListener('mouseup', handleModalDraggingMouseUp);
     }
 
     return () => {
+      document.removeEventListener('touchmove', handleModalDraggingMouseMove);
+      document.removeEventListener('touchend', handleModalDraggingMouseUp);
       document.removeEventListener('mousemove', handleModalDraggingMouseMove);
       document.removeEventListener('mouseup', handleModalDraggingMouseUp);
     };
-  }, [isModalDragging, isExpandDragging, handleModalDraggingMouseMove]);
+  }, [isModalDragging, isExpandDragging, handleModalDraggingMouseMove, handleModalDraggingMouseUp]);
 
   React.useEffect(() => {
     setIsModalOpen(open);
   }, [open]);
 
   return isModalOpen ? (
-    <div
-      className={clsx('create_page_modal', className)}
-      ref={modalRef}
-      onMouseDown={handleModalDraggingMouseDown}
-    >
-      <div className="create_page_modal_menu">
-        <h2>스티커</h2>
+    <>
+      <div
+        className={clsx('create_page_modal', className)}
+        ref={modalRef}
+        onMouseDown={handleModalDraggingMouseDown}
+        onTouchStart={handleModalDraggingMouseDown}
+      >
+        <div className="create_page_modal_menu">
+          <h2>스티커</h2>
+          <i
+            className="create_page_modal_icon create_page_modal_icon_close"
+            onClick={closeButtonClick}
+          >
+            <LuX />
+          </i>
+        </div>
+        <div className="create_page_modal_content">
+          <div className="create_page_modal_element_wrap">
+            {columns.map((col, colIdx) => (
+              <div className="create_page_modal_element_column" key={colIdx}>
+                {col.map((item, idx) => (
+                  <button
+                    className="create_page_modal_element"
+                    key={`create_page_modal_element_${colIdx}_${idx}`}
+                    onClick={() => elementClick(item)}
+                  >
+                    <img src={item} alt="" />
+                  </button>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
         <i
-          className="create_page_modal_icon create_page_modal_icon_close"
-          onClick={closeButtonClick}
+          className="create_page_modal_icon create_page_modal_icon_expand"
+          ref={expandIconRef}
+          onMouseDown={handleExpandMouseDown}
         >
-          <LuX />
+          <LuMenu />
         </i>
       </div>
-      <div className="create_page_modal_content">
-        <div className="gallery_masonry">
-          {columns.map((col, colIdx) => (
-            <div className="gallery_column" key={colIdx}>
-              {col.map((item, idx) => (
-                <button
-                  className="create_page_modal_element"
-                  key={`create_page_modal_element_${colIdx}_${idx}`}
-                  onClick={() => elementClick(item)}
-                >
-                  <img src={item} alt="" />
-                </button>
-              ))}
-            </div>
-          ))}
-        </div>
-      </div>
-      <i
-        className="create_page_modal_icon create_page_modal_icon_expand"
-        ref={expandIconRef}
-        onMouseDown={handleExpandMouseDown}
-      >
-        <LuMenu />
-      </i>
-    </div>
+      {open && (
+        <div
+          className="create_page_modal_dim"
+          onClick={() => {
+            setIsModalOpen(false);
+            onClose();
+          }}
+        ></div>
+      )}
+    </>
   ) : null;
 }
 

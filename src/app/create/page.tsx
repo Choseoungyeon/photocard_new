@@ -125,8 +125,10 @@ function Create() {
 
     if (creatBoxBoundingBox) {
       const canvas = document.createElement('canvas');
-      canvas.width = creatBoxBoundingBox.width;
-      canvas.height = creatBoxBoundingBox.height;
+      const originalWidth = creatBoxBoundingBox.width;
+      const originalHeight = creatBoxBoundingBox.height;
+      canvas.width = originalWidth;
+      canvas.height = originalHeight;
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
 
@@ -163,6 +165,23 @@ function Create() {
         });
       }
 
+      // 새로운 캔버스 크기
+      const newWidth = 360;
+      const newHeight = 500;
+
+      // 스케일 비율 계산
+      const scaleX = newWidth / originalWidth;
+      const scaleY = newHeight / originalHeight;
+
+      if (scaleX > 1 || scaleY > 1) {
+        // 캔버스 크기 변경
+        canvas.width = newWidth;
+        canvas.height = newHeight;
+
+        // 스케일 적용
+        ctx.scale(scaleX, scaleY);
+      }
+
       setTimeout(() => {
         const link = document.createElement('a');
         link.download = 'photocard.png';
@@ -196,13 +215,13 @@ function Create() {
   const onClickStickerHandler = async () => {
     setModalStickerActive(true);
     setModalClick({ sticker: true, ribbon: false });
-    if (!stickerMutation.isPending) stickerMutation.mutate();
+    // if (!stickerMutation.isPending) stickerMutation.mutate();
   };
 
   const onClickRibbonHandler = async () => {
     setModalRibbonActive(true);
     setModalClick({ sticker: false, ribbon: true });
-    if (!ribbonMutation.isPending) ribbonMutation.mutate();
+    // if (!ribbonMutation.isPending) ribbonMutation.mutate();
   };
 
   React.useEffect(() => {
@@ -229,7 +248,7 @@ function Create() {
           ) : (
             <Dropzone onDrop={dropHandler}>
               {({ getRootProps, getInputProps }) => (
-                <div {...getRootProps()}>
+                <div className="create_box_icon_wrap" {...getRootProps()}>
                   <input {...getInputProps()} />
                   <i className="create_box_icon">
                     <LuImagePlus />
