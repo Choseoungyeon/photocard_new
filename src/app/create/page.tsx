@@ -188,7 +188,7 @@ function Create() {
         link.download = 'photocard.png';
         link.href = canvas.toDataURL('image/png');
         link.click();
-      }, 500);
+      }, 2000);
     }
   };
 
