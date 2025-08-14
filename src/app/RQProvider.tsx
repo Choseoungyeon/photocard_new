@@ -30,9 +30,9 @@ export default function Providers({ children }: Props) {
 
   const handleError = (error: any) => {
     const typedError = error as ErrorType;
-    if ([401, 403, 404, 500, 'Network Error'].includes(typedError.resultCode)) {
-      throw new Error(`${typedError.message}`);
-    }
+    // if ([401, 403, 404, 500, 'Network Error'].includes(typedError.resultCode)) {
+    //   throw new Error(`${typedError.message}`);
+    // }
     return false;
   };
 

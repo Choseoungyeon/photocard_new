@@ -18,6 +18,7 @@ function Create() {
   const [moveableElementImg, setMoveableElementImg] = React.useState<string[]>([]);
   const [modalRibbonActive, setModalRibbonActive] = React.useState(false);
   const [modalStickerActive, setModalStickerActive] = React.useState(false);
+  const [modalError, setModalError] = React.useState(false);
   const [stickerImageList, setStickerImageList] = React.useState<
     { public_id: string; url: string }[]
   >([]);
@@ -203,6 +204,9 @@ function Create() {
     onSuccess: (res) => {
       setStickerImageList(res.result.images);
     },
+    onError: (error) => {
+      console.log('스티커 이미지 로딩 실패:', error);
+    },
   });
 
   const ribbonMutation = useMutation({
@@ -210,18 +214,21 @@ function Create() {
     onSuccess: (res) => {
       setRibbonImageList(res.result.images);
     },
+    onError: (error) => {
+      console.log('리본 이미지 로딩 실패:', error);
+    },
   });
 
   const onClickStickerHandler = async () => {
     setModalStickerActive(true);
     setModalClick({ sticker: true, ribbon: false });
-    // if (!stickerMutation.isPending) stickerMutation.mutate();
+    if (!stickerMutation.isPending) stickerMutation.mutate();
   };
 
   const onClickRibbonHandler = async () => {
     setModalRibbonActive(true);
     setModalClick({ sticker: false, ribbon: true });
-    // if (!ribbonMutation.isPending) ribbonMutation.mutate();
+    if (!ribbonMutation.isPending) ribbonMutation.mutate();
   };
 
   React.useEffect(() => {

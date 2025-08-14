@@ -102,7 +102,6 @@
     left: 0px;
     border-radius: 20px 20px 0px 0px;
     z-index: 6000;
-    padding-top: 30px;
     padding-bottom: 0px;
     will-change: transform;
 
@@ -128,7 +127,14 @@
     }
 
     & .create_page_modal_menu {
-      display: none;
+      border-bottom: none;
+
+      & h2 {
+        display: none;
+      }
+      & i {
+        display: none;
+      }
     }
   }
 }
