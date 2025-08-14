@@ -24,6 +24,7 @@ export default function NavMenu() {
         <ul className={style.menuWrap}>
           <li onClick={() => handleClick('/login')}>login</li>
           <li onClick={() => handleClick('/register')}>register</li>
+          <li onClick={() => handleClick('/create')}>create</li>
         </ul>
       ) : null}
     </div>
