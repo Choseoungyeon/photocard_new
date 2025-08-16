@@ -58,83 +58,253 @@ function Create() {
     }
   };
 
-  function drawImageOnCanvas(ctx: CanvasRenderingContext2D, src: string, element: HTMLElement) {
-    const image = new window.Image();
-    image.crossOrigin = 'anonymous';
-    image.src = src;
+  function drawImageOnCanvas(
+    ctx: CanvasRenderingContext2D,
+    src: string,
+    element: HTMLElement,
+    finalWidth?: number,
+    finalHeight?: number,
+    originalCanvasWidth?: number,
+    originalCanvasHeight?: number,
+  ): Promise<void> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        // SVG인지 확인
+        const isSvg = src.toLowerCase().includes('.svg') || src.startsWith('data:image/svg+xml');
 
-    image.onload = () => {
-      ctx.save();
-
-      // element의 원본 크기 구하기 (transform 적용 전)
-      const computedStyle = window.getComputedStyle(element);
-      const transform = computedStyle.transform;
-
-      // transform을 임시로 제거하여 원본 크기 구하기
-      const originalTransform = element.style.transform;
-      element.style.transform = 'none';
-
-      const originalRect = element.getBoundingClientRect();
-      const parentRect = createBoxRef.current?.getBoundingClientRect();
-
-      // 원래 transform 복원
-      element.style.transform = originalTransform;
-
-      if (!parentRect) return;
-
-      const originalWidth = originalRect.width;
-      const originalHeight = originalRect.height;
-
-      // 현재 transform이 적용된 위치
-      const currentRect = element.getBoundingClientRect();
-      const x = currentRect.left - parentRect.left;
-      const y = currentRect.top - parentRect.top;
-
-      if (transform && transform !== 'none' && !transform.includes('rotate')) {
-        const match = transform.match(/matrix\(([^)]+)\)/);
-        if (match) {
-          const values = match[1].split(',').map(Number);
-          const [a, b, c, d] = values;
-
-          // 회전 각도만 추출
-          const angle = Math.atan2(b, a);
-
-          ctx.translate(x + currentRect.width / 2, y + currentRect.height / 2);
-          ctx.rotate(angle);
-          ctx.drawImage(
-            image,
-            -originalWidth / 2,
-            -originalHeight / 2,
-            originalWidth,
-            originalHeight,
-          );
+        let imageSrc = src;
+        if (isSvg) {
+          // SVG를 이미지로 변환 (고해상도로)
+          imageSrc = await convertSvgToImage(src, finalWidth, finalHeight);
         }
-      } else {
-        // transform이 없는 경우
-        console.log('no rotate', originalWidth, originalHeight);
-        ctx.drawImage(image, x, y, originalWidth, originalHeight);
-      }
 
-      ctx.restore();
-    };
+        const image = new window.Image();
+        image.crossOrigin = 'anonymous';
+
+        image.onload = () => {
+          try {
+            ctx.save();
+
+            // element의 원본 크기 구하기 (transform 적용 전)
+            const computedStyle = window.getComputedStyle(element);
+            const transform = computedStyle.transform;
+
+            // transform을 임시로 제거하여 원본 크기 구하기
+            const originalTransform = element.style.transform;
+            element.style.transform = 'none';
+
+            const originalRect = element.getBoundingClientRect();
+            const parentRect = createBoxRef.current?.getBoundingClientRect();
+
+            // 원래 transform 복원
+            element.style.transform = originalTransform;
+
+            if (!parentRect) {
+              ctx.restore();
+              resolve();
+              return;
+            }
+
+            // 화면에 표시된 크기
+            const displayWidth = originalRect.width;
+            const displayHeight = originalRect.height;
+
+            // 원본 이미지의 실제 크기
+            const imageWidth = image.naturalWidth;
+            const imageHeight = image.naturalHeight;
+
+            // 원본 위치 (transform 적용 전)
+            const originalX = originalRect.left - parentRect.left;
+            const originalY = originalRect.top - parentRect.top;
+
+            // 현재 transform이 적용된 위치
+            const currentRect = element.getBoundingClientRect();
+            const x = currentRect.left - parentRect.left;
+            const y = currentRect.top - parentRect.top;
+
+            // finalWidth와 finalHeight가 제공되면 스케일 계산
+            let scaledX = x;
+            let scaledY = y;
+            let scaledWidth = displayWidth;
+            let scaledHeight = displayHeight;
+
+            if (finalWidth && finalHeight && originalCanvasWidth && originalCanvasHeight) {
+              // 화면에 표시된 크기를 최종 캔버스 크기로 스케일링
+              const scaleX = finalWidth / originalCanvasWidth;
+              const scaleY = finalHeight / originalCanvasHeight;
+
+              scaledX = x * scaleX;
+              scaledY = y * scaleY;
+              scaledWidth = displayWidth * scaleX;
+              scaledHeight = displayHeight * scaleY;
+            }
+
+            if (transform && transform !== 'none' && !transform.includes('rotate')) {
+              const match = transform.match(/matrix\(([^)]+)\)/);
+              if (match) {
+                const values = match[1].split(',').map(Number);
+                const [a, b, c, d] = values;
+
+                // 회전 각도만 추출
+                const angle = Math.atan2(b, a);
+
+                // 현재 화면에 보이는 위치를 기준으로 중심점 계산
+                const currentCenterX = x + currentRect.width / 2;
+                const currentCenterY = y + currentRect.height / 2;
+
+                if (finalWidth && finalHeight && originalCanvasWidth && originalCanvasHeight) {
+                  const scaledCenterX = currentCenterX * (finalWidth / originalCanvasWidth);
+                  const scaledCenterY = currentCenterY * (finalHeight / originalCanvasHeight);
+                  ctx.translate(scaledCenterX, scaledCenterY);
+                } else {
+                  ctx.translate(currentCenterX, currentCenterY);
+                }
+                ctx.rotate(angle);
+
+                // 원본 이미지의 해상도를 유지하면서 그리기
+                ctx.drawImage(
+                  image,
+                  0,
+                  0,
+                  imageWidth,
+                  imageHeight, // 원본 이미지의 전체 영역
+                  -scaledWidth / 2,
+                  -scaledHeight / 2,
+                  scaledWidth,
+                  scaledHeight,
+                );
+              }
+            } else {
+              // transform이 없는 경우 - 원본 이미지의 해상도를 유지하면서 그리기
+              ctx.drawImage(
+                image,
+                0,
+                0,
+                imageWidth,
+                imageHeight, // 원본 이미지의 전체 영역
+                scaledX,
+                scaledY,
+                scaledWidth,
+                scaledHeight,
+              );
+            }
+
+            ctx.restore();
+            resolve();
+          } catch (error) {
+            reject(error);
+          }
+        };
+
+        image.onerror = () => {
+          reject(new Error('이미지 로딩 실패'));
+        };
+
+        image.src = imageSrc;
+      } catch (error) {
+        reject(error);
+      }
+    });
   }
 
-  const downloadClickHandler = () => {
-    const childrenArray = elementWrapRef.current?.children;
-    const creatBoxBoundingBox = createBoxRef.current?.getBoundingClientRect();
-    const targetImg = targetRef.current;
+  // SVG를 이미지로 변환하는 함수
+  const convertSvgToImage = (
+    svgUrl: string,
+    finalWidth?: number,
+    finalHeight?: number,
+  ): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      fetch(svgUrl)
+        .then((response) => response.text())
+        .then((svgText) => {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            reject(new Error('캔버스 컨텍스트를 생성할 수 없습니다.'));
+            return;
+          }
 
-    if (creatBoxBoundingBox) {
+          // SVG를 이미지로 변환
+          const img = new Image();
+          const svgBlob = new Blob([svgText], { type: 'image/svg+xml' });
+          const url = URL.createObjectURL(svgBlob);
+
+          img.onload = () => {
+            // finalWidth와 finalHeight가 제공되면 고해상도로 변환
+            if (finalWidth && finalHeight) {
+              // 원본 SVG 크기 대비 스케일 계산
+              const scaleX = finalWidth / img.width;
+              const scaleY = finalHeight / img.height;
+              const scale = Math.max(scaleX, scaleY); // 비율을 유지하면서 큰 쪽에 맞춤
+
+              canvas.width = img.width * scale;
+              canvas.height = img.height * scale;
+            } else {
+              canvas.width = img.width;
+              canvas.height = img.height;
+            }
+
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            const dataUrl = canvas.toDataURL('image/png');
+            URL.revokeObjectURL(url);
+            resolve(dataUrl);
+          };
+
+          img.onerror = () => {
+            URL.revokeObjectURL(url);
+            reject(new Error('SVG를 이미지로 변환할 수 없습니다.'));
+          };
+
+          img.src = url;
+        })
+        .catch(reject);
+    });
+  };
+
+  // 이미지 로딩을 위한 헬퍼 함수
+  const loadImage = (src: string): Promise<HTMLImageElement> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = src;
+    });
+  };
+
+  const downloadClickHandler = async () => {
+    try {
+      const childrenArray = elementWrapRef.current?.children;
+      const creatBoxBoundingBox = createBoxRef.current?.getBoundingClientRect();
+      const targetImg = targetRef.current;
+
+      if (!creatBoxBoundingBox) return;
+      if (!image) return;
+
+      const mainImage = await loadImage(image);
+
+      const maxHeight = 2000;
+      const ratio = 360 / 500;
+      let finalHeight = Math.min(mainImage.naturalHeight, maxHeight);
+      let finalWidth = finalHeight * ratio;
+
+      const maxPixels = 2000000;
+      if (finalWidth * finalHeight > maxPixels) {
+        const currentRatio = finalWidth / finalHeight;
+        finalHeight = Math.sqrt(maxPixels / currentRatio);
+        finalWidth = finalHeight * currentRatio;
+      }
+
       const canvas = document.createElement('canvas');
       const originalWidth = creatBoxBoundingBox.width;
       const originalHeight = creatBoxBoundingBox.height;
-      canvas.width = originalWidth;
-      canvas.height = originalHeight;
+      canvas.width = finalWidth;
+      canvas.height = finalHeight;
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
 
       // 둥근 모서리 클리핑 적용 (8px radius)
-      const radius = 8;
+      const radius = 8 * (finalWidth / originalWidth); // 스케일에 맞춰 radius 조정
       ctx.beginPath();
       ctx.moveTo(radius, 0);
       ctx.lineTo(canvas.width - radius, 0);
@@ -152,43 +322,57 @@ function Create() {
       ctx.fillStyle = 'white';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+      // 배경 이미지를 먼저 그리기
       if (targetImg && image) {
-        drawImageOnCanvas(ctx, image, targetImg);
+        await drawImageOnCanvas(
+          ctx,
+          image,
+          targetImg,
+          finalWidth,
+          finalHeight,
+          originalWidth,
+          originalHeight,
+        );
       }
 
+      // 그 다음에 스티커/리본 이미지들을 순차적으로 그리기
       if (childrenArray && childrenArray.length > 0) {
-        Array.from(childrenArray).forEach((item) => {
-          if (!item) return;
+        for (const item of Array.from(childrenArray)) {
+          if (!item) continue;
           const src = item.getAttribute('src');
-          if (!src) return;
+          if (!src) continue;
 
-          drawImageOnCanvas(ctx, src, item as HTMLElement);
-        });
+          await drawImageOnCanvas(
+            ctx,
+            src,
+            item as HTMLElement,
+            finalWidth,
+            finalHeight,
+            originalWidth,
+            originalHeight,
+          );
+        }
       }
 
-      // 새로운 캔버스 크기
-      const newWidth = 360;
-      const newHeight = 500;
+      // **변경 부분: Blob을 사용하여 다운로드 처리**
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          alert('이미지 생성에 실패했습니다.');
+          return;
+        }
 
-      // 스케일 비율 계산
-      const scaleX = newWidth / originalWidth;
-      const scaleY = newHeight / originalHeight;
-
-      if (scaleX > 1 || scaleY > 1) {
-        // 캔버스 크기 변경
-        canvas.width = newWidth;
-        canvas.height = newHeight;
-
-        // 스케일 적용
-        ctx.scale(scaleX, scaleY);
-      }
-
-      setTimeout(() => {
+        const blobUrl = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.download = 'photocard.png';
-        link.href = canvas.toDataURL('image/png');
+        link.href = blobUrl;
         link.click();
-      }, 2000);
+
+        // 다운로드 후 메모리 정리를 위해 URL 객체를 해제
+        URL.revokeObjectURL(blobUrl);
+      }, 'image/png');
+    } catch (error) {
+      console.error('다운로드 중 오류 발생:', error);
+      alert('다운로드 중 오류가 발생했습니다. 다시 시도해주세요.');
     }
   };
 
