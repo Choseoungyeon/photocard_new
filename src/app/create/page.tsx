@@ -19,6 +19,7 @@ function Create() {
   const [modalRibbonActive, setModalRibbonActive] = React.useState(false);
   const [modalStickerActive, setModalStickerActive] = React.useState(false);
   const [modalError, setModalError] = React.useState(false);
+  const [modalErrorMsg, setModalErrorMsg] = React.useState('');
   const [stickerImageList, setStickerImageList] = React.useState<
     { public_id: string; url: string }[]
   >([]);
@@ -34,7 +35,10 @@ function Create() {
     const reader = new FileReader();
     reader.onloadend = (finishedEvent) => {
       const imageUrl = finishedEvent.target?.result as string;
-      if (imageUrl) setImage(imageUrl);
+      if (imageUrl) {
+        setImage(imageUrl);
+        setImageLoaded(false); // 이미지 변경 시 로딩 상태 초기화
+      }
     };
     reader.readAsDataURL(files[0]);
   };
@@ -112,10 +116,6 @@ function Create() {
             // 원본 이미지의 실제 크기
             const imageWidth = image.naturalWidth;
             const imageHeight = image.naturalHeight;
-
-            // 원본 위치 (transform 적용 전)
-            const originalX = originalRect.left - parentRect.left;
-            const originalY = originalRect.top - parentRect.top;
 
             // 현재 transform이 적용된 위치
             const currentRect = element.getBoundingClientRect();
@@ -279,7 +279,11 @@ function Create() {
       const targetImg = targetRef.current;
 
       if (!creatBoxBoundingBox) return;
-      if (!image) return;
+      if (!image) {
+        setModalError(true);
+        setModalErrorMsg('이미지를 먼저 추가해주세요.');
+        return;
+      }
 
       const mainImage = await loadImage(image);
 
@@ -390,6 +394,8 @@ function Create() {
     },
     onError: (error) => {
       console.log('스티커 이미지 로딩 실패:', error);
+      setModalError(true);
+      setModalErrorMsg('스티커 이미지 로딩 실패');
     },
   });
 
@@ -400,33 +406,87 @@ function Create() {
     },
     onError: (error) => {
       console.log('리본 이미지 로딩 실패:', error);
+      setModalError(true);
+      setModalErrorMsg('리본 이미지 로딩 실패');
     },
   });
 
+  // 모든 이미지가 로드될 때까지 기다리는 함수
+  const waitForImagesToLoad = async (
+    imageList: { public_id: string; url: string }[],
+  ): Promise<void> => {
+    const imagePromises = imageList.map((item) => {
+      return new Promise<void>((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve();
+        img.onerror = () => reject(new Error(`이미지 로드 실패: ${item.url}`));
+        img.src = item.url;
+      });
+    });
+
+    await Promise.all(imagePromises);
+  };
+
   const onClickStickerHandler = async () => {
-    setModalStickerActive(true);
+    setIsLoadingImages(true);
     setModalClick({ sticker: true, ribbon: false });
-    if (!stickerMutation.isPending) stickerMutation.mutate();
+
+    try {
+      if (!stickerMutation.isPending) {
+        await stickerMutation.mutateAsync();
+      }
+
+      // 이미지들이 모두 로드될 때까지 기다림
+      if (stickerImageList.length > 0) {
+        await waitForImagesToLoad(stickerImageList);
+      }
+
+      setModalStickerActive(true);
+    } catch (error) {
+      console.error('스티커 로딩 중 오류:', error);
+    } finally {
+      setIsLoadingImages(false);
+    }
   };
 
   const onClickRibbonHandler = async () => {
-    setModalRibbonActive(true);
+    setIsLoadingImages(true);
     setModalClick({ sticker: false, ribbon: true });
-    if (!ribbonMutation.isPending) ribbonMutation.mutate();
+
+    try {
+      if (!ribbonMutation.isPending) {
+        await ribbonMutation.mutateAsync();
+      }
+
+      // 이미지들이 모두 로드될 때까지 기다림
+      if (ribbonImageList.length > 0) {
+        await waitForImagesToLoad(ribbonImageList);
+      }
+
+      setModalRibbonActive(true);
+    } catch (error) {
+      console.error('리본 로딩 중 오류:', error);
+    } finally {
+      setIsLoadingImages(false);
+    }
   };
 
+  const [imageLoaded, setImageLoaded] = React.useState(false);
+
   React.useEffect(() => {
-    if (targetRef.current) {
+    if (targetRef.current && imageLoaded) {
       setMoveableTarget([targetRef.current]);
     } else {
       setMoveableTarget([]);
     }
-  }, [image]);
+  }, [image, imageLoaded]);
 
   const [modalClick, setModalClick] = React.useState({
     sticker: false,
     ribbon: false,
   });
+
+  const [isLoadingImages, setIsLoadingImages] = React.useState(false);
 
   return (
     <div className="create_page" onClick={blurHandler}>
@@ -434,7 +494,13 @@ function Create() {
         <div className="create_box" ref={createBoxRef}>
           {image ? (
             <div className="create_box_image" onClick={moveableTargetClickHandler}>
-              <img src={image} alt="uploaded_image" ref={targetRef} />
+              <img
+                src={image}
+                alt="uploaded_image"
+                ref={targetRef}
+                onLoad={() => setImageLoaded(true)}
+                onError={() => setImageLoaded(false)}
+              />
             </div>
           ) : (
             <Dropzone onDrop={dropHandler}>
@@ -502,12 +568,20 @@ function Create() {
                   <LuImage />
                 </i>
               </span>
-              <span className="create_box_menu_item" onClick={onClickRibbonHandler}>
+              <span
+                className={clsx('create_box_menu_item', { 'is-loading': isLoadingImages })}
+                onClick={onClickRibbonHandler}
+                style={{ pointerEvents: isLoadingImages ? 'none' : 'auto' }}
+              >
                 <i className="create_box_menu_icon">
                   <FaRibbon />
                 </i>
               </span>
-              <span className="create_box_menu_item" onClick={onClickStickerHandler}>
+              <span
+                className={clsx('create_box_menu_item', { 'is-loading': isLoadingImages })}
+                onClick={onClickStickerHandler}
+                style={{ pointerEvents: isLoadingImages ? 'none' : 'auto' }}
+              >
                 <i className="create_box_menu_icon">
                   <LuSticker />
                 </i>
@@ -546,6 +620,13 @@ function Create() {
         imageList={ribbonImageList}
         open={modalRibbonActive}
         onClose={() => setModalRibbonActive(false)}
+      />
+
+      <Modal
+        isError={true}
+        open={modalError}
+        errorMessage={modalErrorMsg}
+        onClose={() => setModalError(false)}
       />
     </div>
   );

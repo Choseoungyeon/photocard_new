@@ -1,6 +1,6 @@
 'use client';
 import React, { useCallback } from 'react';
-import { LuX, LuMenu } from 'react-icons/lu';
+import { LuX, LuMenu, LuAlertCircle } from 'react-icons/lu';
 import './modal.scss';
 import clsx from 'clsx';
 import { gsap } from 'gsap';
@@ -8,10 +8,12 @@ import { gsap } from 'gsap';
 interface CreateProps {
   className?: string;
   open?: boolean;
-  imageList: { public_id: string; url: string }[];
-  onClick: () => void;
-  onClose: () => void;
-  elementClick: (val: string) => void;
+  imageList?: { public_id: string; url: string }[];
+  isError?: boolean;
+  errorMessage?: string;
+  onClick?: () => void;
+  onClose?: () => void;
+  elementClick?: (val: string) => void;
 }
 
 function splitImagesToColumns(images: string[], columnCount: number) {
@@ -23,10 +25,19 @@ function splitImagesToColumns(images: string[], columnCount: number) {
 }
 
 function Create(props: CreateProps) {
-  const { open = true, imageList, className, elementClick, onClose, onClick } = props;
+  const {
+    open = true,
+    imageList,
+    className,
+    isError,
+    errorMessage,
+    elementClick,
+    onClose,
+    onClick,
+  } = props;
   const expandIconRef = React.useRef<HTMLElement | null>(null);
   const modalRef = React.useRef<HTMLDivElement | null>(null);
-  const isMobileSize = React.useRef(false);
+  const [isMobileSize, setIsMobileSize] = React.useState(false);
 
   const [isExpandDragging, setIsExpandDragging] = React.useState(false);
   const [isModalDragging, setIsModalDragging] = React.useState(false);
@@ -49,25 +60,15 @@ function Create(props: CreateProps) {
     }
   }, []);
 
-  React.useEffect(() => {
-    function handleResize() {
-      if (!modalRef.current) {
-        setIsModalOpen(false);
-        return;
-      }
-      const width = modalRef.current?.clientWidth || 0;
-      if (width >= 350) setColumnCount(4);
-      else if (width >= 250) setColumnCount(3);
-      else if (width >= 200) setColumnCount(2);
-      else setColumnCount(2);
-    }
-    window.addEventListener('resize', handleResize);
-    handleResize();
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  const columnCountFun = (width: number) => {
+    if (width >= 350) setColumnCount(4);
+    else if (width >= 250) setColumnCount(3);
+    else if (width >= 200) setColumnCount(2);
+    else setColumnCount(2);
+  };
 
   const columns = React.useMemo(() => {
-    if (imageList.length > 0) {
+    if (imageList && imageList.length > 0) {
       return splitImagesToColumns(
         imageList.map((item) => item.url),
         columnCount,
@@ -84,6 +85,8 @@ function Create(props: CreateProps) {
 
   const handleModalDraggingMouseDown = (e: React.MouseEvent | React.TouchEvent) => {
     let clientX: number, clientY: number;
+
+    if (isError) return;
 
     if ('touches' in e && e.touches.length > 0) {
       clientX = e.touches[0].clientX;
@@ -105,7 +108,7 @@ function Create(props: CreateProps) {
       setModalTop(clientY);
     }
     setIsModalDragging(true);
-    onClick();
+    if (onClick) onClick();
   };
 
   const handleExpandMouseMove = React.useCallback(
@@ -119,12 +122,7 @@ function Create(props: CreateProps) {
           const modalWidth = Math.min(Math.max(x - modal.x + 10, 200), 320);
           modalRef.current.style.width = `${modalWidth}px`;
           modalRef.current.style.height = `${y - modal.y + 10}px`;
-
-          // modalWidth에 따라 columnCount 계산
-          if (modalWidth >= 350) setColumnCount(4);
-          else if (modalWidth >= 250) setColumnCount(3);
-          else if (modalWidth >= 200) setColumnCount(2);
-          else setColumnCount(2);
+          columnCountFun(modalWidth);
         }
       }
     },
@@ -161,7 +159,7 @@ function Create(props: CreateProps) {
               animateModalPosition('100%', 0.3);
               setTimeout(() => {
                 setIsModalOpen(false);
-                onClose();
+                if (onClose) onClose();
               }, 300);
             } else {
               modalRef.current.style.top = `${moveY}px`;
@@ -215,7 +213,7 @@ function Create(props: CreateProps) {
           animateModalPosition('100%', 0.3);
           setTimeout(() => {
             setIsModalOpen(false);
-            onClose();
+            if (onClose) onClose();
           }, 300);
         } else {
           animateModalPosition('calc(100% - 200px)', 0.3);
@@ -232,26 +230,33 @@ function Create(props: CreateProps) {
       animateModalPosition('100%', 0.3);
       setTimeout(() => {
         setIsModalOpen(false);
-        onClose();
+        if (onClose) onClose();
       }, 300);
     } else {
-      onClose();
+      if (onClose) onClose();
       setIsModalOpen(false);
     }
   };
 
   const handleResize = useCallback(() => {
+    columnCountFun(modalRef.current?.clientWidth || 0);
     if (window.innerWidth < 600) {
-      if (isMobileSize.current) return;
-      isMobileSize.current = true;
+      if (isMobileSize) return;
+      setIsMobileSize(true);
       setIsModalDragging(false);
       setIsExpandDragging(false);
       setIsModalOpen(false);
-      onClose();
+      if (onClose) onClose();
     } else {
-      isMobileSize.current = false;
+      setIsMobileSize(false);
     }
-  }, [onClose]);
+  }, [onClose, isMobileSize]);
+
+  const isDim = React.useMemo(() => {
+    if (isError && open) return true;
+    if (isMobileSize && open) return true;
+    return false;
+  }, [isError, open, isMobileSize]);
 
   React.useEffect(() => {
     if (isExpandDragging && !isModalDragging) {
@@ -304,52 +309,73 @@ function Create(props: CreateProps) {
   }, [handleResize]);
 
   React.useEffect(() => {
+    if (open) {
+      if (window.innerWidth < 600) {
+        setIsMobileSize(true);
+        columnCountFun(window.innerWidth);
+      } else {
+        setIsMobileSize(false);
+        setColumnCount(3);
+      }
+    }
     setIsModalOpen(open);
   }, [open]);
 
   return isModalOpen ? (
-    <>
-      <div className={clsx('create_page_modal', className)} ref={modalRef}>
-        <div
-          className="create_page_modal_menu"
-          onMouseDown={handleModalDraggingMouseDown}
-          onTouchStart={handleModalDraggingMouseDown}
-        >
-          <h2>스티커</h2>
-          <i
-            className="create_page_modal_icon create_page_modal_icon_close"
-            onClick={closeButtonClick}
+    <div className={clsx('create_page_modal_wrap', className, { ['is-error']: isError })}>
+      <div className={clsx('create_page_modal')} ref={modalRef}>
+        <>
+          <div
+            className="create_page_modal_menu"
+            onMouseDown={handleModalDraggingMouseDown}
+            onTouchStart={handleModalDraggingMouseDown}
           >
-            <LuX />
-          </i>
-        </div>
-        <div className="create_page_modal_content">
-          <div className="create_page_modal_element_wrap">
-            {columns.map((col, colIdx) => (
-              <div className="create_page_modal_element_column" key={colIdx}>
-                {col.map((item, idx) => (
-                  <button
-                    className="create_page_modal_element"
-                    key={`create_page_modal_element_${colIdx}_${idx}`}
-                    onClick={() => elementClick(item)}
-                  >
-                    <img src={item} alt="" />
-                  </button>
-                ))}
-              </div>
-            ))}
+            <h2>{isError ? '' : '스티커'}</h2>
+            <i
+              className="create_page_modal_icon create_page_modal_icon_close"
+              onClick={closeButtonClick}
+            >
+              <LuX />
+            </i>
           </div>
-        </div>
-        <i
-          className="create_page_modal_icon create_page_modal_icon_expand"
-          ref={expandIconRef}
-          onMouseDown={handleExpandMouseDown}
-        >
-          <LuMenu />
-        </i>
+          <div className="create_page_modal_content">
+            {isError ? (
+              <p className="create_page_modal_error">
+                <LuAlertCircle />
+                {errorMessage}
+              </p>
+            ) : (
+              <>
+                <div className="create_page_modal_element_wrap">
+                  {columns.map((col, colIdx) => (
+                    <div className="create_page_modal_element_column" key={colIdx}>
+                      {col.map((item, idx) => (
+                        <button
+                          className="create_page_modal_element"
+                          key={`create_page_modal_element_${colIdx}_${idx}`}
+                          onClick={() => elementClick && elementClick(item)}
+                        >
+                          <img src={item} alt="" />
+                        </button>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+
+                <i
+                  className="create_page_modal_icon create_page_modal_icon_expand"
+                  ref={expandIconRef}
+                  onMouseDown={handleExpandMouseDown}
+                >
+                  <LuMenu />
+                </i>
+              </>
+            )}
+          </div>
+        </>
       </div>
-      {open && <div className="create_page_modal_dim" onClick={closeButtonClick}></div>}
-    </>
+      {isDim && <div className="create_page_modal_dim" onClick={closeButtonClick}></div>}
+    </div>
   ) : null;
 }
 

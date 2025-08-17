@@ -1,150 +1,193 @@
-.create_page_modal {
-  width: 320px;
-  height: 500px;
-  background-color: #fff;
-  overflow: hidden;
+.create_page_modal_wrap {
   position: fixed;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  top: 20px;
-  left: 20px;
+  top: 0px;
+  left: 0px;
   z-index: 5000;
-  cursor: pointer;
-  user-select: none;
-  -webkit-user-drag: none;
-  -khtml-user-drag: none;
-  -moz-user-drag: none;
-  -o-user-drag: none;
 
   &.is-active {
-    z-index: 6000;
+    z-index: 5001;
   }
 
-  & .create_page_modal_menu {
-    width: 100%;
-    height: 40px;
-    border-bottom: 1px solid #d0d0d0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px;
+  &.is-error {
+    z-index: 6000;
+    & .create_page_modal {
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      height: 200px;
+      z-index: inherit;
 
-    & h2 {
-      font-size: 15px;
-      transform: translateY(2px);
-      color: #d0d0d0;
+      @media (max-width: 600px) {
+        top: calc(100% - 200px);
+        left: 0px;
+        transform: none;
+      }
     }
   }
 
-  & .create_page_modal_content {
-    width: 100%;
-    height: calc(100% - 40px);
-    overflow-y: scroll;
-    padding: 15px;
+  & .create_page_modal {
+    width: 320px;
+    height: 500px;
+    background-color: #fff;
+    overflow: hidden;
+    position: fixed;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    top: 20px;
+    left: 20px;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
 
-    & .create_page_modal_element_wrap {
+    & .create_page_modal_menu {
+      width: 100%;
+      height: 40px;
+      border-bottom: 1px solid #d0d0d0;
       display: flex;
+      align-items: center;
       justify-content: space-between;
-      gap: 20px;
+      padding: 10px;
 
-      & .create_page_modal_element_column {
-        width: 100px;
+      & h2 {
+        font-size: 15px;
+        transform: translateY(2px);
+        color: #d0d0d0;
+      }
+    }
+
+    & .create_page_modal_content {
+      width: 100%;
+      height: calc(100% - 40px);
+      overflow-y: scroll;
+      padding: 15px;
+
+      & .create_page_modal_element_wrap {
         display: flex;
-        flex-direction: column;
-        gap: 10px;
+        justify-content: space-between;
+        gap: 20px;
 
-        & .create_page_modal_element {
-          width: 100%;
-          margin: 0;
-          padding: 5px;
-          border: none;
-          background: none;
-          box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-          border-radius: 8px;
-          overflow: hidden;
-          cursor: pointer;
+        & .create_page_modal_element_column {
+          width: 100px;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
 
-          & img {
+          & .create_page_modal_element {
             width: 100%;
-            display: block;
+            margin: 0;
+            padding: 5px;
+            border: none;
+            background: none;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             border-radius: 8px;
-            object-fit: scale-down;
+            overflow: hidden;
+            cursor: pointer;
+
+            & img {
+              width: 100%;
+              display: block;
+              border-radius: 8px;
+              object-fit: scale-down;
+            }
           }
+        }
+      }
+    }
+
+    & .create_page_modal_icon {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+
+      & svg {
+        width: 100%;
+        height: 100%;
+        color: #d0d0d0;
+      }
+
+      &.create_page_modal_icon_expand {
+        position: absolute;
+        cursor: nwse-resize;
+        bottom: -6px;
+        right: -6px;
+        transform: rotate(-45deg);
+      }
+    }
+
+    .create_page_modal_error {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      font-weight: bold;
+      color: rgb(85, 85, 85);
+      font-size: 1.2rem;
+
+      & svg {
+        margin-bottom: 15px;
+        width: 30px;
+        color: rgb(85, 85, 85);
+        height: auto;
+      }
+
+      & span {
+        font-weight: normal;
+        display: block;
+        margin-top: 10px;
+        font-size: 0.9rem;
+        color: rgb(130, 130, 130);
+      }
+    }
+
+    @media (max-width: 600px) {
+      width: 100%;
+      position: fixed;
+      top: calc(100% - 200px);
+      left: 0px;
+      border-radius: 20px 20px 0px 0px;
+      z-index: 6000;
+      padding-bottom: 0px;
+      will-change: transform;
+
+      &::after {
+        content: '';
+        position: absolute;
+        top: 12px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 30px;
+        height: 3px;
+        background-color: #d0d0d0;
+        border-radius: 3px;
+        cursor: pointer;
+      }
+
+      & .create_page_modal_content {
+        height: 100%;
+      }
+
+      & .create_page_modal_icon {
+        display: none;
+      }
+
+      & .create_page_modal_menu {
+        border-bottom: none;
+
+        & h2 {
+          display: none;
+        }
+        & i {
+          display: none;
         }
       }
     }
   }
 
-  & .create_page_modal_icon {
-    width: 20px;
-    height: 20px;
-    cursor: pointer;
-
-    & svg {
-      width: 100%;
-      height: 100%;
-      color: #d0d0d0;
-    }
-
-    &.create_page_modal_icon_expand {
-      position: absolute;
-      cursor: nwse-resize;
-      bottom: -6px;
-      right: -6px;
-      transform: rotate(-45deg);
-    }
-  }
-
-  @media (max-width: 600px) {
-    width: 100%;
-    position: fixed;
-    top: calc(100% - 200px);
-    left: 0px;
-    border-radius: 20px 20px 0px 0px;
-    z-index: 6000;
-    padding-bottom: 0px;
-    will-change: transform;
-
-    &::after {
-      content: '';
-      position: absolute;
-      top: 12px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 30px;
-      height: 3px;
-      background-color: #d0d0d0;
-      border-radius: 3px;
-      cursor: pointer;
-    }
-
-    & .create_page_modal_content {
-      height: 100%;
-    }
-
-    & .create_page_modal_icon {
-      display: none;
-    }
-
-    & .create_page_modal_menu {
-      border-bottom: none;
-
-      & h2 {
-        display: none;
-      }
-      & i {
-        display: none;
-      }
-    }
-  }
-}
-
-.create_page_modal_dim {
-  display: none;
-}
-
-@media (max-width: 600px) {
-  .create_page_modal_dim {
+  & .create_page_modal_dim {
     display: block;
     position: fixed;
     top: 0px;
