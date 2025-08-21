@@ -256,6 +256,10 @@
     padding: 16px;
 
     .upload_container {
+      max-height: 80svh;
+      overflow-y: auto;
+      display: block;
+
       .upload_header {
         padding: 16px 20px;
 
@@ -268,12 +272,14 @@
         padding: 20px 0px 10px;
 
         img {
-          max-height: 250px;
+          max-height: 200px;
         }
       }
 
       .upload_form {
         padding: 20px;
+        flex: none;
+        overflow-y: visible;
       }
     }
   }
