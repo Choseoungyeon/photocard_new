@@ -1,14 +1,13 @@
 .buttonContainer {
   width: 100%;
   height: 50px;
-  background-color: rgba(177, 177, 177, 0.9);
+  background-color: #6b7280;
   border-radius: 5px;
   color: white;
   transition: 0.5s;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding-top: 5px;
 
   & .button_loading_icon {
     margin-right: 10px;
@@ -16,10 +15,17 @@
   }
 
   &:disabled {
-    background-color: rgb(229, 229, 229);
+    background-color: #d1d5db;
   }
 
   &:hover:not(:disabled) {
-    background-color: rgb(149, 149, 149);
+    background-color: #4b5563;
+  }
+}
+
+/* 모바일에서 호버 효과 비활성화 */
+@media (hover: none) and (pointer: coarse) {
+  .buttonContainer:hover:not(:disabled) {
+    background-color: #6b7280;
   }
 }

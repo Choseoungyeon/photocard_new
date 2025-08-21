@@ -3,10 +3,9 @@ import React from 'react';
 import Dropzone from 'react-dropzone';
 import clsx from 'clsx';
 import Moveable, { OnDrag, OnResize, OnScale, OnRotate } from 'react-moveable';
-import { LuImagePlus, LuPlus } from 'react-icons/lu';
-import { LuImage, LuArrowDownToLine, LuSticker } from 'react-icons/lu';
-import { FaRibbon } from 'react-icons/fa';
+import { FiUpload, FiPlus, FiImage, FiDownload, FiSmile, FiGift, FiSave } from 'react-icons/fi';
 import Modal from './_component/modal';
+import UploadModal from './_component/UploadModal';
 import '@/app/style/page/create.scss';
 import { useMutation } from '@tanstack/react-query';
 import customFetch from '@/app/_hook/customFetch';
@@ -20,6 +19,12 @@ function Create() {
   const [modalStickerActive, setModalStickerActive] = React.useState(false);
   const [modalError, setModalError] = React.useState(false);
   const [modalErrorMsg, setModalErrorMsg] = React.useState('');
+  const [uploadModalOpen, setUploadModalOpen] = React.useState(false);
+  const [uploadData, setUploadData] = React.useState<{
+    imageData: string;
+    originalImage: string;
+    stickers: string[];
+  } | null>(null);
   const [stickerImageList, setStickerImageList] = React.useState<
     { public_id: string; url: string }[]
   >([]);
@@ -488,6 +493,97 @@ function Create() {
 
   const [isLoadingImages, setIsLoadingImages] = React.useState(false);
 
+  // 저장 핸들러 - 업로드 모달 열기
+  const saveClickHandler = async () => {
+    if (!image) {
+      setModalError(true);
+      setModalErrorMsg('이미지를 먼저 추가해주세요.');
+      return;
+    }
+
+    // 현재 캔버스 데이터를 생성
+    const canvas = document.createElement('canvas');
+    const creatBoxBoundingBox = createBoxRef.current?.getBoundingClientRect();
+    const targetImg = targetRef.current;
+
+    if (!creatBoxBoundingBox || !targetImg) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    canvas.width = creatBoxBoundingBox.width;
+    canvas.height = creatBoxBoundingBox.height;
+
+    try {
+      // 캔버스에 현재 상태 그리기 (비동기 처리)
+      await drawImageOnCanvas(
+        ctx,
+        image,
+        targetImg,
+        canvas.width,
+        canvas.height,
+        canvas.width,
+        canvas.height,
+      );
+
+      // 스티커/리본 이미지들도 그리기 (비동기 처리)
+      const childrenArray = elementWrapRef.current?.children;
+      if (childrenArray && childrenArray.length > 0) {
+        const drawPromises = Array.from(childrenArray).map(async (item: Element) => {
+          const src = item.getAttribute('src');
+          if (src) {
+            await drawImageOnCanvas(
+              ctx,
+              src,
+              item as HTMLElement,
+              canvas.width,
+              canvas.height,
+              canvas.width,
+              canvas.height,
+            );
+          }
+        });
+        await Promise.all(drawPromises);
+      }
+
+      // 캔버스를 이미지로 변환
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          setModalError(true);
+          setModalErrorMsg('이미지 생성에 실패했습니다.');
+          return;
+        }
+
+        // 이미지 데이터를 URL로 변환
+        const imageUrl = URL.createObjectURL(blob);
+
+        // 업로드 데이터 설정
+        const newUploadData = {
+          imageData: imageUrl,
+          originalImage: image,
+          stickers: moveableElementImg,
+        };
+
+        setUploadData(newUploadData);
+        setUploadModalOpen(true);
+      }, 'image/png');
+    } catch (error) {
+      console.error('이미지 생성 오류:', error);
+      setModalError(true);
+      setModalErrorMsg('이미지 생성 중 오류가 발생했습니다.');
+    }
+  };
+
+  // 페이지 진입 시 body overflow hidden, 페이지 벗어날 때 복원
+  React.useEffect(() => {
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, []);
+
   return (
     <div className="create_page" onClick={blurHandler}>
       <div className="create_box_wrap">
@@ -508,7 +604,7 @@ function Create() {
                 <div className="create_box_icon_wrap" {...getRootProps()}>
                   <input {...getInputProps()} />
                   <i className="create_box_icon">
-                    <LuImagePlus />
+                    <FiUpload />
                   </i>
                 </div>
               )}
@@ -558,14 +654,14 @@ function Create() {
             onClick={() => setMenuActive(!menuActive)}
           >
             <i className="create_box_menu_icon">
-              <LuPlus />
+              <FiPlus />
             </i>
           </span>
           {menuActive ? (
             <>
               <span className="create_box_menu_item">
                 <i className="create_box_menu_icon">
-                  <LuImage />
+                  <FiImage />
                 </i>
               </span>
               <span
@@ -574,7 +670,7 @@ function Create() {
                 style={{ pointerEvents: isLoadingImages ? 'none' : 'auto' }}
               >
                 <i className="create_box_menu_icon">
-                  <FaRibbon />
+                  <FiGift />
                 </i>
               </span>
               <span
@@ -583,12 +679,17 @@ function Create() {
                 style={{ pointerEvents: isLoadingImages ? 'none' : 'auto' }}
               >
                 <i className="create_box_menu_icon">
-                  <LuSticker />
+                  <FiSmile />
                 </i>
               </span>
               <span className="create_box_menu_item" onClick={downloadClickHandler}>
                 <i className="create_box_menu_icon">
-                  <LuArrowDownToLine />
+                  <FiDownload />
+                </i>
+              </span>
+              <span className="create_box_menu_item" onClick={saveClickHandler}>
+                <i className="create_box_menu_icon">
+                  <FiSave />
                 </i>
               </span>
             </>
@@ -627,6 +728,15 @@ function Create() {
         open={modalError}
         errorMessage={modalErrorMsg}
         onClose={() => setModalError(false)}
+      />
+
+      <UploadModal
+        isOpen={uploadModalOpen}
+        onClose={() => {
+          setUploadModalOpen(false);
+          setUploadData(null);
+        }}
+        uploadData={uploadData}
       />
     </div>
   );

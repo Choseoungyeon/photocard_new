@@ -102,14 +102,14 @@ export default function NextAuth() {
           </div>
         </form>
         <Link href={'/forgot-password'}>비밀번호를 잃어버리셨나요?</Link>
-        <div className="login_socail_btn">
+        {/* <div className="login_socail_btn">
           <Button className="naver_logn_btn" backgroundColor="transparent" onClick={naverLogin}>
             <Image src="/naver_login_btn.png" width={40} height={40} alt="login_btn" unoptimized />
           </Button>
           <Button className="naver_logn_btn" backgroundColor="transparent" onClick={naverLogin}>
             <Image src="/google_login_btn.png" width={40} height={40} alt="login_btn" unoptimized />
           </Button>
-        </div>
+        </div> */}
       </div>
     </div>
   );

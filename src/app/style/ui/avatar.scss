@@ -1,0 +1,156 @@
+.avatar {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-weight: 500;
+  background-color: #21262d;
+  color: #c9d1d9;
+  overflow: hidden;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+  // Variants
+  &--circle {
+    border-radius: 50%;
+  }
+
+  &--square {
+    border-radius: 6px;
+  }
+
+  // Sizes
+  &--xs {
+    width: 24px;
+    height: 24px;
+    font-size: 10px;
+
+    .avatar__status {
+      width: 6px;
+      height: 6px;
+      right: 0;
+      bottom: 0;
+    }
+  }
+
+  &--sm {
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
+
+    .avatar__status {
+      width: 8px;
+      height: 8px;
+      right: 1px;
+      bottom: 1px;
+    }
+  }
+
+  &--md {
+    width: 40px;
+    height: 40px;
+    font-size: 14px;
+
+    .avatar__status {
+      width: 10px;
+      height: 10px;
+      right: 2px;
+      bottom: 2px;
+    }
+  }
+
+  &--lg {
+    width: 48px;
+    height: 48px;
+    font-size: 16px;
+
+    .avatar__status {
+      width: 12px;
+      height: 12px;
+      right: 3px;
+      bottom: 3px;
+    }
+  }
+
+  &--xl {
+    width: 64px;
+    height: 64px;
+    font-size: 20px;
+
+    .avatar__status {
+      width: 16px;
+      height: 16px;
+      right: 4px;
+      bottom: 4px;
+    }
+  }
+
+  // Image
+  &__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+
+    &--loaded {
+      opacity: 1;
+    }
+  }
+
+  // Fallback
+  &__fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    background-color: #5e6ad2;
+    color: #ffffff;
+    font-weight: 600;
+  }
+
+  // Content
+  &__content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+  }
+
+  // Status
+  &__status {
+    position: absolute;
+    border-radius: 50%;
+    border: 2px solid #0d1117;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.3);
+
+    &--online {
+      background-color: #3fb950;
+    }
+
+    &--offline {
+      background-color: #8b949e;
+    }
+
+    &--away {
+      background-color: #d29922;
+    }
+
+    &--busy {
+      background-color: #f85149;
+    }
+  }
+
+  // Hover effects
+  &:hover {
+    transform: scale(1.05);
+  }
+
+  // Focus state
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(94, 106, 210, 0.24);
+  }
+}

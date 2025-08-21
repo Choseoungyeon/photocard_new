@@ -1,7 +1,7 @@
 import * as React from 'react';
 import clsx from 'clsx';
 import LoadingBar from './LodaingBar';
-import '@/app/style/ui/button.scss';
+import '@/app/style/ui/button-theme.scss';
 
 type Props = {
   children: React.ReactNode;
@@ -12,6 +12,8 @@ type Props = {
   loading?: boolean;
   disabled?: boolean;
   onClick?: () => void;
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
+  size?: 'small' | 'medium' | 'large';
 };
 
 export default function Button(props: Props) {
@@ -24,14 +26,24 @@ export default function Button(props: Props) {
     loading,
     type = 'button',
     disabled,
+    variant = 'primary',
+    size = 'medium',
     ...resProps
   } = props;
   return (
     <button
-      className={clsx('buttonContainer', className)}
+      className={clsx(
+        'buttonContainer',
+        `buttonContainer--${variant}`,
+        `buttonContainer--${size}`,
+        {
+          'buttonContainer--loading': loading,
+        },
+        className,
+      )}
       onClick={onClick}
       type={type}
-      style={{ backgroundColor: backgroundColor }}
+      style={backgroundColor ? { backgroundColor } : undefined}
       disabled={disabled}
     >
       {loading && (

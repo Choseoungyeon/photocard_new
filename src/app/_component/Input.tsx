@@ -5,12 +5,13 @@ import { Controller } from 'react-hook-form';
 import type { Control, RegisterOptions } from 'react-hook-form';
 import clsx from 'clsx';
 import * as React from 'react';
-import '@/app/style/ui/input.scss';
+import '@/app/style/ui/input-theme.scss';
 
 type Props = {
   label?: string;
   name?: string;
   prefixIcon?: ReactNode;
+  suffixIcon?: ReactNode;
   showPassword?: boolean;
   error?: string | null | undefined;
   disabled?: boolean;
@@ -18,8 +19,9 @@ type Props = {
   rules?: RegisterOptions;
   onFocus?: React.FocusEventHandler<HTMLInputElement | HTMLTextAreaElement>;
   onBlur?: React.FocusEventHandler<HTMLInputElement | HTMLTextAreaElement>;
-} & TextareaHTMLAttributes<HTMLTextAreaElement> &
-  InputHTMLAttributes<HTMLInputElement>;
+  size?: 'small' | 'medium' | 'large';
+} & Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'size'> &
+  Omit<InputHTMLAttributes<HTMLInputElement>, 'size'>;
 
 interface InputRef {
   focus: () => void;
@@ -35,6 +37,7 @@ export default React.forwardRef<InputRef, Props>(function Input(props, ref) {
     label,
     name,
     prefixIcon,
+    suffixIcon,
     showPassword,
     value,
     onChange,
@@ -45,6 +48,7 @@ export default React.forwardRef<InputRef, Props>(function Input(props, ref) {
     rules,
     onFocus,
     onBlur,
+    size = 'medium',
     ...restProps
   } = props;
 
@@ -59,7 +63,14 @@ export default React.forwardRef<InputRef, Props>(function Input(props, ref) {
   }));
 
   return (
-    <div className={clsx('inputContainer', disabled && 'disabled', error && 'error')}>
+    <div
+      className={clsx(
+        'inputContainer',
+        `inputContainer--${size}`,
+        disabled && 'disabled',
+        error && 'error',
+      )}
+    >
       {label && <label htmlFor={name}>{label}</label>}
       <div className={clsx('inputWrap', error && 'error')}>
         {prefixIcon}
@@ -85,6 +96,7 @@ export default React.forwardRef<InputRef, Props>(function Input(props, ref) {
                       placeholder={placeholder}
                       disabled={disabled}
                       ref={inputRef as React.LegacyRef<HTMLInputElement>}
+                      {...restProps}
                     />
                   )}
                 />
@@ -99,6 +111,7 @@ export default React.forwardRef<InputRef, Props>(function Input(props, ref) {
                   placeholder={placeholder}
                   disabled={disabled}
                   ref={inputRef as React.LegacyRef<HTMLInputElement>}
+                  {...restProps}
                 />
               )}
             </div>
@@ -107,18 +120,47 @@ export default React.forwardRef<InputRef, Props>(function Input(props, ref) {
                 {passwordVisible ? <IoMdEyeOff /> : <IoMdEye />}
               </div>
             )}
+            {suffixIcon && !showPassword && <div className="suffix-icon">{suffixIcon}</div>}
           </>
         ) : (
-          <textarea
-            name={name}
-            value={value}
-            onChange={onChange}
-            onFocus={onFocus}
-            onBlur={onBlur}
-            placeholder={placeholder}
-            disabled={disabled}
-            ref={inputRef as React.LegacyRef<HTMLTextAreaElement>}
-          />
+          <div className="textarea-container">
+            {control && name ? (
+              <Controller
+                control={control}
+                name={name}
+                rules={rules}
+                render={(data) => (
+                  <textarea
+                    name={name}
+                    value={data.field.value}
+                    onChange={(value) => {
+                      data.field.onChange(value);
+                      if (onChange) onChange(value);
+                    }}
+                    onFocus={onFocus}
+                    onBlur={onBlur}
+                    placeholder={placeholder}
+                    disabled={disabled}
+                    ref={inputRef as React.LegacyRef<HTMLTextAreaElement>}
+                    {...restProps}
+                  />
+                )}
+              />
+            ) : (
+              <textarea
+                name={name}
+                value={value}
+                onChange={onChange}
+                onFocus={onFocus}
+                onBlur={onBlur}
+                placeholder={placeholder}
+                disabled={disabled}
+                ref={inputRef as React.LegacyRef<HTMLTextAreaElement>}
+                {...restProps}
+              />
+            )}
+            {suffixIcon && <div className="textarea-suffix-icon">{suffixIcon}</div>}
+          </div>
         )}
       </div>
       {error && <p className="input_error_message">{error}</p>}

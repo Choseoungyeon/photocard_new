@@ -1,9 +1,10 @@
 'use client';
 import React, { useCallback } from 'react';
-import { LuX, LuMenu, LuAlertCircle } from 'react-icons/lu';
+import { FiX, FiMenu, FiAlertCircle } from 'react-icons/fi';
 import './modal.scss';
 import clsx from 'clsx';
 import { gsap } from 'gsap';
+import Button from '@/app/_component/Button';
 
 interface CreateProps {
   className?: string;
@@ -335,15 +336,20 @@ function Create(props: CreateProps) {
               className="create_page_modal_icon create_page_modal_icon_close"
               onClick={closeButtonClick}
             >
-              <LuX />
+              <FiX />
             </i>
           </div>
           <div className="create_page_modal_content">
             {isError ? (
-              <p className="create_page_modal_error">
-                <LuAlertCircle />
-                {errorMessage}
-              </p>
+              <>
+                <p className="create_page_modal_error">
+                  <FiAlertCircle />
+                  {errorMessage}
+                </p>
+                <Button variant="primary" onClick={closeButtonClick}>
+                  확인
+                </Button>
+              </>
             ) : (
               <>
                 <div className="create_page_modal_element_wrap">
@@ -367,7 +373,7 @@ function Create(props: CreateProps) {
                   ref={expandIconRef}
                   onMouseDown={handleExpandMouseDown}
                 >
-                  <LuMenu />
+                  <FiMenu />
                 </i>
               </>
             )}

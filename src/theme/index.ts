@@ -1,0 +1,273 @@
+export const theme = {
+  name: 'Linear Dark Theme',
+  version: '1.0',
+  description: 'Linear.app original dark theme based on their design system',
+  baseTheme: 'dark',
+  colors: {
+    primary: {
+      brand: '#5E6AD2',
+      accent: '#8B5FD6',
+      accentHover: '#9A6EE8',
+      accentActive: '#AB7EFA',
+    },
+    backgrounds: {
+      primary: '#0D1117',
+      secondary: '#161B22',
+      tertiary: '#21262D',
+      elevated: '#161B22',
+      overlay: 'rgba(13, 17, 23, 0.95)',
+      modal: '#21262D',
+      panel: '#0D1117',
+      surface: '#161B22',
+      surfaceHover: '#21262D',
+      surfaceActive: '#30363D',
+    },
+    text: {
+      primary: '#F0F6FC',
+      secondary: '#C9D1D9',
+      tertiary: '#8B949E',
+      quaternary: '#6E7681',
+      placeholder: '#484F58',
+      disabled: '#30363D',
+      inverse: '#0D1117',
+      accent: '#5E6AD2',
+      success: '#3FB950',
+      warning: '#D29922',
+      error: '#F85149',
+      info: '#58A6FF',
+    },
+    borders: {
+      primary: '#30363D',
+      secondary: '#21262D',
+      tertiary: '#484F58',
+      focus: '#5E6AD2',
+      success: '#3FB950',
+      warning: '#D29922',
+      error: '#F85149',
+      transparent: 'transparent',
+    },
+    icons: {
+      primary: '#C9D1D9',
+      secondary: '#8B949E',
+      tertiary: '#6E7681',
+      disabled: '#30363D',
+      accent: '#5E6AD2',
+      success: '#3FB950',
+      warning: '#D29922',
+      error: '#F85149',
+    },
+    states: {
+      hover: 'rgba(94, 106, 210, 0.12)',
+      active: 'rgba(94, 106, 210, 0.20)',
+      focus: 'rgba(94, 106, 210, 0.24)',
+      disabled: 'rgba(139, 148, 158, 0.2)',
+      selected: 'rgba(94, 106, 210, 0.16)',
+      pressed: 'rgba(94, 106, 210, 0.32)',
+    },
+    gradients: {
+      primary: 'linear-gradient(135deg, #5E6AD2 0%, #8B5FD6 100%)',
+      secondary: 'linear-gradient(135deg, #21262D 0%, #30363D 100%)',
+      surface: 'linear-gradient(180deg, rgba(22, 27, 34, 0) 0%, rgba(22, 27, 34, 0.8) 100%)',
+      hero: 'linear-gradient(135deg, rgba(94, 106, 210, 0.3) 0%, rgba(139, 95, 214, 0.3) 50%, rgba(255, 255, 255, 0.1) 100%)',
+    },
+  },
+  typography: {
+    fontFamily: {
+      primary: "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+      display: "Inter Display, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+      mono: "SF Mono, Monaco, Inconsolata, 'Roboto Mono', Consolas, 'Courier New', monospace",
+    },
+    fontSize: {
+      xs: '11px',
+      sm: '12px',
+      md: '13px',
+      lg: '14px',
+      xl: '16px',
+      '2xl': '18px',
+      '3xl': '20px',
+      '4xl': '24px',
+      '5xl': '28px',
+      '6xl': '32px',
+      '7xl': '36px',
+      '8xl': '48px',
+    },
+    lineHeight: {
+      tight: 1.2,
+      normal: 1.4,
+      relaxed: 1.6,
+      loose: 1.8,
+    },
+    fontWeight: {
+      light: 300,
+      normal: 400,
+      medium: 500,
+      semibold: 600,
+      bold: 700,
+      extrabold: 800,
+    },
+  },
+  spacing: {
+    px: '1px',
+    0: '0px',
+    1: '4px',
+    2: '8px',
+    3: '12px',
+    4: '16px',
+    5: '20px',
+    6: '24px',
+    7: '28px',
+    8: '32px',
+    10: '40px',
+    12: '48px',
+    16: '64px',
+    20: '80px',
+    24: '96px',
+    32: '128px',
+  },
+  borderRadius: {
+    none: '0px',
+    sm: '2px',
+    md: '4px',
+    lg: '6px',
+    xl: '8px',
+    '2xl': '12px',
+    '3xl': '16px',
+    full: '9999px',
+  },
+  shadows: {
+    sm: '0 1px 2px rgba(0, 0, 0, 0.24)',
+    md: '0 2px 4px rgba(0, 0, 0, 0.24), 0 1px 2px rgba(0, 0, 0, 0.16)',
+    lg: '0 4px 8px rgba(0, 0, 0, 0.24), 0 2px 4px rgba(0, 0, 0, 0.16)',
+    xl: '0 8px 16px rgba(0, 0, 0, 0.24), 0 4px 8px rgba(0, 0, 0, 0.16)',
+    '2xl': '0 16px 32px rgba(0, 0, 0, 0.32), 0 8px 16px rgba(0, 0, 0, 0.16)',
+    focus: '0 0 0 3px rgba(94, 106, 210, 0.24)',
+    glow: '0 0 20px rgba(94, 106, 210, 0.4)',
+  },
+  components: {
+    sidebar: {
+      width: '240px',
+      background: '#0D1117',
+      borderColor: '#30363D',
+    },
+    header: {
+      height: '48px',
+      background: '#161B22',
+      borderColor: '#30363D',
+    },
+    button: {
+      primary: {
+        background: '#5E6AD2',
+        backgroundHover: '#6B77D9',
+        backgroundActive: '#7884E0',
+        text: '#FFFFFF',
+        border: 'transparent',
+      },
+      secondary: {
+        background: '#21262D',
+        backgroundHover: '#30363D',
+        backgroundActive: '#484F58',
+        text: '#C9D1D9',
+        border: '#30363D',
+      },
+      ghost: {
+        background: 'transparent',
+        backgroundHover: '#21262D',
+        backgroundActive: '#30363D',
+        text: '#C9D1D9',
+        border: 'transparent',
+      },
+      danger: {
+        background: '#DA3633',
+        backgroundHover: '#E6484F',
+        backgroundActive: '#F85149',
+        text: '#FFFFFF',
+        border: 'transparent',
+      },
+    },
+    input: {
+      background: '#0D1117',
+      backgroundFocus: '#161B22',
+      border: '#30363D',
+      borderFocus: '#5E6AD2',
+      text: '#F0F6FC',
+      placeholder: '#6E7681',
+    },
+    navigation: {
+      active: {
+        background: 'rgba(94, 106, 210, 0.16)',
+        text: '#5E6AD2',
+      },
+      hover: {
+        background: '#21262D',
+        text: '#F0F6FC',
+      },
+    },
+    card: {
+      background: '#161B22',
+      backgroundHover: '#21262D',
+      border: '#30363D',
+    },
+    dropdown: {
+      background: '#21262D',
+      border: '#30363D',
+      shadow: '0 8px 24px rgba(0, 0, 0, 0.48)',
+    },
+    tooltip: {
+      background: '#484F58',
+      text: '#F0F6FC',
+    },
+  },
+  animations: {
+    duration: {
+      fast: '100ms',
+      normal: '150ms',
+      medium: '200ms',
+      slow: '300ms',
+      slower: '500ms',
+    },
+    easing: {
+      linear: 'linear',
+      easeIn: 'cubic-bezier(0.4, 0, 1, 1)',
+      easeOut: 'cubic-bezier(0, 0, 0.2, 1)',
+      easeInOut: 'cubic-bezier(0.4, 0, 0.2, 1)',
+      bounce: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+    },
+  },
+  breakpoints: {
+    xs: '475px',
+    sm: '640px',
+    md: '768px',
+    lg: '1024px',
+    xl: '1280px',
+    '2xl': '1400px',
+  },
+} as const;
+
+export type Theme = typeof theme;
+export type ThemeColors = typeof theme.colors;
+export type ThemeTypography = typeof theme.typography;
+export type ThemeSpacing = typeof theme.spacing;
+export type ThemeBorderRadius = typeof theme.borderRadius;
+export type ThemeShadows = typeof theme.shadows;
+export type ThemeComponents = typeof theme.components;
+export type ThemeAnimations = typeof theme.animations;
+export type ThemeBreakpoints = typeof theme.breakpoints;
+
+// Additional theme exports
+export const zIndex = {
+  hide: -1,
+  auto: 'auto',
+  base: 0,
+  docked: 10,
+  dropdown: 1000,
+  sticky: 1100,
+  banner: 1200,
+  overlay: 1300,
+  modal: 1400,
+  popover: 1500,
+  skipLink: 1600,
+  toast: 1700,
+  tooltip: 1800,
+} as const;
+
+export type ThemeZIndex = typeof zIndex;

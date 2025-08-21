@@ -1,0 +1,201 @@
+.components-page {
+  min-height: 100vh;
+  background-color: #0d1117;
+  padding: 32px;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  .components-header {
+    text-align: center;
+    margin-bottom: 48px;
+
+    h1 {
+      font-size: 32px;
+      font-weight: 700;
+      color: #f0f6fc;
+      margin-bottom: 8px;
+    }
+
+    p {
+      font-size: 16px;
+      color: #8b949e;
+      margin: 0;
+    }
+  }
+
+  .components-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    gap: 48px;
+  }
+
+  .component-section {
+    background-color: #161b22;
+    border-radius: 12px;
+    border: 1px solid #30363d;
+    overflow: hidden;
+
+    h2 {
+      font-size: 24px;
+      font-weight: 600;
+      color: #f0f6fc;
+      margin: 0;
+      padding: 24px 24px 16px 24px;
+      border-bottom: 1px solid #21262d;
+      background-color: #0d1117;
+    }
+
+    .component-demo {
+      padding: 24px;
+    }
+
+    .demo-group {
+      margin-bottom: 32px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      h3 {
+        font-size: 16px;
+        font-weight: 600;
+        color: #c9d1d9;
+        margin: 0 0 16px 0;
+      }
+
+      .demo-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+
+        .buttonContainer {
+          width: auto;
+          min-width: 100px;
+        }
+
+        .inputContainer {
+          width: 200px;
+        }
+
+        .demo-card {
+          width: 200px;
+          min-height: 120px;
+
+          h4 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #f0f6fc;
+            margin: 0 0 8px 0;
+          }
+
+          p {
+            font-size: 14px;
+            color: #8b949e;
+            margin: 0;
+            line-height: 1.5;
+          }
+        }
+
+        .badge {
+          margin-right: 8px;
+        }
+
+        .avatar {
+          margin-right: 16px;
+        }
+      }
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .components-page {
+    padding: 16px;
+
+    .components-header {
+      margin-bottom: 32px;
+
+      h1 {
+        font-size: 24px;
+      }
+
+      p {
+        font-size: 14px;
+      }
+    }
+
+    .components-grid {
+      gap: 32px;
+    }
+
+    .component-section {
+      h2 {
+        font-size: 20px;
+        padding: 20px 20px 12px 20px;
+      }
+
+      .component-demo {
+        padding: 20px;
+      }
+
+      .demo-group {
+        margin-bottom: 24px;
+
+        h3 {
+          font-size: 14px;
+          margin-bottom: 12px;
+        }
+
+        .demo-row {
+          gap: 8px;
+
+          .inputContainer {
+            width: 100%;
+            min-width: 200px;
+          }
+
+          .demo-card {
+            width: 100%;
+            min-width: 200px;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Dark mode support (if needed in the future)
+@media (prefers-color-scheme: dark) {
+  .components-page {
+    background-color: #0d1117;
+
+    .components-header {
+      h1 {
+        color: #ffffff;
+      }
+
+      p {
+        color: #8b949e;
+      }
+    }
+
+    .component-section {
+      background-color: #161b22;
+      border-color: #30363d;
+
+      h2 {
+        color: #ffffff;
+        background-color: #21262d;
+        border-color: #30363d;
+      }
+
+      .demo-group {
+        h3 {
+          color: #f0f6fc;
+        }
+      }
+    }
+  }
+}

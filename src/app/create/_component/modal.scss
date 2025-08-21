@@ -2,25 +2,29 @@
   position: fixed;
   top: 0px;
   left: 0px;
-  z-index: 5000;
+  z-index: 20000;
 
   &.is-active {
-    z-index: 5001;
+    z-index: 20001;
   }
 
   &.is-error {
-    z-index: 6000;
+    z-index: 20002;
     & .create_page_modal {
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      height: 200px;
+      height: auto;
       z-index: inherit;
 
       @media (max-width: 600px) {
-        top: calc(100% - 200px);
+        top: calc(100% - 250px);
         left: 0px;
         transform: none;
+
+        & .create_page_modal_error {
+          margin-top: -10px;
+        }
       }
     }
   }
@@ -28,11 +32,13 @@
   & .create_page_modal {
     width: 320px;
     height: 500px;
-    background-color: #fff;
+    background: rgba(22, 27, 34, 0.95);
+    backdrop-filter: blur(30px);
+    border: 1px solid rgba(48, 54, 61, 0.4);
     overflow: hidden;
     position: fixed;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
     top: 20px;
     left: 20px;
     cursor: pointer;
@@ -45,16 +51,18 @@
     & .create_page_modal_menu {
       width: 100%;
       height: 40px;
-      border-bottom: 1px solid #d0d0d0;
+      border-bottom: 1px solid rgba(48, 54, 61, 0.4);
+      background: rgba(22, 27, 34, 0.8);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 10px;
+      padding: 10px 16px;
 
       & h2 {
         font-size: 15px;
-        transform: translateY(2px);
-        color: #d0d0d0;
+        font-weight: 600;
+        color: #f0f6fc;
+        margin: 0;
       }
     }
 
@@ -62,7 +70,27 @@
       width: 100%;
       height: calc(100% - 40px);
       overflow-y: scroll;
-      padding: 15px;
+      padding: 16px;
+      background: rgba(22, 27, 34, 0.5);
+
+      /* 스크롤바 스타일링 */
+      &::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      &::-webkit-scrollbar-track {
+        background: rgba(22, 27, 34, 0.3);
+        border-radius: 3px;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: rgba(94, 106, 210, 0.4);
+        border-radius: 3px;
+      }
+
+      &::-webkit-scrollbar-thumb:hover {
+        background: rgba(94, 106, 210, 0.6);
+      }
 
       & .create_page_modal_element_wrap {
         display: flex;
@@ -78,13 +106,21 @@
           & .create_page_modal_element {
             width: 100%;
             margin: 0;
-            padding: 5px;
-            border: none;
-            background: none;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
+            padding: 6px;
+            border: 1px solid rgba(48, 54, 61, 0.3);
+            background: rgba(22, 27, 34, 0.6);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
             overflow: hidden;
             cursor: pointer;
+
+            &:hover {
+              border-color: rgba(94, 106, 210, 0.4);
+              background: rgba(94, 106, 210, 0.1);
+              transform: translateY(-2px);
+              box-shadow: 0 8px 20px rgba(94, 106, 210, 0.2);
+            }
 
             & img {
               width: 100%;
@@ -105,7 +141,11 @@
       & svg {
         width: 100%;
         height: 100%;
-        color: #d0d0d0;
+        color: #8b949e;
+      }
+
+      &:hover svg {
+        color: #5e6ad2;
       }
 
       &.create_page_modal_icon_expand {
@@ -123,14 +163,13 @@
       flex-direction: column;
       align-items: center;
       text-align: center;
-      font-weight: bold;
-      color: rgb(85, 85, 85);
+      margin-bottom: 20px;
+      font-weight: 600;
       font-size: 1.2rem;
 
       & svg {
         margin-bottom: 15px;
         width: 30px;
-        color: rgb(85, 85, 85);
         height: auto;
       }
 
@@ -139,7 +178,7 @@
         display: block;
         margin-top: 10px;
         font-size: 0.9rem;
-        color: rgb(130, 130, 130);
+        color: #8b949e;
       }
     }
 
@@ -161,7 +200,7 @@
         transform: translateX(-50%);
         width: 30px;
         height: 3px;
-        background-color: #d0d0d0;
+        background: rgba(94, 106, 210, 0.6);
         border-radius: 3px;
         cursor: pointer;
       }
@@ -194,7 +233,8 @@
     left: 0px;
     width: 100%;
     height: 100vh;
-    background-color: #454545;
-    opacity: 0.5;
+    background: rgba(13, 17, 23, 0.2);
+    backdrop-filter: blur(10px);
+    z-index: 2000;
   }
 }

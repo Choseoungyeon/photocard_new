@@ -1,0 +1,247 @@
+.inputContainer {
+  width: 100%;
+  height: auto;
+  margin-bottom: 10px;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  &.disabled {
+    & label {
+      color: #30363d;
+    }
+
+    & .inputWrap {
+      border: 1px solid #30363d;
+      background-color: #0d1117;
+    }
+
+    & input,
+    & textarea {
+      color: #30363d;
+      cursor: not-allowed;
+    }
+  }
+
+  &.error {
+    & label {
+      color: #f85149;
+    }
+
+    & .inputWrap {
+      border: 1px solid #f85149;
+    }
+  }
+
+  & label {
+    display: block;
+    margin-bottom: 5px;
+    color: #c9d1d9;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  & .input_error_message {
+    color: #f85149;
+    font-size: 12px;
+    margin-top: 5px;
+    font-weight: 400;
+  }
+
+  & .inputWrap {
+    width: 100%;
+    height: auto;
+    min-height: 40px;
+    display: flex;
+    background-color: #0d1117;
+    border-radius: 6px;
+    border: 1px solid #30363d;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+
+    &.error {
+      border: 1px solid #f85149;
+    }
+
+    &.focused {
+      border: 1px solid #5e6ad2;
+      box-shadow: 0 0 0 3px rgba(94, 106, 210, 0.24);
+    }
+
+    & .inputFormWrap {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      height: auto;
+      padding: 0px 12px;
+    }
+
+    & input {
+      width: 100%;
+      height: 100%;
+      box-sizing: border-box;
+      background: none;
+      border: none;
+      outline: none;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 14px;
+      color: #f0f6fc;
+      line-height: 1.4;
+
+      &::placeholder {
+        color: #6e7681;
+      }
+
+      &:disabled {
+        color: #30363d;
+        cursor: not-allowed;
+
+        &:-webkit-autofill,
+        :-webkit-autofill:hover,
+        :-webkit-autofill:focus,
+        :-webkit-autofill:active {
+          -webkit-text-fill-color: #30363d;
+        }
+      }
+
+      &:focus {
+        outline: none;
+      }
+    }
+
+    & .password-icon,
+    & .suffix-icon {
+      width: 25px;
+      height: auto;
+      margin: 0px 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #8b949e;
+      transition: color 0.2s ease;
+
+      &:hover {
+        color: #c9d1d9;
+      }
+
+      & svg {
+        width: 16px;
+        height: 16px;
+      }
+    }
+
+    & .textarea-container {
+      width: 100%;
+      position: relative;
+      display: flex;
+      align-items: flex-start;
+
+      & textarea {
+        width: 100%;
+        min-height: 120px;
+        max-height: 200px;
+        padding: 12px;
+        box-sizing: border-box;
+        background: none;
+        border: none;
+        outline: none;
+        font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-size: 14px;
+        color: #f0f6fc;
+        line-height: 1.4;
+        resize: vertical;
+
+        &::placeholder {
+          color: #6e7681;
+        }
+
+        &:disabled {
+          color: #30363d;
+          cursor: not-allowed;
+        }
+
+        &:focus {
+          outline: none;
+        }
+      }
+
+      & .textarea-suffix-icon {
+        position: absolute;
+        bottom: 12px;
+        right: 12px;
+        width: auto;
+        height: auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #8b949e;
+        pointer-events: none;
+        font-size: 12px;
+        background: rgba(22, 27, 34, 0.8);
+        padding: 4px 8px;
+        border-radius: 4px;
+        border: 1px solid rgba(48, 54, 61, 0.3);
+
+        & svg {
+          width: 16px;
+          height: 16px;
+        }
+      }
+    }
+  }
+
+  // Size variants
+  &.small {
+    & .inputWrap {
+      min-height: 32px;
+
+      & .inputFormWrap {
+        padding: 0px 8px;
+      }
+
+      & input {
+        font-size: 12px;
+      }
+    }
+
+    & label {
+      font-size: 12px;
+    }
+  }
+
+  &.medium {
+    & .inputWrap {
+      min-height: 40px;
+
+      & .inputFormWrap {
+        padding: 0px 12px;
+      }
+
+      & input {
+        font-size: 14px;
+      }
+    }
+
+    & label {
+      font-size: 13px;
+    }
+  }
+
+  &.large {
+    & .inputWrap {
+      min-height: 48px;
+
+      & .inputFormWrap {
+        padding: 0px 16px;
+      }
+
+      & input {
+        font-size: 16px;
+      }
+    }
+
+    & label {
+      font-size: 14px;
+    }
+  }
+}

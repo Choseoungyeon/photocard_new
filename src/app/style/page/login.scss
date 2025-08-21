@@ -1,19 +1,22 @@
-.naver_logn_btn {
-  width: 40px;
-  height: 40px;
+body {
+  width: 100vw;
+  height: 100svh;
 }
 
 .login_inputContainer {
-  width: 100%;
-  height: calc(100vh - 100px);
+  width: 100vw;
+  height: 100svh;
+  overflow: hidden;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
+  justify-content: center;
+  background-color: #0d1117;
 
   & .login_inputWrap {
     max-width: 300px;
     width: 100%;
-    height: 300px;
+    // height: 300px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -21,15 +24,16 @@
 
     & form {
       width: 100%;
+      margin-bottom: 30px;
     }
 
     & a {
       font-size: 0.9rem;
-      color: rgb(173, 173, 173);
+      color: #8b949e;
       transition: 0.5s;
 
       &:hover {
-        color: black;
+        color: #c9d1d9;
       }
     }
 
@@ -39,4 +43,9 @@
       justify-content: space-between;
     }
   }
+}
+
+.naver_logn_btn {
+  width: 40px;
+  height: 40px;
 }
