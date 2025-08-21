@@ -22,11 +22,11 @@ export async function middleware(req: NextRequest, event: NextFetchEvent) {
     }
   }
 
-  if (pathname.startsWith('/create')) {
-    if (!session) {
-      return NextResponse.redirect(new URL('/login', req.url));
-    }
-  }
+  // if (pathname.startsWith('/create')) {
+  //   if (!session) {
+  //     return NextResponse.redirect(new URL('/login', req.url));
+  //   }
+  // }
 }
 
 export const config = {
