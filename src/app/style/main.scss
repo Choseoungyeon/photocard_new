@@ -1,6 +1,10 @@
 @use './base/normalize';
 @use './base/reset';
 
+html {
+  background-color: #0d1117;
+}
+
 .form_inputContainer {
   width: 100vw;
   height: 100svh;

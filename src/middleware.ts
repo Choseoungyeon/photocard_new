@@ -22,11 +22,16 @@ export async function middleware(req: NextRequest, event: NextFetchEvent) {
     }
   }
 
-  // if (pathname.startsWith('/create')) {
-  //   if (!session) {
-  //     return NextResponse.redirect(new URL('/login', req.url));
-  //   }
-  // }
+  // 인증이 필요한 경로들
+  const protectedRoutes = ['/create', '/gallery'];
+
+  for (const path of protectedRoutes) {
+    if (pathname.startsWith(path)) {
+      if (!session) {
+        return NextResponse.redirect(new URL('/login', req.url));
+      }
+    }
+  }
 }
 
 export const config = {
@@ -37,5 +42,6 @@ export const config = {
     '/reset-password/:path*',
     '/set-total-user',
     '/create',
+    '/gallery',
   ],
 };

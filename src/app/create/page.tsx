@@ -667,6 +667,7 @@ function Create() {
             onRotate={({ target, transform }: OnRotate) => {
               target!.style.transform = transform;
             }}
+            pinchable={true}
           />
           <div className="create_box_element_wrap" ref={elementWrapRef}>
             {moveableElementImg.map((item, idx) => {

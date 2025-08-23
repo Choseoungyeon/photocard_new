@@ -47,7 +47,6 @@ export default function NavMenu() {
   const menuItems: MenuItem[] = [
     { icon: <FiHome />, label: '홈', route: '/' },
     { icon: <FiImage />, label: '포토카드 만들기', route: '/create' },
-    { icon: <FiGrid />, label: '컴포넌트', route: '/components' },
   ];
 
   // 로그인하지 않은 경우에만 로그인/회원가입 메뉴 추가
@@ -58,8 +57,9 @@ export default function NavMenu() {
       { icon: <FiUser />, label: '회원가입', route: '/register' },
     );
   } else {
-    // 로그인된 경우 사용자 메뉴 추가
+    // 로그인된 경우 갤러리 메뉴와 사용자 메뉴 추가
     menuItems.push(
+      { icon: <FiGrid />, label: '갤러리', route: '/gallery' },
       { divider: true },
       { icon: <FiUserCheck />, label: '내 계정', route: '/profile' },
       { icon: <FiSettings />, label: '설정', route: '/settings' },
@@ -113,6 +113,13 @@ export default function NavMenu() {
           style={{ zIndex: 10000 }}
         >
           <div className={style.menuContainer} onClick={(e) => e.stopPropagation()}>
+            <button
+              className={style.closeButton}
+              onClick={() => setVisibleMenu(false)}
+              aria-label="메뉴 닫기"
+            >
+              <FiX className={style.closeIcon} />
+            </button>
             {session ? (
               <div className={style.userInfo}>
                 {session.user?.image ? (

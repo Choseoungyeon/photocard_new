@@ -139,6 +139,34 @@
   position: relative;
 }
 
+.closeButton {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: 1px solid rgba(48, 54, 61, 0.5);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #8b949e;
+  z-index: 10;
+}
+
+.closeButton:hover {
+  background: rgba(94, 106, 210, 0.12);
+  border-color: rgba(94, 106, 210, 0.3);
+  color: #5e6ad2;
+}
+
+.closeIcon {
+  font-size: 16px;
+}
+
 @keyframes slideIn {
   from {
     transform: translateX(100%);

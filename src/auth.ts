@@ -63,10 +63,12 @@ export const {
           }),
         });
 
-        const user = await authResponse.json();
-        if (user.resultCode !== 200) throw new CustomError(user.message);
+        const response = await authResponse.json();
 
-        return user;
+        if (response.resultCode !== 200) throw new CustomError(response.message);
+
+        // data 부분만 반환 (NextAuth가 기대하는 형태)
+        return response.data;
       },
     }),
     NaverProvider({
@@ -81,9 +83,9 @@ export const {
   callbacks: {
     async jwt({ token, user, account }) {
       if (account) {
-        if (account.provider == 'credentials') {
+        if (account.provider === 'credentials') {
           if (user) token.accessToken = user.token;
-        } else if (account.provider == 'naver') {
+        } else if (account.provider === 'naver') {
           const authResponse = await fetch(
             `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/naver/login`,
             {
@@ -102,7 +104,7 @@ export const {
           const resData = await authResponse.json();
 
           if (resData.resultCode !== 200) throw new CustomError(resData.message);
-          if (resData) token.accessToken = resData.token;
+          if (resData.data) token.accessToken = resData.data.token;
         }
       }
 

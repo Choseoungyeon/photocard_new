@@ -30,6 +30,7 @@ const customFetch = {
 
     if (typeof window === 'undefined') {
       const session = await auth();
+
       if (session) {
         option.headers = {
           Authorization: `Bearer ${session?.user.accessToken}`,
@@ -39,6 +40,7 @@ const customFetch = {
       }
     } else {
       const session = await getSession();
+
       if (session) {
         option.headers = {
           Authorization: `Bearer ${session?.user.accessToken}`,
