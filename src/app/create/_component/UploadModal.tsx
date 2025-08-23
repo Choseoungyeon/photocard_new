@@ -2,9 +2,11 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { useMutation } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
 import { FiArrowLeft, FiUpload, FiX } from 'react-icons/fi';
 import Input from '@/app/_component/Input';
 import Button from '@/app/_component/Button';
+import customFetch from '@/app/_hook/customFetch';
 import '@/app/style/page/upload.scss';
 
 type FormValues = {
@@ -25,6 +27,7 @@ interface UploadModalProps {
 }
 
 function UploadModal({ isOpen, onClose, uploadData }: UploadModalProps) {
+  const { data: session } = useSession();
   const [generalError, setGeneralError] = React.useState('');
 
   const {
@@ -58,6 +61,10 @@ function UploadModal({ isOpen, onClose, uploadData }: UploadModalProps) {
       throw new Error('이미지가 없습니다.');
     }
 
+    if (!session?.user?.email) {
+      throw new Error('사용자 정보를 찾을 수 없습니다.');
+    }
+
     // 이미지 데이터를 Blob으로 변환
     const response = await fetch(uploadData.imageData);
     const blob = await response.blob();
@@ -68,19 +75,13 @@ function UploadModal({ isOpen, onClose, uploadData }: UploadModalProps) {
     formData.append('content', data.content);
     formData.append('image', blob, 'photocard.png');
 
-    // API 호출
+    // customFetch를 사용한 API 호출
     const uploadUrl = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/photocard/save-formdata`;
-    const result = await fetch(uploadUrl, {
-      method: 'POST',
+    const result = await customFetch.post(uploadUrl, {
       body: formData,
-      credentials: 'include',
     });
 
-    if (!result.ok) {
-      throw new Error('업로드에 실패했습니다.');
-    }
-
-    return result.json();
+    return result;
   };
 
   // 업로드 mutation
@@ -92,7 +93,12 @@ function UploadModal({ isOpen, onClose, uploadData }: UploadModalProps) {
     },
     onError: (error) => {
       console.error('업로드 오류:', error);
-      setGeneralError('업로드 중 오류가 발생했습니다. 다시 시도해주세요.');
+      setGeneralError(error.message || '업로드 중 오류가 발생했습니다. 다시 시도해주세요.');
+
+      // 5초 후 에러 메시지 자동 제거
+      setTimeout(() => {
+        setGeneralError('');
+      }, 5000);
     },
   });
 

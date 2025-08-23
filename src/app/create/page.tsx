@@ -395,24 +395,24 @@ function Create() {
   const stickerMutation = useMutation({
     mutationFn: () => getImagePhoto('Sticker'),
     onSuccess: (res) => {
-      setStickerImageList(res.result.images);
+      setStickerImageList(res.data.images);
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.log('스티커 이미지 로딩 실패:', error);
       setModalError(true);
-      setModalErrorMsg('스티커 이미지 로딩 실패');
+      setModalErrorMsg(error.message || '스티커 이미지 로딩 실패');
     },
   });
 
   const ribbonMutation = useMutation({
     mutationFn: () => getImagePhoto('Ribbon'),
     onSuccess: (res) => {
-      setRibbonImageList(res.result.images);
+      setRibbonImageList(res.data.images);
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.log('리본 이미지 로딩 실패:', error);
       setModalError(true);
-      setModalErrorMsg('리본 이미지 로딩 실패');
+      setModalErrorMsg(error.message || '리본 이미지 로딩 실패');
     },
   });
 
@@ -495,55 +495,89 @@ function Create() {
 
   // 저장 핸들러 - 업로드 모달 열기
   const saveClickHandler = async () => {
-    if (!image) {
-      setModalError(true);
-      setModalErrorMsg('이미지를 먼저 추가해주세요.');
-      return;
-    }
-
-    // 현재 캔버스 데이터를 생성
-    const canvas = document.createElement('canvas');
-    const creatBoxBoundingBox = createBoxRef.current?.getBoundingClientRect();
-    const targetImg = targetRef.current;
-
-    if (!creatBoxBoundingBox || !targetImg) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    canvas.width = creatBoxBoundingBox.width;
-    canvas.height = creatBoxBoundingBox.height;
-
     try {
-      // 캔버스에 현재 상태 그리기 (비동기 처리)
-      await drawImageOnCanvas(
-        ctx,
-        image,
-        targetImg,
-        canvas.width,
-        canvas.height,
-        canvas.width,
-        canvas.height,
-      );
-
-      // 스티커/리본 이미지들도 그리기 (비동기 처리)
       const childrenArray = elementWrapRef.current?.children;
+      const creatBoxBoundingBox = createBoxRef.current?.getBoundingClientRect();
+      const targetImg = targetRef.current;
+
+      if (!creatBoxBoundingBox) return;
+      if (!image) {
+        setModalError(true);
+        setModalErrorMsg('이미지를 먼저 추가해주세요.');
+        return;
+      }
+
+      const mainImage = await loadImage(image);
+
+      const maxHeight = 2000;
+      const ratio = 360 / 500;
+      let finalHeight = Math.min(mainImage.naturalHeight, maxHeight);
+      let finalWidth = finalHeight * ratio;
+
+      const maxPixels = 2000000;
+      if (finalWidth * finalHeight > maxPixels) {
+        const currentRatio = finalWidth / finalHeight;
+        finalHeight = Math.sqrt(maxPixels / currentRatio);
+        finalWidth = finalHeight * currentRatio;
+      }
+
+      const canvas = document.createElement('canvas');
+      const originalWidth = creatBoxBoundingBox.width;
+      const originalHeight = creatBoxBoundingBox.height;
+      canvas.width = finalWidth;
+      canvas.height = finalHeight;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      // 둥근 모서리 클리핑 적용 (8px radius)
+      const radius = 8 * (finalWidth / originalWidth); // 스케일에 맞춰 radius 조정
+      ctx.beginPath();
+      ctx.moveTo(radius, 0);
+      ctx.lineTo(canvas.width - radius, 0);
+      ctx.quadraticCurveTo(canvas.width, 0, canvas.width, radius);
+      ctx.lineTo(canvas.width, canvas.height - radius);
+      ctx.quadraticCurveTo(canvas.width, canvas.height, canvas.width - radius, canvas.height);
+      ctx.lineTo(radius, canvas.height);
+      ctx.quadraticCurveTo(0, canvas.height, 0, canvas.height - radius);
+      ctx.lineTo(0, radius);
+      ctx.quadraticCurveTo(0, 0, radius, 0);
+      ctx.closePath();
+      ctx.clip();
+
+      // 클리핑 영역에 하얀색 배경 설정
+      ctx.fillStyle = 'white';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // 배경 이미지를 먼저 그리기
+      if (targetImg && image) {
+        await drawImageOnCanvas(
+          ctx,
+          image,
+          targetImg,
+          finalWidth,
+          finalHeight,
+          originalWidth,
+          originalHeight,
+        );
+      }
+
+      // 그 다음에 스티커/리본 이미지들을 순차적으로 그리기
       if (childrenArray && childrenArray.length > 0) {
-        const drawPromises = Array.from(childrenArray).map(async (item: Element) => {
+        for (const item of Array.from(childrenArray)) {
+          if (!item) continue;
           const src = item.getAttribute('src');
-          if (src) {
-            await drawImageOnCanvas(
-              ctx,
-              src,
-              item as HTMLElement,
-              canvas.width,
-              canvas.height,
-              canvas.width,
-              canvas.height,
-            );
-          }
-        });
-        await Promise.all(drawPromises);
+          if (!src) continue;
+
+          await drawImageOnCanvas(
+            ctx,
+            src,
+            item as HTMLElement,
+            finalWidth,
+            finalHeight,
+            originalWidth,
+            originalHeight,
+          );
+        }
       }
 
       // 캔버스를 이미지로 변환

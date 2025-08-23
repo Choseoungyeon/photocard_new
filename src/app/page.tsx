@@ -44,10 +44,10 @@ export default function Home() {
               <Button
                 variant="secondary"
                 size="large"
-                onClick={() => router.push('/components')}
+                onClick={() => router.push('/gallery')}
                 className="hero__demo"
               >
-                데모 보기
+                내 갤러리
               </Button>
             </div>
 
