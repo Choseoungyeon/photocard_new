@@ -1,10 +1,9 @@
 'use client';
 
 import React from 'react';
-import { useSession } from 'next-auth/react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { FiPlus, FiSearch, FiFilter, FiTrash2, FiEdit3, FiGrid } from 'react-icons/fi';
+import { FiPlus, FiSearch, FiTrash2, FiEdit3, FiGrid } from 'react-icons/fi';
 import Button from '../_component/Button';
 import Card from '../_component/Card';
 import Skeleton from '../_component/Skeleton';
@@ -28,11 +27,26 @@ interface Photocard {
 }
 
 export default function GalleryClient() {
-  const { data: session } = useSession();
   const router = useRouter();
   const [titleSearch, setTitleSearch] = React.useState('');
-  const [selectedCards, setSelectedCards] = React.useState<string[]>([]);
   const [isSelectMode, setIsSelectMode] = React.useState(false);
+
+  // 이미지들을 미리 로드하는 함수
+  const preloadImages = React.useCallback(async (imageUrls: string[]): Promise<void> => {
+    if (imageUrls.length === 0) return;
+
+    const imagePromises = imageUrls.map((url) => {
+      return new Promise<void>((resolve) => {
+        const img = new Image();
+        img.onload = () => resolve();
+        img.onerror = () => resolve(); // 에러가 나도 계속 진행
+        img.src = url;
+      });
+    });
+
+    // 모든 이미지를 병렬로 로드하되, 일부가 실패해도 계속 진행
+    await Promise.allSettled(imagePromises);
+  }, []);
 
   // 포토카드 목록 조회 (무한 스크롤)
   const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } =
@@ -60,6 +74,10 @@ export default function GalleryClient() {
         const photocards = response.data.productInfo;
         const hasNextPage = response.data.pagination.hasNextPage;
 
+        // 이미지 URL들을 추출하여 미리 로드
+        const imageUrls = photocards.map((card: Photocard) => card.images.main);
+        await preloadImages(imageUrls);
+
         return {
           data: photocards,
           nextPage: hasNextPage ? response.data.pagination.nextCursor : undefined,
@@ -68,7 +86,7 @@ export default function GalleryClient() {
       initialPageParam: undefined,
       getNextPageParam: (lastPage) => lastPage.nextPage,
       staleTime: 5 * 60 * 1000,
-      placeholderData: (previousData) => previousData, // 이전 데이터 유지
+      // placeholderData: (previousData) => previousData, // 이전 데이터 유지
     });
 
   // 모든 페이지의 데이터를 하나의 배열로 합치기
@@ -99,38 +117,6 @@ export default function GalleryClient() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, [handleScroll]);
-
-  // 선택 모드 토글
-  const toggleSelectMode = () => {
-    setIsSelectMode(!isSelectMode);
-    setSelectedCards([]);
-  };
-
-  // 카드 선택/해제
-  const toggleCardSelection = (cardId: string) => {
-    setSelectedCards((prev) =>
-      prev.includes(cardId) ? prev.filter((id) => id !== cardId) : [...prev, cardId],
-    );
-  };
-
-  // 선택된 카드 삭제
-  const deleteSelectedCards = async () => {
-    if (selectedCards.length === 0) return;
-
-    try {
-      // 실제 API 호출
-      await customFetch.post(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/photocard/delete`, {
-        body: { ids: selectedCards },
-      });
-
-      setSelectedCards([]);
-      setIsSelectMode(false);
-      // 무한 쿼리 새로고침
-      window.location.reload();
-    } catch (error) {
-      console.error('삭제 실패:', error);
-    }
-  };
 
   // 스켈레톤 카드들 생성
   const skeletonCards = Array.from({ length: 6 }).map((_, index) => (
@@ -178,22 +164,6 @@ export default function GalleryClient() {
         </div>
       </div>
 
-      {/* 선택된 카드 액션 */}
-      {isSelectMode && selectedCards.length > 0 && (
-        <div className="gallery__selection-actions">
-          <div className="gallery__selection-info">{selectedCards.length}개 선택됨</div>
-          <div className="gallery__selection-buttons">
-            <Button variant="secondary" size="small" onClick={() => setSelectedCards([])}>
-              선택 해제
-            </Button>
-            <Button variant="danger" size="small" onClick={deleteSelectedCards}>
-              <FiTrash2 />
-              삭제
-            </Button>
-          </div>
-        </div>
-      )}
-
       {/* 포토카드 그리드 */}
       <div className="gallery__content">
         {error ? (
@@ -203,7 +173,7 @@ export default function GalleryClient() {
               다시 시도
             </Button>
           </div>
-        ) : isLoading && !titleSearch ? (
+        ) : isLoading ? (
           <div className="gallery__grid">{skeletonCards}</div>
         ) : filteredPhotocards.length === 0 ? (
           <div className="gallery__empty">
@@ -230,22 +200,7 @@ export default function GalleryClient() {
         ) : (
           <div className="gallery__grid">
             {filteredPhotocards.map((card: Photocard) => (
-              <div
-                key={card._id}
-                className={`gallery__card-wrapper ${
-                  selectedCards.includes(card._id) ? 'gallery__card-wrapper--selected' : ''
-                }`}
-              >
-                {isSelectMode && (
-                  <div className="gallery__card-selector">
-                    <input
-                      type="checkbox"
-                      checked={selectedCards.includes(card._id)}
-                      onChange={() => toggleCardSelection(card._id)}
-                      className="gallery__card-checkbox"
-                    />
-                  </div>
-                )}
+              <div key={card._id} className={`gallery__card-wrapper`}>
                 <Card className="gallery__card">
                   <div className="gallery__card-image">
                     <img src={card.images.main} alt={card.title} />

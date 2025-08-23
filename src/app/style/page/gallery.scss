@@ -189,56 +189,6 @@
   }
 }
 
-// Select button
-.gallery__select-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 16px;
-  background: rgba(240, 246, 252, 0.05);
-  border: 1px solid rgba(240, 246, 252, 0.1);
-  border-radius: 6px;
-  color: #f0f6fc;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: rgba(240, 246, 252, 0.08);
-    border-color: rgba(240, 246, 252, 0.2);
-  }
-
-  &.primary {
-    background: #5e6ad2;
-    border-color: #5e6ad2;
-    color: white;
-  }
-}
-
-// Selection actions
-.gallery__selection-actions {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 16px 32px;
-  background: rgba(94, 106, 210, 0.1);
-  border-bottom: 1px solid rgba(94, 106, 210, 0.2);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.gallery__selection-info {
-  font-size: 14px;
-  color: #5e6ad2;
-  font-weight: 500;
-}
-
-.gallery__selection-buttons {
-  display: flex;
-  gap: 12px;
-}
-
 // Content
 .gallery__content {
   max-width: 1200px;
@@ -332,20 +282,6 @@
 .gallery__card-wrapper {
   position: relative;
   transition: all 0.2s ease;
-
-  &--selected {
-    .gallery__card {
-      border-color: #5e6ad2;
-      box-shadow: 0 0 0 2px rgba(94, 106, 210, 0.3);
-    }
-  }
-}
-
-.gallery__card-selector {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  z-index: 10;
 }
 
 .gallery__card-checkbox {

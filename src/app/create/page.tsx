@@ -478,6 +478,27 @@ function Create() {
 
   const [imageLoaded, setImageLoaded] = React.useState(false);
 
+  // 이미지 변경 핸들러
+  const changeImageHandler = () => {
+    // 현재 이미지가 있으면 제거하고 새로운 이미지 업로드 모드로 전환
+    if (image) {
+      setImage(null);
+      setMoveableElementImg([]);
+      setMoveableTarget([]);
+    }
+    // 파일 입력 트리거
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+    fileInput.onchange = (e) => {
+      const files = (e.target as HTMLInputElement).files;
+      if (files && files.length > 0) {
+        dropHandler(Array.from(files));
+      }
+    };
+    fileInput.click();
+  };
+
   React.useEffect(() => {
     if (targetRef.current && imageLoaded) {
       setMoveableTarget([targetRef.current]);
@@ -703,7 +724,11 @@ function Create() {
           </span>
           {menuActive ? (
             <>
-              <span className="create_box_menu_item">
+              <span
+                className="create_box_menu_item"
+                onClick={changeImageHandler}
+                title="이미지 변경"
+              >
                 <i className="create_box_menu_icon">
                   <FiImage />
                 </i>
