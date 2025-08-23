@@ -668,6 +668,9 @@ function Create() {
               target!.style.transform = transform;
             }}
             pinchable={true}
+            pinchThreshold={0}
+            pinchOutside={true}
+            preventDefault={true}
           />
           <div className="create_box_element_wrap" ref={elementWrapRef}>
             {moveableElementImg.map((item, idx) => {
@@ -678,6 +681,12 @@ function Create() {
                   key={`${item}_${idx}`}
                   className="create_box_element"
                   onClick={moveableElementClickHandler}
+                  style={{
+                    touchAction: 'none',
+                    userSelect: 'none',
+                    WebkitUserSelect: 'none',
+                    WebkitTouchCallout: 'none',
+                  }}
                 />
               );
             })}

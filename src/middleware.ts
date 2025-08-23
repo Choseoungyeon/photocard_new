@@ -41,7 +41,7 @@ export const config = {
     '/forgot-password',
     '/reset-password/:path*',
     '/set-total-user',
-    '/create',
+    // '/create',
     '/gallery',
   ],
 };
