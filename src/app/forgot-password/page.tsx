@@ -49,11 +49,11 @@ function ForgotPasswordForm() {
   return (
     <div className="form_inputContainer forgot_password">
       {mutation.isSuccess ? (
-        <p className="success_typing">
-          <FiCheckCircle />
+        <div className="success_typing" role="status" aria-live="polite">
+          <FiCheckCircle aria-hidden="true" />
           본인 확인용 이메일이 전송되었습니다. <br />
           <span>이메일을 확인해주세요.</span>
-        </p>
+        </div>
       ) : (
         <form className="form_inputWrap" onSubmit={handleSubmit(onSubmit)}>
           <Input

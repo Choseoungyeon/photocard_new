@@ -1,12 +1,61 @@
 .error-message {
-  color: red;
-  font-size: 0.9rem;
-  margin-top: 7px;
-  height: 15px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 16px;
+  margin-top: 12px;
+  background-color: rgba(248, 81, 73, 0.1);
+  border: 1px solid rgba(248, 81, 73, 0.2);
+  border-radius: 6px;
+  color: #f85149;
+  font-size: 13px;
+  line-height: 1.4;
+  font-weight: 400;
+  transition: all 0.2s ease-in-out;
+  animation: errorSlideIn 0.2s ease-out;
+
+  &:hover {
+    background-color: rgba(248, 81, 73, 0.15);
+    border-color: rgba(248, 81, 73, 0.3);
+  }
 
   & .error-icon {
-    margin-right: 5px;
-    margin-bottom: 4px;
-    float: left;
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    margin-top: 1px;
+    color: #f85149;
+  }
+
+  & p {
+    margin: 0;
+    color: #f85149;
+    font-size: 13px;
+    line-height: 1.4;
+    font-weight: 400;
+  }
+}
+
+@keyframes errorSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 모바일 최적화 */
+@media (max-width: 768px) {
+  .error-message {
+    padding: 10px 12px;
+    font-size: 12px;
+
+    & .error-icon {
+      width: 14px;
+      height: 14px;
+    }
   }
 }
