@@ -11,5 +11,6 @@ export { default as ErrorMessage } from './ErrorMessage';
 export { default as Icon } from './Icon';
 export { default as Loading } from './Loading';
 export { default as LoadingBar } from './LodaingBar';
+export { default as Modal } from './Modal';
 export { default as NavMenu } from './NavMenu';
 export { default as Skeleton } from './Skeleton';

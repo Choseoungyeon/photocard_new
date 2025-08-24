@@ -21,6 +21,14 @@
     margin-top: -5px;
   }
 
+  // icon과 텍스트 사이 간격
+  & .button_icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 8px;
+  }
+
   // Primary variant
   &--primary {
     background: linear-gradient(135deg, #5e6ad2, #8b5fd6);
@@ -110,7 +118,7 @@
   // Disabled state
   &:disabled {
     background-color: rgba(139, 148, 158, 0.2) !important;
-    color: #30363d !important;
+    // color: #30363d !important;
     cursor: not-allowed;
     opacity: 0.6;
   }

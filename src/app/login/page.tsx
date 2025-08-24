@@ -5,7 +5,6 @@ import { useForm } from 'react-hook-form';
 import { useMutation } from '@tanstack/react-query';
 import { useRulesContext } from '@/app/_context/RulesProviper';
 import Link from 'next/link';
-import Image from 'next/image';
 import Input from '../_component/Input';
 import Button from '../_component/Button';
 import ErrorMessage from '../_component/ErrorMessage';
@@ -59,9 +58,9 @@ export default function NextAuth() {
     if (!mutation.isPending) mutation.mutate(data);
   };
 
-  const naverLogin = async () => {
-    await signIn('naver', { redirect: true, callbackUrl: '/' });
-  };
+  // const naverLogin = async () => {
+  //   await signIn('naver', { redirect: true, callbackUrl: '/' });
+  // };
 
   const resetFun = () => {
     if (mutation.isError) mutation.reset();
@@ -79,7 +78,7 @@ export default function NextAuth() {
                 error={errors.email?.message}
                 label="email"
                 name="email"
-                placeholder="johndoe@gmail.com"
+                placeholder="test01@gmail.com"
                 onChange={resetFun}
               />
             </div>

@@ -55,6 +55,7 @@ async function getPhotocards({ pageParam }: { pageParam?: string }) {
 
   const photocards = response.data.productInfo;
   const hasNextPage = response.data.pagination.hasNextPage;
+  const totalCount = response.data.pagination.totalCount;
 
   // 이미지 URL들을 추출하여 미리 로드
   const imageUrls = photocards.map((card: Photocard) => card.images.main);
@@ -63,6 +64,7 @@ async function getPhotocards({ pageParam }: { pageParam?: string }) {
   return {
     data: photocards,
     nextPage: hasNextPage ? response.data.pagination.nextCursor : undefined,
+    totalCount,
   };
 }
 

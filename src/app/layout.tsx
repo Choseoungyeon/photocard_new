@@ -3,11 +3,21 @@ import RQProvider from './RQProvider';
 import NavMenu from './_component/NavMenu';
 import AuthSession from './AuthSession';
 import RulesProvider from './RulesProvider';
+import { ModalProvider } from './_context/ModalContext';
 import '@/app/style/main.scss';
 
 export const metadata: Metadata = {
-  title: 'login-register',
-  description: 'login-register sample page',
+  title: 'PhotoCard',
+  description: 'PhotoCard 포토카드 서비스',
+  icons: {
+    icon: [
+      { url: '/logo_simple.svg', type: 'image/svg+xml' },
+      { url: '/logo_simple.svg', sizes: '16x16', type: 'image/svg+xml' },
+      { url: '/logo_simple.svg', sizes: '32x32', type: 'image/svg+xml' },
+      { url: '/logo_simple.svg', sizes: '48x48', type: 'image/svg+xml' },
+    ],
+    apple: '/logo_simple.svg',
+  },
 };
 
 export default function RootLayout({
@@ -20,10 +30,12 @@ export default function RootLayout({
       <AuthSession>
         <body className="layoutWrap">
           <RQProvider>
-            <RulesProvider>
-              <NavMenu />
-              {children}
-            </RulesProvider>
+            <ModalProvider>
+              <RulesProvider>
+                <NavMenu />
+                {children}
+              </RulesProvider>
+            </ModalProvider>
           </RQProvider>
         </body>
       </AuthSession>

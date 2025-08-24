@@ -113,6 +113,52 @@ const customFetch = {
 
     return this.fetch<T>(resource, ExtendInit);
   },
+
+  async put<T = any>(
+    resource: string,
+    init: ExtendedRequestInit = {},
+  ): Promise<CustomFetchResponse<T>> {
+    const ExtendInit: RequestInit = {
+      method: 'PUT',
+    };
+
+    if (init.body) {
+      if (init.body instanceof FormData) {
+        // FormData인 경우 그대로 사용
+        ExtendInit.body = init.body;
+        // FormData는 브라우저가 자동으로 Content-Type을 설정하므로 헤더에서 제거
+        if (init.headers) {
+          const headers = { ...init.headers };
+          if ('Content-Type' in headers) {
+            delete (headers as any)['Content-Type'];
+          }
+          ExtendInit.headers = headers;
+        }
+      } else if (typeof init.body === 'object') {
+        // 객체인 경우 JSON으로 변환
+        ExtendInit.body = JSON.stringify(init.body);
+        ExtendInit.headers = {
+          ...init.headers,
+          'Content-Type': 'application/json',
+        };
+      } else {
+        // 문자열 등 다른 타입인 경우 그대로 사용
+        ExtendInit.body = init.body;
+        ExtendInit.headers = init.headers;
+      }
+    }
+
+    return this.fetch<T>(resource, ExtendInit);
+  },
+
+  async delete<T = any>(resource: string, init?: RequestInit): Promise<CustomFetchResponse<T>> {
+    const ExtendInit: RequestInit = {
+      method: 'DELETE',
+      ...init,
+    };
+
+    return this.fetch<T>(resource, ExtendInit);
+  },
 };
 
 export default customFetch;

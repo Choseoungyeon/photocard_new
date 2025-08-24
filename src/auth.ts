@@ -5,11 +5,10 @@ import NaverProvider from 'next-auth/providers/naver';
 import { CredentialsSignin } from 'next-auth';
 
 class CustomError extends CredentialsSignin {
-  constructor(code: string) {
+  constructor(message: string) {
     super();
-    this.code = code;
-    this.message = code;
-    this.stack = undefined;
+    this.code = message;
+    this.message = message;
   }
 }
 
@@ -65,9 +64,8 @@ export const {
 
         const response = await authResponse.json();
 
-        if (response.resultCode !== 200) throw new CustomError(response.message);
+        if (response.resultCode !== 200) throw new CustomError(response.error.message);
 
-        // data 부분만 반환 (NextAuth가 기대하는 형태)
         return response.data;
       },
     }),
@@ -103,7 +101,7 @@ export const {
 
           const resData = await authResponse.json();
 
-          if (resData.resultCode !== 200) throw new CustomError(resData.message);
+          if (resData.resultCode !== 200) throw new CustomError(resData.error.message);
           if (resData.data) token.accessToken = resData.data.token;
         }
       }

@@ -4,21 +4,21 @@ import Dropzone from 'react-dropzone';
 import clsx from 'clsx';
 import Moveable, { OnDrag, OnResize, OnScale, OnRotate } from 'react-moveable';
 import { FiUpload, FiPlus, FiImage, FiDownload, FiSmile, FiGift, FiSave } from 'react-icons/fi';
-import Modal from './_component/modal';
-import UploadModal from './_component/UploadModal';
+import { useModal } from '../_context/ModalContext';
+import Modal from '../_component/Modal';
+import UploadModal from '../_component/UploadModal';
 import '@/app/style/page/create.scss';
 import { useMutation } from '@tanstack/react-query';
 import customFetch from '@/app/_hook/customFetch';
 
 function Create() {
+  const { showModal } = useModal();
   const [image, setImage] = React.useState<string | null>(null);
   const [menuActive, setMenuActive] = React.useState(false);
   const [moveableTarget, setMoveableTarget] = React.useState<HTMLElement[]>([]);
   const [moveableElementImg, setMoveableElementImg] = React.useState<string[]>([]);
   const [modalRibbonActive, setModalRibbonActive] = React.useState(false);
   const [modalStickerActive, setModalStickerActive] = React.useState(false);
-  const [modalError, setModalError] = React.useState(false);
-  const [modalErrorMsg, setModalErrorMsg] = React.useState('');
   const [uploadModalOpen, setUploadModalOpen] = React.useState(false);
   const [uploadData, setUploadData] = React.useState<{
     imageData: string;
@@ -285,8 +285,12 @@ function Create() {
 
       if (!creatBoxBoundingBox) return;
       if (!image) {
-        setModalError(true);
-        setModalErrorMsg('이미지를 먼저 추가해주세요.');
+        showModal({
+          type: 'error',
+          title: '오류',
+          message: '이미지를 먼저 추가해주세요.',
+          confirmText: '확인',
+        });
         return;
       }
 
@@ -399,8 +403,12 @@ function Create() {
     },
     onError: (error: any) => {
       console.log('스티커 이미지 로딩 실패:', error);
-      setModalError(true);
-      setModalErrorMsg(error.message || '스티커 이미지 로딩 실패');
+      showModal({
+        type: 'error',
+        title: '오류',
+        message: error.message || '스티커 이미지 로딩 실패',
+        confirmText: '확인',
+      });
     },
   });
 
@@ -411,8 +419,12 @@ function Create() {
     },
     onError: (error: any) => {
       console.log('리본 이미지 로딩 실패:', error);
-      setModalError(true);
-      setModalErrorMsg(error.message || '리본 이미지 로딩 실패');
+      showModal({
+        type: 'error',
+        title: '오류',
+        message: error.message || '리본 이미지 로딩 실패',
+        confirmText: '확인',
+      });
     },
   });
 
@@ -434,7 +446,6 @@ function Create() {
 
   const onClickStickerHandler = async () => {
     setIsLoadingImages(true);
-    setModalClick({ sticker: true, ribbon: false });
 
     try {
       if (!stickerMutation.isPending) {
@@ -456,7 +467,6 @@ function Create() {
 
   const onClickRibbonHandler = async () => {
     setIsLoadingImages(true);
-    setModalClick({ sticker: false, ribbon: true });
 
     try {
       if (!ribbonMutation.isPending) {
@@ -507,11 +517,6 @@ function Create() {
     }
   }, [image, imageLoaded]);
 
-  const [modalClick, setModalClick] = React.useState({
-    sticker: false,
-    ribbon: false,
-  });
-
   const [isLoadingImages, setIsLoadingImages] = React.useState(false);
 
   // 저장 핸들러 - 업로드 모달 열기
@@ -523,8 +528,12 @@ function Create() {
 
       if (!creatBoxBoundingBox) return;
       if (!image) {
-        setModalError(true);
-        setModalErrorMsg('이미지를 먼저 추가해주세요.');
+        showModal({
+          type: 'error',
+          title: '오류',
+          message: '이미지를 먼저 추가해주세요.',
+          confirmText: '확인',
+        });
         return;
       }
 
@@ -604,8 +613,12 @@ function Create() {
       // 캔버스를 이미지로 변환
       canvas.toBlob((blob) => {
         if (!blob) {
-          setModalError(true);
-          setModalErrorMsg('이미지 생성에 실패했습니다.');
+          showModal({
+            type: 'error',
+            title: '오류',
+            message: '이미지 생성에 실패했습니다.',
+            confirmText: '확인',
+          });
           return;
         }
 
@@ -624,8 +637,12 @@ function Create() {
       }, 'image/png');
     } catch (error) {
       console.error('이미지 생성 오류:', error);
-      setModalError(true);
-      setModalErrorMsg('이미지 생성 중 오류가 발생했습니다.');
+      showModal({
+        type: 'error',
+        title: '오류',
+        message: '이미지 생성 중 오류가 발생했습니다.',
+        confirmText: '확인',
+      });
     }
   };
 
@@ -734,18 +751,26 @@ function Create() {
                 </i>
               </span>
               <span
-                className={clsx('create_box_menu_item', { 'is-loading': isLoadingImages })}
+                className={clsx('create_box_menu_item', {
+                  'is-loading': isLoadingImages,
+                })}
                 onClick={onClickRibbonHandler}
-                style={{ pointerEvents: isLoadingImages ? 'none' : 'auto' }}
+                style={{
+                  pointerEvents: isLoadingImages ? 'none' : 'auto',
+                }}
               >
                 <i className="create_box_menu_icon">
                   <FiGift />
                 </i>
               </span>
               <span
-                className={clsx('create_box_menu_item', { 'is-loading': isLoadingImages })}
+                className={clsx('create_box_menu_item', {
+                  'is-loading': stickerMutation.isPending || isLoadingImages,
+                })}
                 onClick={onClickStickerHandler}
-                style={{ pointerEvents: isLoadingImages ? 'none' : 'auto' }}
+                style={{
+                  pointerEvents: stickerMutation.isPending || isLoadingImages ? 'none' : 'auto',
+                }}
               >
                 <i className="create_box_menu_icon">
                   <FiSmile />
@@ -767,36 +792,31 @@ function Create() {
       </div>
 
       <Modal
-        className={clsx({ ['is-active']: modalClick.sticker })}
-        onClick={() => {
-          setModalClick({ sticker: true, ribbon: false });
-        }}
-        elementClick={(val) => {
-          setMoveableElementImg([...moveableElementImg, val]);
-        }}
-        imageList={stickerImageList}
         open={modalStickerActive}
-        onClose={() => setModalStickerActive(false)}
-      />
-
-      <Modal
-        className={clsx({ ['is-active']: modalClick.ribbon })}
-        onClick={() => {
-          setModalClick({ sticker: false, ribbon: true });
-        }}
-        elementClick={(val) => {
+        type="custom"
+        title="스티커"
+        closeButton={true}
+        imageList={stickerImageList}
+        elementClick={(val: string) => {
           setMoveableElementImg([...moveableElementImg, val]);
         }}
-        imageList={ribbonImageList}
-        open={modalRibbonActive}
-        onClose={() => setModalRibbonActive(false)}
+        onClose={() => setModalStickerActive(false)}
+        resizable={true}
+        draggable={true}
       />
 
       <Modal
-        isError={true}
-        open={modalError}
-        errorMessage={modalErrorMsg}
-        onClose={() => setModalError(false)}
+        open={modalRibbonActive}
+        type="custom"
+        title="리본"
+        closeButton={true}
+        imageList={ribbonImageList}
+        elementClick={(val: string) => {
+          setMoveableElementImg([...moveableElementImg, val]);
+        }}
+        onClose={() => setModalRibbonActive(false)}
+        resizable={true}
+        draggable={true}
       />
 
       <UploadModal

@@ -1,12 +1,14 @@
 'use client';
 
 import React from 'react';
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { FiPlus, FiSearch, FiTrash2, FiEdit3, FiGrid } from 'react-icons/fi';
 import Button from '../_component/Button';
 import Card from '../_component/Card';
 import Skeleton from '../_component/Skeleton';
+import { useModal } from '../_context/ModalContext';
+import UploadModal from '../_component/UploadModal';
 import customFetch from '../_hook/customFetch';
 import { formatDate } from './utils';
 import '../style/page/gallery.scss';
@@ -28,8 +30,14 @@ interface Photocard {
 
 export default function GalleryClient() {
   const router = useRouter();
+  const queryClient = useQueryClient();
+  const { showModal } = useModal();
   const [titleSearch, setTitleSearch] = React.useState('');
   const [isSelectMode, setIsSelectMode] = React.useState(false);
+  const [deletingCardId, setDeletingCardId] = React.useState<string | null>(null);
+  const [cardToDelete, setCardToDelete] = React.useState<string | null>(null);
+  const [editModalOpen, setEditModalOpen] = React.useState(false);
+  const [editingCard, setEditingCard] = React.useState<Photocard | null>(null);
 
   // 이미지들을 미리 로드하는 함수
   const preloadImages = React.useCallback(async (imageUrls: string[]): Promise<void> => {
@@ -73,6 +81,7 @@ export default function GalleryClient() {
 
         const photocards = response.data.productInfo;
         const hasNextPage = response.data.pagination.hasNextPage;
+        const totalCount = response.data.pagination.totalCount;
 
         // 이미지 URL들을 추출하여 미리 로드
         const imageUrls = photocards.map((card: Photocard) => card.images.main);
@@ -81,6 +90,7 @@ export default function GalleryClient() {
         return {
           data: photocards,
           nextPage: hasNextPage ? response.data.pagination.nextCursor : undefined,
+          totalCount,
         };
       },
       initialPageParam: undefined,
@@ -94,6 +104,11 @@ export default function GalleryClient() {
 
   // 백엔드에서 검색된 포토카드 사용 (클라이언트 필터링 제거)
   const filteredPhotocards = photocards || [];
+
+  // 전체 포토카드 개수 (첫 번째 페이지의 totalCount 사용)
+  const totalCount = React.useMemo(() => {
+    return data?.pages[0]?.totalCount || 0;
+  }, [data]);
 
   // 무한 스크롤 처리
   const handleScroll = React.useCallback(() => {
@@ -109,14 +124,124 @@ export default function GalleryClient() {
 
     // 마지막 카드의 bottom이 스크린 끝에서 100px 전에 도달하면 다음 페이지 로드
     if (lastCardBottom <= window.innerHeight + 100) {
+      // 현재 로드된 포토카드 수가 10의 배수보다 적으면 다음 페이지가 있을 가능성이 높음
+      const currentTotalCards = photocards.length;
+
+      // 마지막 페이지가 가득 차있지 않으면 다음 페이지가 없을 가능성이 높지만,
+      // 서버에서 정확한 정보를 받아야 하므로 일단 시도
       fetchNextPage();
     }
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage, photocards.length]);
 
   React.useEffect(() => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, [handleScroll]);
+
+  // 포토카드 편집 함수
+  const handleEditCard = (card: Photocard) => {
+    setEditingCard(card);
+    setEditModalOpen(true);
+  };
+
+  // 포토카드 삭제 함수
+  const handleDeleteCard = async (cardId: string) => {
+    setCardToDelete(cardId);
+
+    const confirmed = await showModal({
+      type: 'confirm',
+      title: '포토카드 삭제',
+      message: '정말로 이 포토카드를 삭제하시겠습니까?',
+      confirmText: '삭제',
+      cancelText: '취소',
+    });
+
+    if (confirmed) {
+      confirmDelete();
+    }
+  };
+
+  // 편집 완료 핸들러
+  const handleEditComplete = (updatedCard: Photocard) => {
+    // 캐시에서 해당 포토카드 업데이트
+    queryClient.setQueriesData(
+      { queryKey: titleSearch ? ['photocards', titleSearch] : ['photocards'] },
+      (oldData: any) => {
+        if (!oldData) return oldData;
+
+        return {
+          ...oldData,
+          pages: oldData.pages.map((page: any) => ({
+            ...page,
+            data: page.data.map((card: Photocard) =>
+              card._id === updatedCard._id ? updatedCard : card,
+            ),
+          })),
+        };
+      },
+    );
+
+    // 편집 모달 닫기
+    setEditModalOpen(false);
+    setEditingCard(null);
+
+    // 성공 메시지
+    showModal({
+      type: 'success',
+      title: '수정 완료',
+      message: '포토카드가 성공적으로 수정되었습니다.',
+      confirmText: '확인',
+    });
+  };
+
+  const confirmDelete = async () => {
+    if (!cardToDelete) return;
+
+    setDeletingCardId(cardToDelete);
+
+    try {
+      await customFetch.delete(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/photocard/${cardToDelete}`,
+      );
+
+      // 성공적으로 삭제되면 캐시에서 해당 포토카드만 제거하고 totalCount 감소
+      queryClient.setQueriesData(
+        { queryKey: titleSearch ? ['photocards', titleSearch] : ['photocards'] },
+        (oldData: any) => {
+          if (!oldData) return oldData;
+
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page: any, index: number) => ({
+              ...page,
+              data: page.data.filter((card: Photocard) => card._id !== cardToDelete),
+              // 첫 번째 페이지의 totalCount만 감소
+              totalCount: index === 0 ? (page.totalCount || 0) - 1 : page.totalCount,
+            })),
+          };
+        },
+      );
+
+      // 삭제 성공 메시지
+      showModal({
+        type: 'success',
+        title: '삭제 완료',
+        message: '포토카드가 성공적으로 삭제되었습니다.',
+        confirmText: '확인',
+      });
+    } catch (error) {
+      console.error('포토카드 삭제 중 오류:', error);
+      showModal({
+        type: 'error',
+        title: '삭제 실패',
+        message: '포토카드 삭제에 실패했습니다.',
+        confirmText: '확인',
+      });
+    } finally {
+      setDeletingCardId(null);
+      setCardToDelete(null);
+    }
+  };
 
   // 스켈레톤 카드들 생성
   const skeletonCards = Array.from({ length: 6 }).map((_, index) => (
@@ -132,7 +257,7 @@ export default function GalleryClient() {
         <div className="gallery__header-content">
           <div className="gallery__header-left">
             <h1 className="gallery__title">내 포토카드 갤러리</h1>
-            <p className="gallery__subtitle">{photocards?.length || 0}개의 포토카드가 있습니다</p>
+            <p className="gallery__subtitle">{totalCount}개의 포토카드가 있습니다</p>
           </div>
           <div className="gallery__header-actions">
             <Button
@@ -200,10 +325,21 @@ export default function GalleryClient() {
         ) : (
           <div className="gallery__grid">
             {filteredPhotocards.map((card: Photocard) => (
-              <div key={card._id} className={`gallery__card-wrapper`}>
+              <div
+                key={card._id}
+                className={`gallery__card-wrapper ${deletingCardId === card._id ? 'deleting' : ''}`}
+              >
                 <Card className="gallery__card">
                   <div className="gallery__card-image">
                     <img src={card.images.main} alt={card.title} />
+                    {deletingCardId === card._id && (
+                      <div className="gallery__card-overlay">
+                        <div className="gallery__card-loading">
+                          <div className="loading-spinner" />
+                          <span>삭제 중...</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                   <div className="gallery__card-content">
                     <h3 className="gallery__card-title">{card.title}</h3>
@@ -212,18 +348,25 @@ export default function GalleryClient() {
                       <span className="gallery__card-date">{formatDate(card.createdAt)}</span>
                     </div>
                   </div>
-                  {!isSelectMode && (
-                    <div className="gallery__card-actions">
-                      <Button
-                        variant="secondary"
-                        size="small"
-                        onClick={() => router.push(`/edit/${card._id}`)}
-                        className="gallery__card-edit"
-                      >
-                        <FiEdit3 />
-                      </Button>
-                    </div>
-                  )}
+
+                  <div className="gallery__card-actions">
+                    <Button
+                      size="small"
+                      onClick={() => handleEditCard(card)}
+                      className="gallery__card-edit"
+                      disabled={deletingCardId === card._id}
+                    >
+                      <FiEdit3 />
+                    </Button>
+                    <Button
+                      size="small"
+                      onClick={() => handleDeleteCard(card._id)}
+                      disabled={deletingCardId === card._id}
+                      className="gallery__card-delete"
+                    >
+                      <FiTrash2 />
+                    </Button>
+                  </div>
                 </Card>
               </div>
             ))}
@@ -234,6 +377,27 @@ export default function GalleryClient() {
           </div>
         )}
       </div>
+
+      {/* 편집 모달 */}
+      {editingCard && (
+        <UploadModal
+          isOpen={editModalOpen}
+          onClose={() => {
+            setEditModalOpen(false);
+            setEditingCard(null);
+          }}
+          uploadData={{
+            imageData: editingCard.images.main,
+            originalImage: editingCard.images.main,
+            stickers: [],
+          }}
+          isEditMode={true}
+          photocardId={editingCard._id}
+          initialTitle={editingCard.title}
+          initialContent={editingCard.description}
+          onEditComplete={handleEditComplete}
+        />
+      )}
     </div>
   );
 }

@@ -24,9 +24,24 @@ interface UploadModalProps {
   isOpen: boolean;
   onClose: () => void;
   uploadData: UploadData | null;
+  // 편집 모드용 props
+  isEditMode?: boolean;
+  photocardId?: string;
+  initialTitle?: string;
+  initialContent?: string;
+  onEditComplete?: (updatedData: any) => void;
 }
 
-function UploadModal({ isOpen, onClose, uploadData }: UploadModalProps) {
+function UploadModal({
+  isOpen,
+  onClose,
+  uploadData,
+  isEditMode = false,
+  photocardId,
+  initialTitle = '',
+  initialContent = '',
+  onEditComplete,
+}: UploadModalProps) {
   const { data: session } = useSession();
   const [generalError, setGeneralError] = React.useState('');
 
@@ -38,8 +53,8 @@ function UploadModal({ isOpen, onClose, uploadData }: UploadModalProps) {
     reset,
   } = useForm<FormValues>({
     defaultValues: {
-      title: '',
-      content: '',
+      title: initialTitle,
+      content: initialContent,
     },
     mode: 'onChange',
   });
@@ -50,46 +65,69 @@ function UploadModal({ isOpen, onClose, uploadData }: UploadModalProps) {
   // 업로드 데이터가 변경될 때마다 초기화
   React.useEffect(() => {
     if (uploadData) {
-      reset();
+      reset({
+        title: initialTitle,
+        content: initialContent,
+      });
       setGeneralError('');
     }
-  }, [uploadData, reset]);
+  }, [uploadData, reset, initialTitle, initialContent]);
 
-  // 포토카드 업로드 함수
+  // 포토카드 업로드/수정 함수
   const uploadPhotocard = async (data: FormValues) => {
-    if (!uploadData?.imageData) {
-      throw new Error('이미지가 없습니다.');
-    }
-
     if (!session?.user?.email) {
       throw new Error('사용자 정보를 찾을 수 없습니다.');
     }
 
-    // 이미지 데이터를 Blob으로 변환
-    const response = await fetch(uploadData.imageData);
-    const blob = await response.blob();
+    if (isEditMode) {
+      // 편집 모드: PUT 요청으로 수정
+      const editUrl = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/photocard/${photocardId}`;
+      const result = await customFetch.put(editUrl, {
+        body: {
+          title: data.title,
+          content: data.content,
+        },
+      });
 
-    // FormData 생성
-    const formData = new FormData();
-    formData.append('title', data.title);
-    formData.append('content', data.content);
-    formData.append('image', blob, 'photocard.png');
+      // API 응답에서 photocard 데이터 반환
+      return result.data.photocard;
+    } else {
+      // 업로드 모드: POST 요청으로 새로 생성
+      if (!uploadData?.imageData) {
+        throw new Error('이미지가 없습니다.');
+      }
 
-    // customFetch를 사용한 API 호출
-    const uploadUrl = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/photocard/save-formdata`;
-    const result = await customFetch.post(uploadUrl, {
-      body: formData,
-    });
+      // 이미지 데이터를 Blob으로 변환
+      const response = await fetch(uploadData.imageData);
+      const blob = await response.blob();
 
-    return result;
+      // FormData 생성
+      const formData = new FormData();
+      formData.append('title', data.title);
+      formData.append('content', data.content);
+      formData.append('image', blob, 'photocard.png');
+
+      // customFetch를 사용한 API 호출
+      const uploadUrl = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/photocard/save-formdata`;
+      const result = await customFetch.post(uploadUrl, {
+        body: formData,
+      });
+
+      return result;
+    }
   };
 
   // 업로드 mutation
   const uploadMutation = useMutation({
     mutationFn: uploadPhotocard,
-    onSuccess: () => {
+    onSuccess: (data) => {
       // 성공 시 모달 닫기
       onClose();
+
+      // 편집 모드인 경우 콜백 호출
+      if (isEditMode && onEditComplete) {
+        onEditComplete(data);
+      }
     },
     onError: (error) => {
       console.error('업로드 오류:', error);
@@ -119,7 +157,7 @@ function UploadModal({ isOpen, onClose, uploadData }: UploadModalProps) {
             <button className="upload_back_btn" onClick={onClose}>
               <FiArrowLeft />
             </button>
-            <h1 className="upload_title">포토카드 업로드</h1>
+            <h1 className="upload_title">{isEditMode ? '포토카드 수정' : '포토카드 업로드'}</h1>
             <div className="upload_spacer"></div>
           </div>
 
@@ -132,7 +170,7 @@ function UploadModal({ isOpen, onClose, uploadData }: UploadModalProps) {
           )}
 
           {/* 이미지 미리보기 */}
-          {uploadData.imageData && (
+          {uploadData?.imageData && (
             <div className="upload_image_preview">
               <img src={uploadData.imageData} alt="업로드할 포토카드" />
             </div>
@@ -193,7 +231,13 @@ function UploadModal({ isOpen, onClose, uploadData }: UploadModalProps) {
               size="large"
               className="upload_submit_btn"
             >
-              {uploadMutation.isPending ? '업로드 중...' : '업로드'}
+              {uploadMutation.isPending
+                ? isEditMode
+                  ? '수정 중...'
+                  : '업로드 중...'
+                : isEditMode
+                ? '수정'
+                : '업로드'}
             </Button>
           </form>
         </div>

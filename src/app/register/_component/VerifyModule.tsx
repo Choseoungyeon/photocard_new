@@ -18,6 +18,9 @@ export default function VerifyModule() {
     onSuccess: () => {
       setShowVerify(true);
     },
+    onError: (error) => {
+      console.error('이메일 인증 오류:', error);
+    },
   });
 
   const emailTokenVerifyMute = useMutation({

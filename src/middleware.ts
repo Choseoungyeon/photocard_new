@@ -6,13 +6,7 @@ export async function middleware(req: NextRequest, event: NextFetchEvent) {
   const session = await auth();
   const { pathname } = req.nextUrl;
 
-  const protectedFromLoggedInUsers = [
-    '/login',
-    '/register',
-    '/forgot-password',
-    '/reset-password',
-    '/set-total-user',
-  ];
+  const protectedFromLoggedInUsers = ['/login', '/register'];
 
   for (const path of protectedFromLoggedInUsers) {
     if (pathname.startsWith(path)) {
@@ -23,7 +17,7 @@ export async function middleware(req: NextRequest, event: NextFetchEvent) {
   }
 
   // 인증이 필요한 경로들
-  const protectedRoutes = ['/create', '/gallery'];
+  const protectedRoutes = ['/create', '/gallery', '/mypage'];
 
   for (const path of protectedRoutes) {
     if (pathname.startsWith(path)) {
@@ -41,7 +35,8 @@ export const config = {
     '/forgot-password',
     '/reset-password/:path*',
     '/set-total-user',
-    // '/create',
+    '/create',
     '/gallery',
+    '/mypage',
   ],
 };

@@ -2,14 +2,11 @@
 
 import style from './NavMenu.module.css';
 import {
-  FiAlignLeft,
   FiX,
   FiHome,
   FiUser,
-  FiPlus,
   FiLogIn,
   FiLogOut,
-  FiSettings,
   FiGrid,
   FiImage,
   FiUserCheck,
@@ -61,8 +58,7 @@ export default function NavMenu() {
     menuItems.push(
       { icon: <FiGrid />, label: '갤러리', route: '/gallery' },
       { divider: true },
-      { icon: <FiUserCheck />, label: '내 계정', route: '/profile' },
-      { icon: <FiSettings />, label: '설정', route: '/settings' },
+      { icon: <FiUserCheck />, label: '마이페이지', route: '/mypage' },
       { divider: true },
       { icon: <FiLogOut />, label: '로그아웃', route: '', action: handleLogout },
     );
@@ -72,26 +68,23 @@ export default function NavMenu() {
     <nav className={style.navWrap}>
       <div className={style.wrap}>
         <div className={style.logo} onClick={() => handleClick('/')}>
+          <Image
+            src="/logo.svg"
+            alt="PhotoCard Logo"
+            width={32}
+            height={32}
+            className={style.logoImage}
+          />
           <span className={style.logoText}>PhotoCard</span>
         </div>
 
         <div className={style.navActions}>
           {session && (
             <div className={style.userSection}>
-              <button className={style.userButton} onClick={() => setVisibleMenu(!visibleMenu)}>
-                {session.user?.image ? (
-                  <Image
-                    src={session.user.image}
-                    alt={session.user.name || 'User'}
-                    width={32}
-                    height={32}
-                    className={style.userAvatar}
-                  />
-                ) : (
-                  <div className={style.userAvatarFallback}>
-                    <FiUser size={16} />
-                  </div>
-                )}
+              <button className={style.userButton} onClick={() => handleClick('/mypage')}>
+                <div className={style.userAvatarFallback}>
+                  <FiUser size={16} />
+                </div>
               </button>
             </div>
           )}

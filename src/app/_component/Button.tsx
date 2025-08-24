@@ -49,7 +49,7 @@ export default function Button(props: Props) {
       {loading && (
         <LoadingBar className="button_loading_icon" width="22px" height="22px" color="white" />
       )}
-      {icon}
+      {icon && <span className="button_icon">{icon}</span>}
       {children}
     </button>
   );

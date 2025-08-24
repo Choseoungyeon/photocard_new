@@ -2,6 +2,7 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { useMutation } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
 import { useRulesContext } from '@/app/_context/RulesProviper';
 import customFetch from '@/app/_hook/customFetch';
 import Input from '@/app/_component/Input';
@@ -16,6 +17,7 @@ type FormValues = {
 
 function ForgotPasswordForm() {
   const { emailRules } = useRulesContext();
+  const { data: session } = useSession();
 
   const {
     handleSubmit,
@@ -23,7 +25,7 @@ function ForgotPasswordForm() {
     formState: { errors },
   } = useForm<FormValues>({
     defaultValues: {
-      email: '',
+      email: session?.user?.email || '',
     },
     mode: 'onChange',
   });
@@ -65,6 +67,7 @@ function ForgotPasswordForm() {
               if (mutation.isError) mutation.reset();
             }}
             placeholder="johndoe@gmail.com"
+            disabled={!!session?.user?.email}
           />
 
           <Button type="submit" loading={mutation.isPending}>
