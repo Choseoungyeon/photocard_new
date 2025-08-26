@@ -58,10 +58,6 @@ export default function NextAuth() {
     if (!mutation.isPending) mutation.mutate(data);
   };
 
-  // const naverLogin = async () => {
-  //   await signIn('naver', { redirect: true, callbackUrl: '/' });
-  // };
-
   const resetFun = () => {
     if (mutation.isError) mutation.reset();
   };

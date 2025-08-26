@@ -5,7 +5,6 @@ import { useMutation } from '@tanstack/react-query';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
-import type { UseFormReturn } from 'react-hook-form';
 import VerifyModule from './_component/VerifyModule';
 import { useRulesContext } from '@/app/_context/RulesProviper';
 import Input from '../_component/Input';
@@ -20,8 +19,6 @@ type FormValues = {
   name: string;
   emailToken: string;
 };
-type useFormType = UseFormReturn<FormValues, any, undefined> | undefined;
-// export const MyContext = React.createContext<useFormType>(undefined);
 
 export default function NextAuth() {
   const router = useRouter();

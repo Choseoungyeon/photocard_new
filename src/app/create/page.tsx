@@ -42,7 +42,7 @@ function Create() {
       const imageUrl = finishedEvent.target?.result as string;
       if (imageUrl) {
         setImage(imageUrl);
-        setImageLoaded(false); // 이미지 변경 시 로딩 상태 초기화
+        setImageLoaded(false);
       }
     };
     reader.readAsDataURL(files[0]);
@@ -78,12 +78,10 @@ function Create() {
   ): Promise<void> {
     return new Promise(async (resolve, reject) => {
       try {
-        // SVG인지 확인
         const isSvg = src.toLowerCase().includes('.svg') || src.startsWith('data:image/svg+xml');
 
         let imageSrc = src;
         if (isSvg) {
-          // SVG를 이미지로 변환 (고해상도로)
           imageSrc = await convertSvgToImage(src, finalWidth, finalHeight);
         }
 
@@ -94,18 +92,15 @@ function Create() {
           try {
             ctx.save();
 
-            // element의 원본 크기 구하기 (transform 적용 전)
             const computedStyle = window.getComputedStyle(element);
             const transform = computedStyle.transform;
 
-            // transform을 임시로 제거하여 원본 크기 구하기
             const originalTransform = element.style.transform;
             element.style.transform = 'none';
 
             const originalRect = element.getBoundingClientRect();
             const parentRect = createBoxRef.current?.getBoundingClientRect();
 
-            // 원래 transform 복원
             element.style.transform = originalTransform;
 
             if (!parentRect) {
@@ -114,27 +109,22 @@ function Create() {
               return;
             }
 
-            // 화면에 표시된 크기
             const displayWidth = originalRect.width;
             const displayHeight = originalRect.height;
 
-            // 원본 이미지의 실제 크기
             const imageWidth = image.naturalWidth;
             const imageHeight = image.naturalHeight;
 
-            // 현재 transform이 적용된 위치
             const currentRect = element.getBoundingClientRect();
             const x = currentRect.left - parentRect.left;
             const y = currentRect.top - parentRect.top;
 
-            // finalWidth와 finalHeight가 제공되면 스케일 계산
             let scaledX = x;
             let scaledY = y;
             let scaledWidth = displayWidth;
             let scaledHeight = displayHeight;
 
             if (finalWidth && finalHeight && originalCanvasWidth && originalCanvasHeight) {
-              // 화면에 표시된 크기를 최종 캔버스 크기로 스케일링
               const scaleX = finalWidth / originalCanvasWidth;
               const scaleY = finalHeight / originalCanvasHeight;
 
@@ -150,10 +140,8 @@ function Create() {
                 const values = match[1].split(',').map(Number);
                 const [a, b, c, d] = values;
 
-                // 회전 각도만 추출
                 const angle = Math.atan2(b, a);
 
-                // 현재 화면에 보이는 위치를 기준으로 중심점 계산
                 const currentCenterX = x + currentRect.width / 2;
                 const currentCenterY = y + currentRect.height / 2;
 
@@ -166,13 +154,12 @@ function Create() {
                 }
                 ctx.rotate(angle);
 
-                // 원본 이미지의 해상도를 유지하면서 그리기
                 ctx.drawImage(
                   image,
                   0,
                   0,
                   imageWidth,
-                  imageHeight, // 원본 이미지의 전체 영역
+                  imageHeight,
                   -scaledWidth / 2,
                   -scaledHeight / 2,
                   scaledWidth,
@@ -180,13 +167,12 @@ function Create() {
                 );
               }
             } else {
-              // transform이 없는 경우 - 원본 이미지의 해상도를 유지하면서 그리기
               ctx.drawImage(
                 image,
                 0,
                 0,
                 imageWidth,
-                imageHeight, // 원본 이미지의 전체 영역
+                imageHeight,
                 scaledX,
                 scaledY,
                 scaledWidth,
@@ -212,7 +198,6 @@ function Create() {
     });
   }
 
-  // SVG를 이미지로 변환하는 함수
   const convertSvgToImage = (
     svgUrl: string,
     finalWidth?: number,
@@ -229,18 +214,15 @@ function Create() {
             return;
           }
 
-          // SVG를 이미지로 변환
           const img = new Image();
           const svgBlob = new Blob([svgText], { type: 'image/svg+xml' });
           const url = URL.createObjectURL(svgBlob);
 
           img.onload = () => {
-            // finalWidth와 finalHeight가 제공되면 고해상도로 변환
             if (finalWidth && finalHeight) {
-              // 원본 SVG 크기 대비 스케일 계산
               const scaleX = finalWidth / img.width;
               const scaleY = finalHeight / img.height;
-              const scale = Math.max(scaleX, scaleY); // 비율을 유지하면서 큰 쪽에 맞춤
+              const scale = Math.max(scaleX, scaleY);
 
               canvas.width = img.width * scale;
               canvas.height = img.height * scale;
@@ -266,7 +248,6 @@ function Create() {
     });
   };
 
-  // 이미지 로딩을 위한 헬퍼 함수
   const loadImage = (src: string): Promise<HTMLImageElement> => {
     return new Promise((resolve, reject) => {
       const img = new Image();
@@ -316,8 +297,7 @@ function Create() {
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
 
-      // 둥근 모서리 클리핑 적용 (8px radius)
-      const radius = 8 * (finalWidth / originalWidth); // 스케일에 맞춰 radius 조정
+      const radius = 8 * (finalWidth / originalWidth);
       ctx.beginPath();
       ctx.moveTo(radius, 0);
       ctx.lineTo(canvas.width - radius, 0);
@@ -331,11 +311,9 @@ function Create() {
       ctx.closePath();
       ctx.clip();
 
-      // 클리핑 영역에 하얀색 배경 설정
       ctx.fillStyle = 'white';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // 배경 이미지를 먼저 그리기
       if (targetImg && image) {
         await drawImageOnCanvas(
           ctx,
@@ -348,7 +326,6 @@ function Create() {
         );
       }
 
-      // 그 다음에 스티커/리본 이미지들을 순차적으로 그리기
       if (childrenArray && childrenArray.length > 0) {
         for (const item of Array.from(childrenArray)) {
           if (!item) continue;
@@ -367,7 +344,6 @@ function Create() {
         }
       }
 
-      // **변경 부분: Blob을 사용하여 다운로드 처리**
       canvas.toBlob((blob) => {
         if (!blob) {
           alert('이미지 생성에 실패했습니다.');
@@ -380,7 +356,6 @@ function Create() {
         link.href = blobUrl;
         link.click();
 
-        // 다운로드 후 메모리 정리를 위해 URL 객체를 해제
         URL.revokeObjectURL(blobUrl);
       }, 'image/png');
     } catch (error) {
@@ -428,7 +403,6 @@ function Create() {
     },
   });
 
-  // 모든 이미지가 로드될 때까지 기다리는 함수
   const waitForImagesToLoad = async (
     imageList: { public_id: string; url: string }[],
   ): Promise<void> => {
@@ -452,7 +426,6 @@ function Create() {
         await stickerMutation.mutateAsync();
       }
 
-      // 이미지들이 모두 로드될 때까지 기다림
       if (stickerImageList.length > 0) {
         await waitForImagesToLoad(stickerImageList);
       }
@@ -473,7 +446,6 @@ function Create() {
         await ribbonMutation.mutateAsync();
       }
 
-      // 이미지들이 모두 로드될 때까지 기다림
       if (ribbonImageList.length > 0) {
         await waitForImagesToLoad(ribbonImageList);
       }
@@ -488,15 +460,12 @@ function Create() {
 
   const [imageLoaded, setImageLoaded] = React.useState(false);
 
-  // 이미지 변경 핸들러
   const changeImageHandler = () => {
-    // 현재 이미지가 있으면 제거하고 새로운 이미지 업로드 모드로 전환
     if (image) {
       setImage(null);
       setMoveableElementImg([]);
       setMoveableTarget([]);
     }
-    // 파일 입력 트리거
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
     fileInput.accept = 'image/*';
@@ -519,7 +488,6 @@ function Create() {
 
   const [isLoadingImages, setIsLoadingImages] = React.useState(false);
 
-  // 저장 핸들러 - 업로드 모달 열기
   const saveClickHandler = async () => {
     try {
       const childrenArray = elementWrapRef.current?.children;
@@ -559,8 +527,7 @@ function Create() {
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
 
-      // 둥근 모서리 클리핑 적용 (8px radius)
-      const radius = 8 * (finalWidth / originalWidth); // 스케일에 맞춰 radius 조정
+      const radius = 8 * (finalWidth / originalWidth);
       ctx.beginPath();
       ctx.moveTo(radius, 0);
       ctx.lineTo(canvas.width - radius, 0);
@@ -574,11 +541,9 @@ function Create() {
       ctx.closePath();
       ctx.clip();
 
-      // 클리핑 영역에 하얀색 배경 설정
       ctx.fillStyle = 'white';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // 배경 이미지를 먼저 그리기
       if (targetImg && image) {
         await drawImageOnCanvas(
           ctx,
@@ -591,7 +556,6 @@ function Create() {
         );
       }
 
-      // 그 다음에 스티커/리본 이미지들을 순차적으로 그리기
       if (childrenArray && childrenArray.length > 0) {
         for (const item of Array.from(childrenArray)) {
           if (!item) continue;
@@ -610,7 +574,6 @@ function Create() {
         }
       }
 
-      // 캔버스를 이미지로 변환
       canvas.toBlob((blob) => {
         if (!blob) {
           showModal({
@@ -622,10 +585,8 @@ function Create() {
           return;
         }
 
-        // 이미지 데이터를 URL로 변환
         const imageUrl = URL.createObjectURL(blob);
 
-        // 업로드 데이터 설정
         const newUploadData = {
           imageData: imageUrl,
           originalImage: image,
@@ -646,7 +607,6 @@ function Create() {
     }
   };
 
-  // 페이지 진입 시 body overflow hidden, 페이지 벗어날 때 복원
   React.useEffect(() => {
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';

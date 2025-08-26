@@ -30,7 +30,6 @@ export default function VerifyModule() {
   const verifySendEmail = () => {
     const data = useFormReturn?.getValues();
     if (!data?.email && !data?.name) useFormReturn?.trigger(['name', 'email']);
-    // if (useFormReturn?.getFieldState('email').invalid) return;
     if (data?.email && data?.name && !emailVerifyMute.isPending) {
       emailVerifyMute.mutate({
         email: data.email,

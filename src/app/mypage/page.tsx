@@ -29,7 +29,6 @@ export default function MyPage() {
   const { data: session } = useSession();
   const router = useRouter();
 
-  // 사용자의 포토카드 목록 조회
   const { data, isLoading } = useInfiniteQuery({
     queryKey: ['my-photocards'],
     queryFn: async ({ pageParam }) => {
@@ -59,13 +58,11 @@ export default function MyPage() {
     staleTime: 5 * 60 * 1000,
   });
 
-  // 모든 페이지의 데이터를 하나의 배열로 합치기
   const photocards = data?.pages.flatMap((page) => page.data) || [];
 
   return (
     <div className="mypage">
       <div className="mypage__container">
-        {/* 회원 정보 섹션 */}
         <section className="mypage__profile">
           <div className="mypage__profile-card">
             <div className="mypage__profile-avatar">
@@ -92,7 +89,6 @@ export default function MyPage() {
           </div>
         </section>
 
-        {/* 포토카드 섹션 */}
         <section className="mypage__photocards">
           <div className="mypage__section-header">
             <h3 className="mypage__section-title">내 포토카드</h3>

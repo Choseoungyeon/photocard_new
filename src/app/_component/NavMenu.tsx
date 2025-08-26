@@ -46,7 +46,6 @@ export default function NavMenu() {
     { icon: <FiImage />, label: '포토카드 만들기', route: '/create' },
   ];
 
-  // 로그인하지 않은 경우에만 로그인/회원가입 메뉴 추가
   if (!session) {
     menuItems.push(
       { divider: true },
@@ -54,7 +53,6 @@ export default function NavMenu() {
       { icon: <FiUser />, label: '회원가입', route: '/register' },
     );
   } else {
-    // 로그인된 경우 갤러리 메뉴와 사용자 메뉴 추가
     menuItems.push(
       { icon: <FiGrid />, label: '갤러리', route: '/gallery' },
       { divider: true },

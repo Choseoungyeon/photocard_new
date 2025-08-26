@@ -1,7 +1,6 @@
 import { auth } from '@/auth';
 import { getSession } from 'next-auth/react';
 
-// 새로운 응답 형식에 맞는 타입 정의
 type SuccessResponse<T = any> = {
   success: true;
   resultCode: number;
@@ -17,11 +16,10 @@ type ErrorResponse = {
   };
 };
 
-// 성공 응답만 반환하는 타입 (에러는 throw됨)
 type CustomFetchResponse<T = any> = SuccessResponse<T>;
 
 type ExtendedRequestInit = Omit<RequestInit, 'body'> & {
-  body?: object | string | FormData | null; // FormData 추가
+  body?: object | string | FormData | null;
 };
 
 const customFetch = {
@@ -54,7 +52,6 @@ const customFetch = {
       const response = await fetch(url, option);
       const json = await response.json();
 
-      // 새로운 응답 형식에 맞게 성공/실패 판단
       if (!json.success) {
         throw {
           resultCode: json.resultCode,
@@ -87,9 +84,7 @@ const customFetch = {
 
     if (init.body) {
       if (init.body instanceof FormData) {
-        // FormData인 경우 그대로 사용
         ExtendInit.body = init.body;
-        // FormData는 브라우저가 자동으로 Content-Type을 설정하므로 헤더에서 제거
         if (init.headers) {
           const headers = { ...init.headers };
           if ('Content-Type' in headers) {
@@ -98,14 +93,12 @@ const customFetch = {
           ExtendInit.headers = headers;
         }
       } else if (typeof init.body === 'object') {
-        // 객체인 경우 JSON으로 변환
         ExtendInit.body = JSON.stringify(init.body);
         ExtendInit.headers = {
           ...init.headers,
           'Content-Type': 'application/json',
         };
       } else {
-        // 문자열 등 다른 타입인 경우 그대로 사용
         ExtendInit.body = init.body;
         ExtendInit.headers = init.headers;
       }
@@ -124,9 +117,7 @@ const customFetch = {
 
     if (init.body) {
       if (init.body instanceof FormData) {
-        // FormData인 경우 그대로 사용
         ExtendInit.body = init.body;
-        // FormData는 브라우저가 자동으로 Content-Type을 설정하므로 헤더에서 제거
         if (init.headers) {
           const headers = { ...init.headers };
           if ('Content-Type' in headers) {
@@ -135,14 +126,12 @@ const customFetch = {
           ExtendInit.headers = headers;
         }
       } else if (typeof init.body === 'object') {
-        // 객체인 경우 JSON으로 변환
         ExtendInit.body = JSON.stringify(init.body);
         ExtendInit.headers = {
           ...init.headers,
           'Content-Type': 'application/json',
         };
       } else {
-        // 문자열 등 다른 타입인 경우 그대로 사용
         ExtendInit.body = init.body;
         ExtendInit.headers = init.headers;
       }

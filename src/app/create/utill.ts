@@ -13,18 +13,15 @@ export function drawImageOnCanvas(
   image.onload = () => {
     ctx.save();
 
-    // element의 원본 크기 구하기 (transform 적용 전)
     const computedStyle = window.getComputedStyle(element);
     const transform = computedStyle.transform;
 
-    // transform을 임시로 제거하여 원본 크기 구하기
     const originalTransform = element.style.transform;
     element.style.transform = 'none';
 
     const originalRect = element.getBoundingClientRect();
     const parentRect = createBoxRef.current?.getBoundingClientRect();
 
-    // 원래 transform 복원
     element.style.transform = originalTransform;
 
     if (!parentRect) return;
@@ -32,7 +29,6 @@ export function drawImageOnCanvas(
     const originalWidth = originalRect.width;
     const originalHeight = originalRect.height;
 
-    // 현재 transform이 적용된 위치
     const currentRect = element.getBoundingClientRect();
     const x = currentRect.left - parentRect.left;
     const y = currentRect.top - parentRect.top;
@@ -43,7 +39,6 @@ export function drawImageOnCanvas(
         const values = match[1].split(',').map(Number);
         const [a, b, c, d] = values;
 
-        // 회전 각도만 추출
         const angle = Math.atan2(b, a);
 
         ctx.translate(x + currentRect.width / 2, y + currentRect.height / 2);
@@ -57,7 +52,6 @@ export function drawImageOnCanvas(
         );
       }
     } else {
-      // transform이 없는 경우
       ctx.drawImage(image, x, y, originalWidth, originalHeight);
     }
 
@@ -89,7 +83,6 @@ export function downloadClickHandler(
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // 둥근 모서리 클리핑 적용 (8px radius)
     const radius = 8;
     ctx.beginPath();
     ctx.moveTo(radius, 0);
@@ -104,7 +97,6 @@ export function downloadClickHandler(
     ctx.closePath();
     ctx.clip();
 
-    // 클리핑 영역에 하얀색 배경 설정
     ctx.fillStyle = 'white';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 

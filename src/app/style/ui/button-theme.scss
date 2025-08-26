@@ -18,10 +18,8 @@
 
   & .button_loading_icon {
     margin-right: 10px;
-    // margin-top: -5px;
   }
 
-  // icon과 텍스트 사이 간격
   & .button_icon {
     display: flex;
     align-items: center;
@@ -29,7 +27,6 @@
     margin-right: 8px;
   }
 
-  // Primary variant
   &--primary {
     background: linear-gradient(135deg, #5e6ad2, #8b5fd6);
     color: #ffffff;
@@ -48,7 +45,6 @@
     }
   }
 
-  // Secondary variant
   &--secondary {
     background: transparent;
     color: #c9d1d9;
@@ -66,7 +62,6 @@
     }
   }
 
-  // Ghost variant
   &--ghost {
     background: transparent;
     color: #c9d1d9;
@@ -81,7 +76,6 @@
     }
   }
 
-  // Danger variant
   &--danger {
     background-color: #da3633;
     color: #ffffff;
@@ -96,7 +90,6 @@
     }
   }
 
-  // Size variants
   &--small {
     height: 32px;
     font-size: 12px;
@@ -115,28 +108,23 @@
     padding: 0 16px;
   }
 
-  // Disabled state
   &:disabled {
     background-color: rgba(139, 148, 158, 0.2) !important;
-    // color: #30363d !important;
     cursor: not-allowed;
     opacity: 0.6;
   }
 
-  // Focus state
   &:focus {
     outline: none;
     box-shadow: 0 0 0 3px rgba(94, 106, 210, 0.24);
   }
 
-  // Loading state
   &--loading {
     cursor: wait;
     pointer-events: none;
   }
 }
 
-/* 모바일에서 호버 효과 비활성화 */
 @media (hover: none) and (pointer: coarse) {
   .buttonContainer:hover:not(:disabled) {
     background-color: inherit;

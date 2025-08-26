@@ -109,7 +109,6 @@
   }
 }
 
-// Responsive design
 @media (max-width: 768px) {
   .components-page {
     padding: 16px;
@@ -166,7 +165,6 @@
   }
 }
 
-// Dark mode support (if needed in the future)
 @media (prefers-color-scheme: dark) {
   .components-page {
     background-color: #0d1117;

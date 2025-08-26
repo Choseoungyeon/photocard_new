@@ -83,13 +83,7 @@
       overflow-y: scroll;
       padding: 16px;
       background: rgba(22, 27, 34, 0.5);
-      // display: flex;
-      // flex-direction: column;
-      // align-items: center;
-      // justify-content: center;
-      // text-align: center;
 
-      /* 스크롤바 스타일링 */
       &::-webkit-scrollbar {
         width: 6px;
       }
@@ -108,7 +102,6 @@
         background: rgba(94, 106, 210, 0.6);
       }
 
-      // Alert/Confirm/Success/Info 스타일
       & .modal_icon {
         width: 48px;
         height: 48px;
@@ -143,7 +136,6 @@
         }
       }
 
-      // Error 스타일
       & .modal_error {
         margin-top: 20px;
         display: flex;
@@ -170,7 +162,6 @@
         }
       }
 
-      // 스티커 모드 스타일
       & .modal_element_wrap {
         display: flex;
         justify-content: space-between;

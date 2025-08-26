@@ -1,7 +1,7 @@
 export const theme = {
-  name: 'Linear Dark Theme',
+  name: 'Photocard Theme',
   version: '1.0',
-  description: 'Linear.app original dark theme based on their design system',
+  description: 'Photocard Theme',
   baseTheme: 'dark',
   colors: {
     primary: {
@@ -253,7 +253,6 @@ export type ThemeComponents = typeof theme.components;
 export type ThemeAnimations = typeof theme.animations;
 export type ThemeBreakpoints = typeof theme.breakpoints;
 
-// Additional theme exports
 export const zIndex = {
   hide: -1,
   auto: 'auto',

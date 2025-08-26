@@ -107,7 +107,6 @@
         outline: none;
       }
 
-      // 자동완성 스타일 오버라이드
       &:-webkit-autofill,
       &:-webkit-autofill:hover,
       &:-webkit-autofill:focus,
@@ -200,7 +199,6 @@
     }
   }
 
-  // Size variants
   &.small {
     & .inputWrap {
       min-height: 32px;

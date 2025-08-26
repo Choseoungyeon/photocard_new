@@ -71,15 +71,12 @@ function Modal(props: ModalProps) {
   const [isModalOpen, setIsModalOpen] = React.useState(open);
   const [columnCount, setColumnCount] = React.useState(3);
 
-  // 현재 모달을 활성화하는 함수
   const setActiveModal = React.useCallback(() => {
-    // 다른 모달들의 is-active 클래스 제거
     const allModals = document.querySelectorAll('.modal_wrap');
     allModals.forEach((modal) => {
       modal.classList.remove('is-active');
     });
 
-    // 현재 모달에 is-active 클래스 추가
     if (modalRef.current) {
       const modalWrap = modalRef.current.closest('.modal_wrap');
       if (modalWrap) {
@@ -88,7 +85,6 @@ function Modal(props: ModalProps) {
     }
   }, []);
 
-  // GSAP 애니메이션 함수들
   const animateModalPosition = React.useCallback((top: string, duration: number = 0.3) => {
     if (modalRef.current) {
       gsap.to(modalRef.current, {
@@ -117,7 +113,6 @@ function Modal(props: ModalProps) {
     }
   }, [imageList, columnCount]);
 
-  // 아이콘과 색상 결정
   const getIconAndColor = () => {
     switch (type) {
       case 'error':
@@ -156,7 +151,6 @@ function Modal(props: ModalProps) {
 
     e.stopPropagation();
 
-    // 현재 모달을 활성화
     setActiveModal();
 
     if (modalRef.current) {
@@ -398,7 +392,6 @@ function Modal(props: ModalProps) {
     setActiveModal();
   }, [open, setActiveModal]);
 
-  // 렌더링할 컨텐츠 결정
   const renderContent = () => {
     if (isError) {
       return (
@@ -414,7 +407,6 @@ function Modal(props: ModalProps) {
       );
     }
 
-    // 스티커 모드 (기존 create modal 기능) - imageList가 있으면 우선 처리
     if (imageList && imageList.length > 0) {
       return (
         <>

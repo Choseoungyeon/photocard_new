@@ -50,7 +50,6 @@ function Create(props: CreateProps) {
   const [isModalOpen, setIsModalOpen] = React.useState(open);
   const [columnCount, setColumnCount] = React.useState(3);
 
-  // GSAP 애니메이션 함수들
   const animateModalPosition = React.useCallback((top: string, duration: number = 0.3) => {
     if (modalRef.current) {
       gsap.to(modalRef.current, {
