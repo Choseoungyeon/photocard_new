@@ -5,12 +5,11 @@ import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { FiPlus, FiSearch, FiTrash2, FiEdit3, FiGrid } from 'react-icons/fi';
 import Button from '../_component/Button';
-import Card from '../_component/Card';
+import PhotocardCard from '../_component/PhotocardCard';
 import Skeleton from '../_component/Skeleton';
 import { useModal } from '../_context/ModalContext';
 import UploadModal from '../_component/UploadModal';
 import customFetch from '../_hook/customFetch';
-import { formatDate } from './utils';
 import '../style/page/gallery.scss';
 
 interface Photocard {
@@ -243,8 +242,52 @@ export default function GalleryClient() {
     }
   };
 
+  // 현재 화면 크기에 따른 그리드 열 수 계산
+  const [gridColumns, setGridColumns] = React.useState(3);
+
+  React.useEffect(() => {
+    const calculateGridColumns = () => {
+      const width = window.innerWidth;
+
+      // 모바일에서는 1열, 그 외에는 CSS 계산
+      if (width <= 768) {
+        setGridColumns(1);
+      } else {
+        const containerWidth = Math.min(width - 64, 1200); // 패딩과 최대 너비 고려
+        const cardWidth = 280; // CSS의 minmax(280px, 1fr) 기준
+        const gap = 24; // CSS의 gap 값
+
+        // 실제 그리드 열 수 계산
+        const columns = Math.floor((containerWidth + gap) / (cardWidth + gap));
+        setGridColumns(Math.max(1, columns));
+      }
+    };
+
+    calculateGridColumns();
+    window.addEventListener('resize', calculateGridColumns);
+    return () => window.removeEventListener('resize', calculateGridColumns);
+  }, []);
+
+  // 스켈레톤 카드 개수 계산
+  const calculateSkeletonCount = (currentCardCount: number, columns: number) => {
+    if (currentCardCount === 0) {
+      // 카드가 없을 때는 기본 6개 또는 그리드 열 수의 2배
+      return Math.min(6, columns * 2);
+    }
+
+    // 현재 카드들이 마지막 줄에서 몇 개를 차지하는지 계산
+    const cardsInLastRow = currentCardCount % columns;
+
+    // 마지막 줄이 완전히 채워졌으면 다음 줄 전체를 스켈레톤으로
+    // 마지막 줄이 비어있으면 나머지 공간 + 다음 한 줄 전체를 스켈레톤으로
+    const skeletonCount = cardsInLastRow === 0 ? columns : columns - cardsInLastRow + columns;
+
+    return skeletonCount;
+  };
+
   // 스켈레톤 카드들 생성
-  const skeletonCards = Array.from({ length: 6 }).map((_, index) => (
+  const skeletonCount = calculateSkeletonCount(filteredPhotocards.length, gridColumns);
+  const skeletonCards = Array.from({ length: skeletonCount }).map((_, index) => (
     <div key={`skeleton-${index}`} className="gallery__card-wrapper skeleton">
       <Skeleton className="gallery__card" />
     </div>
@@ -329,45 +372,14 @@ export default function GalleryClient() {
                 key={card._id}
                 className={`gallery__card-wrapper ${deletingCardId === card._id ? 'deleting' : ''}`}
               >
-                <Card className="gallery__card">
-                  <div className="gallery__card-image">
-                    <img src={card.images.main} alt={card.title} />
-                    {deletingCardId === card._id && (
-                      <div className="gallery__card-overlay">
-                        <div className="gallery__card-loading">
-                          <div className="loading-spinner" />
-                          <span>삭제 중...</span>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  <div className="gallery__card-content">
-                    <h3 className="gallery__card-title">{card.title}</h3>
-                    <p className="gallery__card-text">{card.description}</p>
-                    <div className="gallery__card-meta">
-                      <span className="gallery__card-date">{formatDate(card.createdAt)}</span>
-                    </div>
-                  </div>
-
-                  <div className="gallery__card-actions">
-                    <Button
-                      size="small"
-                      onClick={() => handleEditCard(card)}
-                      className="gallery__card-edit"
-                      disabled={deletingCardId === card._id}
-                    >
-                      <FiEdit3 />
-                    </Button>
-                    <Button
-                      size="small"
-                      onClick={() => handleDeleteCard(card._id)}
-                      disabled={deletingCardId === card._id}
-                      className="gallery__card-delete"
-                    >
-                      <FiTrash2 />
-                    </Button>
-                  </div>
-                </Card>
+                <PhotocardCard
+                  card={card}
+                  variant="gallery"
+                  showActions={true}
+                  onEdit={handleEditCard}
+                  onDelete={handleDeleteCard}
+                  isDeleting={deletingCardId === card._id}
+                />
               </div>
             ))}
 

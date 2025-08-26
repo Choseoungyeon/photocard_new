@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { FiUser, FiMail, FiLock, FiGrid, FiArrowRight } from 'react-icons/fi';
 import Button from '../_component/Button';
-import Card from '../_component/Card';
+import PhotocardCard from '../_component/PhotocardCard';
+import Skeleton from '../_component/Skeleton';
 import customFetch from '../_hook/customFetch';
 import '../style/page/mypage.scss';
 
@@ -106,9 +107,14 @@ export default function MyPage() {
           </div>
 
           {isLoading ? (
-            <div className="mypage__loading">
-              <div className="loading-spinner" />
-              <p>포토카드를 불러오는 중...</p>
+            <div className="mypage__photocards-slider">
+              <div className="mypage__photocards-grid">
+                {Array.from({ length: 6 }).map((_, index) => (
+                  <div key={`skeleton-${index}`} className="mypage__photocard-item">
+                    <Skeleton className="mypage__photocard-card" />
+                  </div>
+                ))}
+              </div>
             </div>
           ) : photocards.length === 0 ? (
             <div className="mypage__empty">
@@ -130,15 +136,7 @@ export default function MyPage() {
               <div className="mypage__photocards-grid">
                 {photocards.slice(0, 6).map((card: Photocard) => (
                   <div key={card._id} className="mypage__photocard-item">
-                    <Card className="mypage__photocard-card">
-                      <div className="mypage__photocard-image">
-                        <img src={card.images.main} alt={card.title} />
-                      </div>
-                      <div className="mypage__photocard-content">
-                        <h4 className="mypage__photocard-title">{card.title}</h4>
-                        <p className="mypage__photocard-description">{card.description}</p>
-                      </div>
-                    </Card>
+                    <PhotocardCard card={card} variant="mypage" />
                   </div>
                 ))}
               </div>
@@ -149,7 +147,7 @@ export default function MyPage() {
                     onClick={() => router.push('/gallery')}
                     icon={<FiArrowRight />}
                   >
-                    더 보기 ({photocards.length - 6}개 더)
+                    더 보기
                   </Button>
                 </div>
               )}

@@ -69,10 +69,10 @@ export default function NavMenu() {
       <div className={style.wrap}>
         <div className={style.logo} onClick={() => handleClick('/')}>
           <Image
-            src="/logo.svg"
+            src="/logo_simple_black.svg"
             alt="PhotoCard Logo"
-            width={32}
-            height={32}
+            width={20}
+            height={20}
             className={style.logoImage}
           />
           <span className={style.logoText}>PhotoCard</span>
