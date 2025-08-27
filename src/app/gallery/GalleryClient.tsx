@@ -119,7 +119,6 @@ export default function GalleryClient() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [handleScroll]);
 
-  // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async (cardId: string) => {
       return await customFetch.delete(
@@ -161,7 +160,6 @@ export default function GalleryClient() {
     if (confirmed) {
       deleteMutation.mutate(cardId, {
         onSuccess: () => {
-          // 낙관적 업데이트
           queryClient.setQueriesData(
             { queryKey: titleSearch ? ['photocards', titleSearch] : ['photocards'] },
             (oldData: any) => {
