@@ -176,7 +176,6 @@ export default function CreateClient() {
 
   const changeImageHandler = () => {
     if (image) {
-      setImage(null);
       setMoveableElementImg([]);
       setMoveableTarget([]);
     }
@@ -186,6 +185,7 @@ export default function CreateClient() {
     fileInput.onchange = (e) => {
       const files = (e.target as HTMLInputElement).files;
       if (files && files.length > 0) {
+        setImage(null);
         dropHandler(Array.from(files));
       }
     };

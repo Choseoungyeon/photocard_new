@@ -18,18 +18,18 @@ export default function Home() {
           <div className="hero__content">
             <div className="hero__badge">
               <span className="hero__badge-text">새로운 기능</span>
-              <span className="hero__badge-feature">AI 스티커 추천</span>
+              <span className="hero__badge-feature">갤러리 기능 추가</span>
             </div>
 
             <h1 className="hero__title">
               PhotoCard는 추억을 담는
               <br />
-              <span className="hero__title-highlight">완벽한 도구</span>입니다
+              <span className="hero__title-highlight">포토카드</span> 제작 플랫폼입니다
             </h1>
 
             <p className="hero__subtitle">
-              소중한 순간들을 아름다운 포토카드로 만들어보세요. 스마트한 편집 도구와 다양한
-              템플릿으로 누구나 쉽게 전문가 수준의 포토카드를 제작할 수 있습니다.
+              소중한 순간들을 아름다운 포토카드로 만들어보세요. 스마트한 편집 도구와 다양한 스티커로
+              누구나 쉽게 다양한 포토카드를 제작할 수 있습니다.
             </p>
 
             <div className="hero__actions">
@@ -177,9 +177,7 @@ export default function Home() {
                 </svg>
               </div>
               <h3 className="feature__title">고품질 출력</h3>
-              <p className="feature__description">
-                4K 해상도까지 지원하여 인쇄용으로도 완벽한 품질을 제공합니다.
-              </p>
+              <p className="feature__description">최적화를 통해 높은 품질을 제공합니다.</p>
             </div>
           </div>
         </div>
@@ -199,9 +197,7 @@ export default function Home() {
                 <div className="process__step-number">01</div>
                 <div className="process__step-content">
                   <h3 className="process__step-title">사진 업로드</h3>
-                  <p className="process__step-description">
-                    좋아하는 사진을 업로드하거나 카메라로 직접 촬영하세요.
-                  </p>
+                  <p className="process__step-description">좋아하는 사진을 업로드하세요.</p>
                 </div>
               </div>
 
@@ -210,7 +206,7 @@ export default function Home() {
                 <div className="process__step-content">
                   <h3 className="process__step-title">스티커 꾸미기</h3>
                   <p className="process__step-description">
-                    다양한 스티커와 텍스트로 포토카드를 개성있게 꾸며보세요.
+                    다양한 스티커로 포토카드를 개성있게 꾸며보세요.
                   </p>
                 </div>
               </div>
