@@ -292,6 +292,7 @@ export const downloadClickHandler = async (
           finalHeight,
           originalWidth,
           originalHeight,
+          createBoxRef,
         );
       }
     }
@@ -416,6 +417,7 @@ export const saveClickHandler = async (
           finalHeight,
           originalWidth,
           originalHeight,
+          createBoxRef,
         );
       }
     }
