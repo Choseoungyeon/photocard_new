@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import RQProvider from './RQProvider';
 import NavMenu from './_component/NavMenu';
 import AuthSession from './AuthSession';
@@ -18,6 +18,13 @@ export const metadata: Metadata = {
     ],
     apple: '/logo_simple.svg',
   },
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({
