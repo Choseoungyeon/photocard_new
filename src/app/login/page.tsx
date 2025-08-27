@@ -36,7 +36,7 @@ export default function NextAuth() {
       const response = await signIn('credentials', {
         email: data.email,
         password: data.password,
-        redirect: false,
+        redirect: true,
       });
 
       if (response?.error) {
@@ -59,7 +59,7 @@ export default function NextAuth() {
       const response = await signIn('credentials', {
         email: 'test01@test.com',
         password: '111111',
-        redirect: false,
+        redirect: true,
       });
 
       if (response?.error) {
