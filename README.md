@@ -1,5 +1,7 @@
 # PhotoCard
 
+<img width="2646" height="1580" alt="image" src="https://github.com/user-attachments/assets/b51ac649-5b0a-40c1-aefc-6d558714963c" />
+
 포토카드 꾸미기 사이트입니다.
 
 Next.js, TypeScript, MongoDB, Node.js를 사용하여 만들었습니다.
@@ -15,6 +17,8 @@ react-moveable를 사용해 사용자가 직접 스티커를 화면상에서 조
 # Features
 
 ### 1. 로그인 회원가입 기능
+
+<img width="2646" height="1580" alt="image" src="https://github.com/user-attachments/assets/14b26007-0b38-4218-b872-7a00810b228f" />
 
 사용자는 회원가입을 통해 유저정보를 생성할 수 있고 로그인을 통해 갤러리 페이지에 들어갈 수 있습니다. 저장했던 포토카드를 불러올수 있고 그것을 갤러리에서 확인할 수 있습니다.
 NextAuth를 이용해 인증 시스템을 만들었습니다.
@@ -38,6 +42,8 @@ NextAuth를 이용해 인증 시스템을 만들었습니다.
 <br />
 
 ### 3. 포토카드 만들기 기능
+
+<img width="2646" height="1580" alt="image" src="https://github.com/user-attachments/assets/48447f25-183d-44cf-8278-6962a233024e" />
 
 왼쪽의 포토카드를 꾸밀수 있는 공간과 오른쪽의 포토카드를 꾸밀 수 있는 스티커를 선택할 수 있는 공간으로 나누어져 있습니다.
 
