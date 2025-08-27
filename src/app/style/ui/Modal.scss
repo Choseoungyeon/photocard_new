@@ -22,7 +22,7 @@
       max-width: 90vw;
 
       @media (max-width: 600px) {
-        top: calc(100% - 220px);
+        top: calc(100% - 230px);
         left: 0px;
         transform: none;
         width: 100%;
@@ -235,7 +235,7 @@
     @media (max-width: 600px) {
       width: 100%;
       position: fixed;
-      top: calc(100% - 200px);
+      top: calc(100% - 210px);
       left: 0px;
       border-radius: 20px 20px 0px 0px;
       z-index: 6000;
@@ -257,6 +257,7 @@
 
       & .modal_content {
         height: 100%;
+        padding-bottom: 100px;
       }
 
       & .modal_icon {
