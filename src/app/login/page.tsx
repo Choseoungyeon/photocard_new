@@ -36,7 +36,7 @@ export default function NextAuth() {
       const response = await signIn('credentials', {
         email: data.email,
         password: data.password,
-        redirect: true,
+        redirect: false,
       });
 
       if (response?.error) {
@@ -50,7 +50,7 @@ export default function NextAuth() {
       return response;
     },
     onSuccess: () => {
-      router.push('/');
+      window.location.href = '/';
     },
   });
 
@@ -59,7 +59,7 @@ export default function NextAuth() {
       const response = await signIn('credentials', {
         email: 'test01@test.com',
         password: '111111',
-        redirect: true,
+        redirect: false,
       });
 
       if (response?.error) {
@@ -73,7 +73,7 @@ export default function NextAuth() {
       return response;
     },
     onSuccess: () => {
-      router.push('/');
+      window.location.href = '/';
     },
   });
 
