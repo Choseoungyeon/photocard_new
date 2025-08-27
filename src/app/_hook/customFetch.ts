@@ -8,14 +8,6 @@ type SuccessResponse<T = any> = {
   message: string;
 };
 
-type ErrorResponse = {
-  success: false;
-  resultCode: number;
-  error: {
-    message: string;
-  };
-};
-
 type CustomFetchResponse<T = any> = SuccessResponse<T>;
 
 type ExtendedRequestInit = Omit<RequestInit, 'body'> & {

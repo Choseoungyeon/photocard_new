@@ -2,7 +2,7 @@
 import React from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { FiUser, FiMail, FiLock, FiGrid, FiArrowRight } from 'react-icons/fi';
 import Button from '../_component/Button';
 import PhotocardCard from '../_component/PhotocardCard';
@@ -29,36 +29,23 @@ export default function MyPage() {
   const { data: session } = useSession();
   const router = useRouter();
 
-  const { data, isLoading } = useInfiniteQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ['my-photocards'],
-    queryFn: async ({ pageParam }) => {
+    queryFn: async () => {
       const params = new URLSearchParams({
         limit: '10',
       });
-
-      if (pageParam) {
-        params.append('last_id', pageParam as string);
-        params.append('direction', 'next');
-      }
 
       const response = await customFetch.get(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/photocard/album?${params}`,
       );
 
-      const photocards = response.data.productInfo;
-      const hasNextPage = response.data.pagination.hasNextPage;
-
-      return {
-        data: photocards,
-        nextPage: hasNextPage ? response.data.pagination.nextCursor : undefined,
-      };
+      return response.data.productInfo;
     },
-    initialPageParam: undefined,
-    getNextPageParam: (lastPage) => lastPage.nextPage,
     staleTime: 5 * 60 * 1000,
   });
 
-  const photocards = data?.pages.flatMap((page) => page.data) || [];
+  const photocards = data || [];
 
   return (
     <div className="mypage">

@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from './Skeleton.module.css';
+import '@/app/style/ui/skeleton.scss';
 
 interface SkeletonProps {
   className?: string;
@@ -7,13 +7,13 @@ interface SkeletonProps {
 
 export default function Skeleton({ className = '' }: SkeletonProps) {
   return (
-    <div className={`${styles.skeleton} ${className}`}>
-      <div className={styles.skeleton__image}></div>
-      <div className={styles.skeleton__content}>
-        <div className={styles.skeleton__title}></div>
-        <div className={styles.skeleton__text}></div>
-        <div className={`${styles.skeleton__text} ${styles['skeleton__text--short']}`}></div>
-        <div className={styles.skeleton__meta}></div>
+    <div className={`skeleton ${className}`}>
+      <div className="skeleton__image"></div>
+      <div className="skeleton__content">
+        <div className="skeleton__title"></div>
+        <div className="skeleton__text"></div>
+        <div className="skeleton__text skeleton__text--short"></div>
+        <div className="skeleton__meta"></div>
       </div>
     </div>
   );

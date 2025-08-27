@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { FiPlus, FiSearch, FiGrid } from 'react-icons/fi';
 import Button from '../_component/Button';
@@ -32,8 +32,6 @@ export default function GalleryClient() {
   const queryClient = useQueryClient();
   const { showModal } = useModal();
   const [titleSearch, setTitleSearch] = React.useState('');
-  const [deletingCardId, setDeletingCardId] = React.useState<string | null>(null);
-  const [cardToDelete, setCardToDelete] = React.useState<string | null>(null);
   const [editModalOpen, setEditModalOpen] = React.useState(false);
   const [editingCard, setEditingCard] = React.useState<Photocard | null>(null);
 
@@ -102,7 +100,9 @@ export default function GalleryClient() {
   const handleScroll = React.useCallback(() => {
     if (!hasNextPage || isFetchingNextPage) return;
 
-    const cardElements = document.querySelectorAll('.gallery__card-wrapper:not(.skeleton)');
+    const cardElements = document.querySelectorAll(
+      '.gallery__card-wrapper:not(.gallery__skeleton)',
+    );
     if (cardElements.length === 0) return;
 
     const lastCard = cardElements[cardElements.length - 1];
@@ -112,12 +112,37 @@ export default function GalleryClient() {
     if (lastCardBottom <= window.innerHeight + 100) {
       fetchNextPage();
     }
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage, photocards.length]);
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   React.useEffect(() => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, [handleScroll]);
+
+  // Delete mutation
+  const deleteMutation = useMutation({
+    mutationFn: async (cardId: string) => {
+      return await customFetch.delete(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/photocard/${cardId}`,
+      );
+    },
+    onSuccess: () => {
+      showModal({
+        type: 'success',
+        title: '삭제 완료',
+        message: '포토카드가 성공적으로 삭제되었습니다.',
+        confirmText: '확인',
+      });
+    },
+    onError: () => {
+      showModal({
+        type: 'error',
+        title: '삭제 실패',
+        message: '포토카드 삭제에 실패했습니다.',
+        confirmText: '확인',
+      });
+    },
+  });
 
   const handleEditCard = (card: Photocard) => {
     setEditingCard(card);
@@ -125,8 +150,6 @@ export default function GalleryClient() {
   };
 
   const handleDeleteCard = async (cardId: string) => {
-    setCardToDelete(cardId);
-
     const confirmed = await showModal({
       type: 'confirm',
       title: '포토카드 삭제',
@@ -136,7 +159,26 @@ export default function GalleryClient() {
     });
 
     if (confirmed) {
-      confirmDelete();
+      deleteMutation.mutate(cardId, {
+        onSuccess: () => {
+          // 낙관적 업데이트
+          queryClient.setQueriesData(
+            { queryKey: titleSearch ? ['photocards', titleSearch] : ['photocards'] },
+            (oldData: any) => {
+              if (!oldData) return oldData;
+
+              return {
+                ...oldData,
+                pages: oldData.pages.map((page: any, index: number) => ({
+                  ...page,
+                  data: page.data.filter((card: Photocard) => card._id !== cardId),
+                  totalCount: index === 0 ? (page.totalCount || 0) - 1 : page.totalCount,
+                })),
+              };
+            },
+          );
+        },
+      });
     }
   };
 
@@ -169,68 +211,17 @@ export default function GalleryClient() {
     });
   };
 
-  const confirmDelete = async () => {
-    if (!cardToDelete) return;
-
-    setDeletingCardId(cardToDelete);
-
-    try {
-      await customFetch.delete(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/photocard/${cardToDelete}`,
-      );
-
-      queryClient.setQueriesData(
-        { queryKey: titleSearch ? ['photocards', titleSearch] : ['photocards'] },
-        (oldData: any) => {
-          if (!oldData) return oldData;
-
-          return {
-            ...oldData,
-            pages: oldData.pages.map((page: any, index: number) => ({
-              ...page,
-              data: page.data.filter((card: Photocard) => card._id !== cardToDelete),
-              totalCount: index === 0 ? (page.totalCount || 0) - 1 : page.totalCount,
-            })),
-          };
-        },
-      );
-
-      showModal({
-        type: 'success',
-        title: '삭제 완료',
-        message: '포토카드가 성공적으로 삭제되었습니다.',
-        confirmText: '확인',
-      });
-    } catch (error) {
-      console.error('포토카드 삭제 중 오류:', error);
-      showModal({
-        type: 'error',
-        title: '삭제 실패',
-        message: '포토카드 삭제에 실패했습니다.',
-        confirmText: '확인',
-      });
-    } finally {
-      setDeletingCardId(null);
-      setCardToDelete(null);
-    }
-  };
-
   const [gridColumns, setGridColumns] = React.useState(3);
 
   React.useEffect(() => {
     const calculateGridColumns = () => {
-      const width = window.innerWidth;
+      const cardWidth = 280;
+      const gap = 24;
 
-      if (width <= 768) {
-        setGridColumns(1);
-      } else {
-        const containerWidth = Math.min(width - 64, 1200);
-        const cardWidth = 280;
-        const gap = 24;
+      const containerWidth = Math.min(window.innerWidth - 64, 1200);
 
-        const columns = Math.floor((containerWidth + gap) / (cardWidth + gap));
-        setGridColumns(Math.max(1, columns));
-      }
+      const columns = Math.max(1, Math.floor((containerWidth + gap) / (cardWidth + gap)));
+      setGridColumns(columns);
     };
 
     calculateGridColumns();
@@ -252,7 +243,7 @@ export default function GalleryClient() {
 
   const skeletonCount = calculateSkeletonCount(filteredPhotocards.length, gridColumns);
   const skeletonCards = Array.from({ length: skeletonCount }).map((_, index) => (
-    <div key={`skeleton-${index}`} className="gallery__card-wrapper skeleton">
+    <div key={`skeleton-${index}`} className="gallery__card-wrapper gallery__skeleton">
       <Skeleton className="gallery__card" />
     </div>
   ));
@@ -330,7 +321,11 @@ export default function GalleryClient() {
             {filteredPhotocards.map((card: Photocard) => (
               <div
                 key={card._id}
-                className={`gallery__card-wrapper ${deletingCardId === card._id ? 'deleting' : ''}`}
+                className={`gallery__card-wrapper ${
+                  deleteMutation.isPending && deleteMutation.variables === card._id
+                    ? 'deleting'
+                    : ''
+                }`}
               >
                 <PhotocardCard
                   card={card}
@@ -338,7 +333,7 @@ export default function GalleryClient() {
                   showActions={true}
                   onEdit={handleEditCard}
                   onDelete={handleDeleteCard}
-                  isDeleting={deletingCardId === card._id}
+                  isDeleting={deleteMutation.isPending && deleteMutation.variables === card._id}
                 />
               </div>
             ))}

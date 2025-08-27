@@ -41,6 +41,52 @@ body {
       display: flex;
       justify-content: space-between;
     }
+
+    & .login_test_section {
+      width: 100%;
+      margin-bottom: 20px;
+
+      & .login_test_divider {
+        position: relative;
+        text-align: center;
+        margin: 20px 0;
+
+        &::before {
+          content: '';
+          position: absolute;
+          top: 50%;
+          left: 0;
+          right: 0;
+          height: 1px;
+          background: rgba(139, 148, 158, 0.3);
+        }
+
+        & span {
+          background: #0d1117;
+          padding: 0 15px;
+          color: #8b949e;
+          font-size: 0.9rem;
+          position: relative;
+          z-index: 1;
+        }
+      }
+
+      & .test_login_btn {
+        width: 100%;
+        margin-bottom: 10px;
+        background: rgba(139, 148, 158, 0.1);
+        border: 1px solid rgba(139, 148, 158, 0.2);
+        color: #8b949e;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background: rgba(139, 148, 158, 0.15);
+          border-color: rgba(139, 148, 158, 0.3);
+          color: #c9d1d9;
+        }
+      }
+    }
   }
 }
 

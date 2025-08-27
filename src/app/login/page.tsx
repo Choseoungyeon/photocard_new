@@ -54,12 +54,40 @@ export default function NextAuth() {
     },
   });
 
+  const testLoginMutation = useMutation({
+    mutationFn: async () => {
+      const response = await signIn('credentials', {
+        email: 'test01@test.com',
+        password: '111111',
+        redirect: false,
+      });
+
+      if (response?.error) {
+        let errorMessage = response?.code;
+        if (response?.code == null) {
+          errorMessage = '잘못된 접근입니다. 잠시 후 다시한번 시도해주세요';
+        }
+        throw new Error(errorMessage);
+      }
+
+      return response;
+    },
+    onSuccess: () => {
+      router.push('/');
+    },
+  });
+
   const submitForm = async (data: FormValues) => {
     if (!mutation.isPending) mutation.mutate(data);
   };
 
+  const handleTestLogin = () => {
+    if (!testLoginMutation.isPending) testLoginMutation.mutate();
+  };
+
   const resetFun = () => {
     if (mutation.isError) mutation.reset();
+    if (testLoginMutation.isError) testLoginMutation.reset();
   };
 
   return (
@@ -94,8 +122,12 @@ export default function NextAuth() {
               로그인
             </Button>
             {mutation.isError ? <ErrorMessage>{mutation.error.message}</ErrorMessage> : null}
+            {testLoginMutation.isError ? (
+              <ErrorMessage>{testLoginMutation.error.message}</ErrorMessage>
+            ) : null}
           </div>
         </form>
+
         <Link href={'/forgot-password'}>비밀번호를 잃어버리셨나요?</Link>
         {/* <div className="login_socail_btn">
           <Button className="naver_logn_btn" backgroundColor="transparent" onClick={naverLogin}>
@@ -105,6 +137,20 @@ export default function NextAuth() {
             <Image src="/google_login_btn.png" width={40} height={40} alt="login_btn" unoptimized />
           </Button>
         </div> */}
+
+        <div className="login_test_section">
+          <div className="login_test_divider">
+            <span>또는</span>
+          </div>
+          <Button
+            className="test_login_btn"
+            variant="secondary"
+            onClick={handleTestLogin}
+            loading={testLoginMutation.isPending}
+          >
+            테스트 계정으로 로그인
+          </Button>
+        </div>
       </div>
     </div>
   );

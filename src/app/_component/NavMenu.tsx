@@ -1,6 +1,6 @@
 'use client';
 
-import style from './NavMenu.module.css';
+import '@/app/style/ui/nav-menu.scss';
 import {
   FiX,
   FiHome,
@@ -63,24 +63,24 @@ export default function NavMenu() {
   }
 
   return (
-    <nav className={style.navWrap}>
-      <div className={style.wrap}>
-        <div className={style.logo} onClick={() => handleClick('/')}>
+    <nav className="navWrap">
+      <div className="wrap">
+        <div className="logo" onClick={() => handleClick('/')}>
           <Image
             src="/logo_simple_black.svg"
             alt="PhotoCard Logo"
             width={20}
             height={20}
-            className={style.logoImage}
+            className="logoImage"
           />
-          <span className={style.logoText}>PhotoCard</span>
+          <span className="logoText">PhotoCard</span>
         </div>
 
-        <div className={style.navActions}>
+        <div className="navActions">
           {session && (
-            <div className={style.userSection}>
-              <button className={style.userButton} onClick={() => handleClick('/mypage')}>
-                <div className={style.userAvatarFallback}>
+            <div className="userSection">
+              <button className="userButton" onClick={() => handleClick('/mypage')}>
+                <div className="userAvatarFallback">
                   <FiUser size={16} />
                 </div>
               </button>
@@ -88,66 +88,62 @@ export default function NavMenu() {
           )}
 
           <button
-            className={style.menuButton}
+            className="menuButton"
             onClick={() => setVisibleMenu(!visibleMenu)}
             aria-label="메뉴 열기"
           >
-            {visibleMenu ? <FiX className={style.icon} /> : <FiMenu className={style.icon} />}
+            {visibleMenu ? <FiX className="icon" /> : <FiMenu className="icon" />}
           </button>
         </div>
       </div>
 
       {visibleMenu && (
-        <div
-          className={style.overlay}
-          onClick={() => setVisibleMenu(false)}
-          style={{ zIndex: 10000 }}
-        >
-          <div className={style.menuContainer} onClick={(e) => e.stopPropagation()}>
+        <div className="overlay" onClick={() => setVisibleMenu(false)} style={{ zIndex: 10000 }}>
+          <div className="menuContainer" onClick={(e) => e.stopPropagation()}>
             <button
-              className={style.closeButton}
+              className="closeButton"
               onClick={() => setVisibleMenu(false)}
               aria-label="메뉴 닫기"
             >
-              <FiX className={style.closeIcon} />
+              <FiX className="closeIcon" />
             </button>
             {session ? (
-              <div className={style.userInfo}>
+              <div className="userInfo">
                 {session.user?.image ? (
                   <Image
                     src={session.user.image}
                     alt={session.user.name || 'User'}
                     width={40}
                     height={40}
-                    className={style.userInfoAvatar}
+                    className="userInfoAvatar"
                   />
                 ) : (
-                  <div className={style.userInfoAvatarFallback}>
+                  <div className="userInfoAvatarFallback">
                     <FiUser size={20} />
                   </div>
                 )}
-                <div className={style.userInfoText}>
-                  <div className={style.userName}>{session.user?.name || '사용자'}</div>
-                  <div className={style.userEmail}>{session.user?.email}</div>
+                <div className="userInfoText">
+                  <div className="userName">{session.user?.name || '사용자'}</div>
+                  <div className="userEmail">{session.user?.email}</div>
                 </div>
               </div>
             ) : (
-              <div className={style.loginPrompt}>
-                <div className={style.loginPromptIcon}>
+              <div className="loginPrompt">
+                <div className="loginPromptIcon">
                   <FiUser size={24} />
                 </div>
-                <div className={style.loginPromptText}>
-                  <div className={style.loginPromptTitle}>로그인하여 시작하세요</div>
-                  <div className={style.loginPromptSubtitle}>
+                <div className="loginPromptText">
+                  <div className="loginPromptTitle">로그인하여 시작하세요</div>
+                  <div className="loginPromptSubtitle">
                     포토카드를 만들고 저장하려면 계정이 필요합니다
                   </div>
                 </div>
-                <div className={style.loginPromptActions}>
+                <div className="loginPromptActions">
                   <Button
                     variant="primary"
                     size="medium"
                     onClick={() => handleClick('/login')}
-                    className={style.loginPromptButton}
+                    className="loginPromptButton"
                   >
                     로그인
                   </Button>
@@ -155,7 +151,7 @@ export default function NavMenu() {
                     variant="secondary"
                     size="medium"
                     onClick={() => handleClick('/register')}
-                    className={style.loginPromptButtonSecondary}
+                    className="loginPromptButtonSecondary"
                   >
                     회원가입
                   </Button>
@@ -163,20 +159,20 @@ export default function NavMenu() {
               </div>
             )}
 
-            <ul className={style.menuWrap}>
+            <ul className="menuWrap">
               {menuItems.map((item, index) => (
                 <li key={index}>
                   {item.divider ? (
-                    <div className={style.menuDivider} />
+                    <div className="menuDivider" />
                   ) : (
                     <button
-                      className={style.menuItem}
+                      className="menuItem"
                       onClick={() =>
                         item.action ? item.action() : item.route ? handleClick(item.route) : null
                       }
                     >
-                      <span className={style.menuIcon}>{item.icon}</span>
-                      <span className={style.menuLabel}>{item.label}</span>
+                      <span className="menuIcon">{item.icon}</span>
+                      <span className="menuLabel">{item.label}</span>
                     </button>
                   )}
                 </li>

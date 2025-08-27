@@ -135,7 +135,7 @@ function Modal(props: ModalProps) {
   };
 
   const handleModalDraggingMouseDown = (e: React.MouseEvent | React.TouchEvent) => {
-    if (!draggable || isError) return;
+    if (!draggable || type !== 'custom') return;
 
     let clientX: number, clientY: number;
 
