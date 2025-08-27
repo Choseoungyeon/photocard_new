@@ -1,7 +1,7 @@
 'use client';
 import React, { useCallback } from 'react';
 import { FiX, FiMenu, FiAlertCircle, FiCheckCircle, FiInfo } from 'react-icons/fi';
-import '@/app/style/ui/modal.scss';
+import '@/app/style/ui/Modal.scss';
 import clsx from 'clsx';
 import { gsap } from 'gsap';
 import Button from './Button';
