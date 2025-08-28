@@ -25,6 +25,9 @@ interface ModalProps {
   cancelText?: string;
   draggable?: boolean;
   resizable?: boolean;
+  onLoadMore?: () => void;
+  hasNextPage?: boolean;
+  isFetchingNextPage?: boolean;
 }
 
 function splitImagesToColumns(images: string[], columnCount: number) {
@@ -55,6 +58,9 @@ function Modal(props: ModalProps) {
     draggable = true,
     resizable = false,
     closeButton = false,
+    onLoadMore,
+    hasNextPage,
+    isFetchingNextPage,
   } = props;
 
   const expandIconRef = React.useRef<HTMLElement | null>(null);
@@ -133,6 +139,22 @@ function Modal(props: ModalProps) {
     e.stopPropagation();
     setIsExpandDragging(true);
   };
+
+  const handleScroll = useCallback(
+    (e: React.UIEvent<HTMLDivElement>) => {
+      const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+
+      if (
+        scrollHeight - scrollTop <= clientHeight * 1.5 &&
+        hasNextPage &&
+        !isFetchingNextPage &&
+        onLoadMore
+      ) {
+        onLoadMore();
+      }
+    },
+    [hasNextPage, isFetchingNextPage, onLoadMore],
+  );
 
   const handleModalDraggingMouseDown = (e: React.MouseEvent | React.TouchEvent) => {
     if (!draggable || type !== 'custom') return;
@@ -497,7 +519,16 @@ function Modal(props: ModalProps) {
               </i>
             )}
           </div>
-          <div className="modal_content">{renderContent()}</div>
+          <div
+            className="modal_content"
+            onScroll={handleScroll}
+            style={{ overflowY: 'auto', maxHeight: '60vh' }}
+          >
+            {renderContent()}
+            {isFetchingNextPage && (
+              <div style={{ textAlign: 'center', padding: '20px' }}>로딩 중...</div>
+            )}
+          </div>
         </>
       </div>
       {(type !== 'custom' || isDim) && <div className="modal_dim" onClick={closeButtonClick}></div>}

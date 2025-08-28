@@ -275,3 +275,44 @@
     transform: rotate(360deg);
   }
 }
+
+.create_box_text_element {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-weight: bold;
+  cursor: move;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  z-index: 1000;
+  pointer-events: auto;
+  padding: 4px 8px;
+  min-width: 50px;
+  min-height: 20px;
+  text-wrap: nowrap;
+  box-sizing: border-box;
+}
+.create_box_trash_button {
+  position: absolute;
+  bottom: -60px;
+  // right: calc(-100% - 10px);
+  background-color: #ff4757 !important;
+  color: white !important;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: #ff3742 !important;
+    transform: scale(1.1);
+  }
+
+  .create_box_menu_icon {
+    color: white !important;
+  }
+
+  @media (max-width: 600px) {
+    top: -60px;
+  }
+}

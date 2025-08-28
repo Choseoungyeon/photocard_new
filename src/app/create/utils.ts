@@ -201,11 +201,125 @@ export const loadImage = (src: string): Promise<HTMLImageElement> => {
   });
 };
 
+export function drawTextOnCanvas(
+  ctx: CanvasRenderingContext2D,
+  textElement: {
+    text: string;
+    color: string;
+    fontSize: number;
+    fontFamily: string;
+    fontWeight: string;
+    textAlign: string;
+  },
+  element: HTMLElement,
+  finalWidth?: number,
+  finalHeight?: number,
+  originalCanvasWidth?: number,
+  originalCanvasHeight?: number,
+  createBoxRef?: React.RefObject<HTMLDivElement | null>,
+): void {
+  try {
+    ctx.save();
+
+    const computedStyle = window.getComputedStyle(element);
+    const transform = computedStyle.transform;
+
+    const originalTransform = element.style.transform;
+    element.style.transform = 'none';
+
+    const originalRect = element.getBoundingClientRect();
+    const parentRect =
+      createBoxRef?.current?.getBoundingClientRect() ||
+      element.parentElement?.getBoundingClientRect();
+
+    element.style.transform = originalTransform;
+
+    if (!parentRect) {
+      ctx.restore();
+      return;
+    }
+
+    const currentRect = element.getBoundingClientRect();
+    let x = currentRect.left - parentRect.left;
+    let y = currentRect.top - parentRect.top;
+
+    // targetImg의 경우 createBoxRef의 border를 고려
+    if (createBoxRef) {
+      x -= 2; // 좌측 border 2px
+      y -= 2; // 상단 border 2px
+    }
+
+    let scaledX = x;
+    let scaledY = y;
+    let scaledFontSize = textElement.fontSize;
+
+    if (finalWidth && finalHeight && originalCanvasWidth && originalCanvasHeight) {
+      const scaleX = finalWidth / originalCanvasWidth;
+      const scaleY = finalHeight / originalCanvasHeight;
+
+      scaledX = x * scaleX;
+      scaledY = y * scaleY;
+      scaledFontSize = textElement.fontSize * Math.min(scaleX, scaleY);
+    }
+
+    // 텍스트 스타일 설정
+    ctx.font = `${textElement.fontWeight} ${scaledFontSize}px ${textElement.fontFamily}`;
+    ctx.fillStyle = textElement.color;
+    ctx.textAlign = textElement.textAlign as CanvasTextAlign;
+    ctx.textBaseline = 'middle';
+
+    // 텍스트 그림자 효과
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+    ctx.shadowBlur = 4;
+    ctx.shadowOffsetX = 2;
+    ctx.shadowOffsetY = 2;
+
+    if (transform && transform !== 'none' && !transform.includes('rotate')) {
+      const match = transform.match(/matrix\(([^)]+)\)/);
+      if (match) {
+        const values = match[1].split(',').map(Number);
+        const [a, b, c, d] = values;
+
+        const angle = Math.atan2(b, a);
+
+        const currentCenterX = x + currentRect.width / 2;
+        const currentCenterY = y + currentRect.height / 2;
+
+        if (finalWidth && finalHeight && originalCanvasWidth && originalCanvasHeight) {
+          const scaledCenterX = currentCenterX * (finalWidth / originalCanvasWidth);
+          const scaledCenterY = currentCenterY * (finalHeight / originalCanvasHeight);
+          ctx.translate(scaledCenterX, scaledCenterY);
+        } else {
+          ctx.translate(currentCenterX, currentCenterY);
+        }
+        ctx.rotate(angle);
+
+        ctx.fillText(textElement.text, 0, 0);
+      }
+    } else {
+      ctx.fillText(textElement.text, scaledX, scaledY);
+    }
+
+    ctx.restore();
+  } catch (error) {
+    console.error('텍스트 그리기 오류:', error);
+  }
+}
+
 export const downloadClickHandler = async (
   image: string | null,
   childrenArray: HTMLCollection | undefined,
   createBoxRef: React.RefObject<HTMLDivElement | null>,
   targetRef: React.RefObject<HTMLImageElement | null>,
+  textElements: Array<{
+    id: string;
+    text: string;
+    color: string;
+    fontSize: number;
+    fontFamily: string;
+    fontWeight: string;
+    textAlign: string;
+  }>,
   showModal: ReturnType<typeof useModal>['showModal'],
 ) => {
   try {
@@ -297,6 +411,28 @@ export const downloadClickHandler = async (
       }
     }
 
+    // 텍스트 요소 그리기
+    if (textElements && textElements.length > 0) {
+      for (const textElement of textElements) {
+        // 텍스트 요소의 DOM 요소를 찾기
+        const textDomElement = document.querySelector(
+          `[data-text-id="${textElement.id}"]`,
+        ) as HTMLElement;
+        if (textDomElement) {
+          drawTextOnCanvas(
+            ctx,
+            textElement,
+            textDomElement,
+            finalWidth,
+            finalHeight,
+            originalWidth,
+            originalHeight,
+            createBoxRef,
+          );
+        }
+      }
+    }
+
     canvas.toBlob((blob) => {
       if (!blob) {
         alert('이미지 생성에 실패했습니다.');
@@ -323,6 +459,15 @@ export const saveClickHandler = async (
   createBoxRef: React.RefObject<HTMLDivElement | null>,
   targetRef: React.RefObject<HTMLImageElement | null>,
   moveableElementImg: string[],
+  textElements: Array<{
+    id: string;
+    text: string;
+    color: string;
+    fontSize: number;
+    fontFamily: string;
+    fontWeight: string;
+    textAlign: string;
+  }>,
   showModal: ReturnType<typeof useModal>['showModal'],
   setUploadData: (
     data: {
@@ -419,6 +564,28 @@ export const saveClickHandler = async (
           originalHeight,
           createBoxRef,
         );
+      }
+    }
+
+    // 텍스트 요소 그리기
+    if (textElements && textElements.length > 0) {
+      for (const textElement of textElements) {
+        // 텍스트 요소의 DOM 요소를 찾기
+        const textDomElement = document.querySelector(
+          `[data-text-id="${textElement.id}"]`,
+        ) as HTMLElement;
+        if (textDomElement) {
+          drawTextOnCanvas(
+            ctx,
+            textElement,
+            textDomElement,
+            finalWidth,
+            finalHeight,
+            originalWidth,
+            originalHeight,
+            createBoxRef,
+          );
+        }
       }
     }
 

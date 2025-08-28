@@ -3,14 +3,24 @@ import React from 'react';
 import Dropzone from 'react-dropzone';
 import clsx from 'clsx';
 import Moveable, { OnDrag, OnResize, OnRotate } from 'react-moveable';
-import { FiUpload, FiPlus, FiImage, FiDownload, FiSmile, FiGift, FiSave } from 'react-icons/fi';
+import {
+  FiUpload,
+  FiPlus,
+  FiImage,
+  FiDownload,
+  FiSmile,
+  FiSave,
+  FiType,
+  FiTrash2,
+} from 'react-icons/fi';
 import { useModal } from '../_context/ModalContext';
 import Modal from '../_component/Modal';
 import UploadModal from '../_component/UploadModal';
+import TextInputModal from '../_component/TextInputModal';
 import { downloadClickHandler, saveClickHandler } from './utils';
-import '@/app/style/page/create.scss';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import customFetch from '@/app/_hook/customFetch';
+import '@/app/style/page/create.scss';
 
 export default function CreateClient() {
   const { showModal } = useModal();
@@ -18,8 +28,24 @@ export default function CreateClient() {
   const [menuActive, setMenuActive] = React.useState(false);
   const [moveableTarget, setMoveableTarget] = React.useState<HTMLElement[]>([]);
   const [moveableElementImg, setMoveableElementImg] = React.useState<string[]>([]);
-  const [modalRibbonActive, setModalRibbonActive] = React.useState(false);
+  const [textElements, setTextElements] = React.useState<
+    Array<{
+      id: string;
+      text: string;
+      color: string;
+      fontSize: number;
+      fontFamily: string;
+      fontWeight: string;
+      textAlign: string;
+    }>
+  >([]);
+
+  const [textElementSizes, setTextElementSizes] = React.useState<
+    Record<string, { width: number; height: number; fontSize: number }>
+  >({});
+  const [showTrashButton, setShowTrashButton] = React.useState(false);
   const [modalStickerActive, setModalStickerActive] = React.useState(false);
+  const [modalTextActive, setModalTextActive] = React.useState(false);
   const [uploadModalOpen, setUploadModalOpen] = React.useState(false);
   const [uploadData, setUploadData] = React.useState<{
     imageData: string;
@@ -31,51 +57,48 @@ export default function CreateClient() {
   const targetRef = React.useRef<HTMLImageElement | null>(null);
   const elementWrapRef = React.useRef<HTMLDivElement>(null);
 
-  const getImagePhoto = async (type: 'Sticker' | 'Ribbon') => {
-    const url = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/image/${type}`;
+  const getStickers = async (lastIndex?: number, direction: 'next' | 'prev' = 'next') => {
+    const params = new URLSearchParams();
+    params.append('limit', '20');
+
+    if (lastIndex !== undefined) {
+      params.append('last_index', lastIndex.toString());
+      params.append('direction', direction);
+    }
+
+    const url = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/image?${params.toString()}`;
     const res = await customFetch.get(url);
-    return res.data.images;
+    return res.data;
   };
 
-  // TanStack Query를 사용하여 서버에서 prefetch한 데이터 사용
-  const { data: stickerImageList = [] } = useQuery({
-    queryKey: ['sticker-images'],
-    queryFn: () => getImagePhoto('Sticker'),
-    staleTime: 5 * 60 * 1000, // 5분
-  });
-
-  const { data: ribbonImageList = [] } = useQuery({
-    queryKey: ['ribbon-images'],
-    queryFn: () => getImagePhoto('Ribbon'),
-    staleTime: 5 * 60 * 1000, // 5분
-  });
-
-  // Fallback용 mutations
-  const stickerMutation = useMutation({
-    mutationFn: () => getImagePhoto('Sticker'),
-    onError: (error: any) => {
-      console.log('스티커 이미지 로딩 실패:', error);
-      showModal({
-        type: 'error',
-        title: '오류',
-        message: error.message || '스티커 이미지 로딩 실패',
-        confirmText: '확인',
-      });
+  const {
+    data: stickersData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading: isLoadingStickers,
+    error: stickersError,
+  } = useInfiniteQuery({
+    queryKey: ['stickers'],
+    queryFn: async ({ pageParam }) => {
+      return await getStickers(pageParam?.lastIndex, pageParam?.direction);
     },
+    initialPageParam: { lastIndex: undefined, direction: 'next' as const },
+    getNextPageParam: (lastPage) => {
+      if (lastPage.pagination.hasNextPage) {
+        return {
+          lastIndex: lastPage.pagination.nextCursor,
+          direction: 'next' as const,
+        };
+      }
+      return undefined;
+    },
+    staleTime: 5 * 60 * 1000,
   });
 
-  const ribbonMutation = useMutation({
-    mutationFn: () => getImagePhoto('Ribbon'),
-    onError: (error: any) => {
-      console.log('리본 이미지 로딩 실패:', error);
-      showModal({
-        type: 'error',
-        title: '오류',
-        message: error.message || '리본 이미지 로딩 실패',
-        confirmText: '확인',
-      });
-    },
-  });
+  const stickersList = React.useMemo(() => {
+    return stickersData?.pages.flatMap((page) => page.images) || [];
+  }, [stickersData]);
 
   const dropHandler = (files: File[]) => {
     const reader = new FileReader();
@@ -92,6 +115,13 @@ export default function CreateClient() {
   const moveableElementClickHandler = (event: React.MouseEvent) => {
     const elementRef = event.currentTarget as HTMLElement;
     if (!moveableTarget.includes(elementRef)) setMoveableTarget([...moveableTarget, elementRef]);
+    setShowTrashButton(true);
+  };
+
+  const textElementClickHandler = (event: React.MouseEvent) => {
+    const elementRef = event.currentTarget as HTMLElement;
+    if (!moveableTarget.includes(elementRef)) setMoveableTarget([...moveableTarget, elementRef]);
+    setShowTrashButton(true);
   };
 
   const moveableTargetClickHandler = (event: React.MouseEvent) => {
@@ -105,12 +135,13 @@ export default function CreateClient() {
     const target = event.target as HTMLElement;
     if (moveableTarget.length > 0 && !moveableTarget.includes(target)) {
       setMoveableTarget([]);
+      setShowTrashButton(false);
     }
   };
 
   const handleDownload = () => {
     const childrenArray = elementWrapRef.current?.children;
-    downloadClickHandler(image, childrenArray, createBoxRef, targetRef, showModal);
+    downloadClickHandler(image, childrenArray, createBoxRef, targetRef, textElements, showModal);
   };
 
   const waitForImagesToLoad = async (
@@ -128,47 +159,63 @@ export default function CreateClient() {
     await Promise.all(imagePromises);
   };
 
-  const onClickStickerHandler = async () => {
+  const onClickStickersHandler = async () => {
     try {
-      let currentStickerList = stickerImageList;
-
-      if (stickerImageList.length === 0) {
-        const result = await stickerMutation.mutateAsync();
-        currentStickerList = result;
-      }
-
-      if (currentStickerList.length > 0) {
+      if (stickersList.length > 0) {
         setIsLoadingImages(true);
-        await waitForImagesToLoad(currentStickerList);
+        await waitForImagesToLoad(stickersList);
       }
 
       setModalStickerActive(true);
     } catch (error) {
       console.error('스티커 로딩 중 오류:', error);
+      showModal({
+        type: 'error',
+        title: '오류',
+        message: '스티커 로딩 중 오류가 발생했습니다.',
+        confirmText: '확인',
+      });
     } finally {
       setIsLoadingImages(false);
     }
   };
 
-  const onClickRibbonHandler = async () => {
-    try {
-      let currentRibbonList = ribbonImageList;
-      if (ribbonImageList.length === 0) {
-        const result = await ribbonMutation.mutateAsync();
-        currentRibbonList = result;
-      }
+  const onClickTextHandler = () => {
+    setModalTextActive(true);
+  };
 
-      if (currentRibbonList.length > 0) {
-        setIsLoadingImages(true);
-        await waitForImagesToLoad(currentRibbonList);
-      }
+  const addTextElement = (textData: {
+    text: string;
+    color: string;
+    fontSize: number;
+    fontFamily: string;
+    fontWeight: string;
+    textAlign: string;
+  }) => {
+    const newTextElement = {
+      id: `text-${Date.now()}`,
+      ...textData,
+    };
+    setTextElements([...textElements, newTextElement]);
 
-      setModalRibbonActive(true);
-    } catch (error) {
-      console.error('리본 로딩 중 오류:', error);
-    } finally {
-      setIsLoadingImages(false);
-    }
+    setTimeout(() => {
+      const textElement = document.querySelector(
+        `[data-text-id="${newTextElement.id}"]`,
+      ) as HTMLElement;
+      if (textElement) {
+        const rect = textElement.getBoundingClientRect();
+        setTextElementSizes((prev) => ({
+          ...prev,
+          [newTextElement.id]: {
+            width: rect.width,
+            height: rect.height,
+            fontSize: textData.fontSize,
+          },
+        }));
+      }
+    }, 100);
+
+    setModalTextActive(false);
   };
 
   const [imageLoaded, setImageLoaded] = React.useState(false);
@@ -208,10 +255,37 @@ export default function CreateClient() {
       createBoxRef,
       targetRef,
       moveableElementImg,
+      textElements,
       showModal,
       setUploadData,
       setUploadModalOpen,
     );
+  };
+
+  const handleTrashClick = () => {
+    if (moveableTarget.length > 0) {
+      const selectedElement = moveableTarget[moveableTarget.length - 1];
+
+      if (selectedElement.classList.contains('create_box_text_element')) {
+        const textId = selectedElement.getAttribute('data-text-id');
+        if (textId) {
+          setTextElements((prev) => prev.filter((element) => element.id !== textId));
+          setTextElementSizes((prev) => {
+            const newSizes = { ...prev };
+            delete newSizes[textId];
+            return newSizes;
+          });
+        }
+      } else if (selectedElement.classList.contains('create_box_element')) {
+        const src = selectedElement.getAttribute('src');
+        if (src) {
+          setMoveableElementImg((prev) => prev.filter((item) => item !== src));
+        }
+      }
+
+      setMoveableTarget([]);
+      setShowTrashButton(false);
+    }
   };
 
   React.useEffect(() => {
@@ -266,6 +340,30 @@ export default function CreateClient() {
             onResize={({ target, width, height, delta }: OnResize) => {
               if (delta[0]) target!.style.width = `${width}px`;
               if (delta[1]) target!.style.height = `${height}px`;
+
+              if (target!.classList.contains('create_box_text_element')) {
+                const textId = target!.getAttribute('data-text-id');
+                if (textId) {
+                  const initialSize = textElementSizes[textId];
+                  if (initialSize) {
+                    setTextElements((prev) =>
+                      prev.map((textElement) => {
+                        if (textElement.id === textId) {
+                          const widthRatio = width / initialSize.width;
+                          const heightRatio = height / initialSize.height;
+                          const scaleRatio = Math.min(widthRatio, heightRatio);
+
+                          return {
+                            ...textElement,
+                            fontSize: Math.max(12, Math.round(initialSize.fontSize * scaleRatio)),
+                          };
+                        }
+                        return textElement;
+                      }),
+                    );
+                  }
+                }
+              }
             }}
             rotatable={true}
             throttleRotate={0}
@@ -278,6 +376,9 @@ export default function CreateClient() {
             preventDefault={true}
           />
           <div className="create_box_element_wrap" ref={elementWrapRef}>
+            {(() => {
+              return null;
+            })()}
             {moveableElementImg.map((item, idx) => {
               return (
                 <img
@@ -295,6 +396,28 @@ export default function CreateClient() {
                 />
               );
             })}
+            {textElements.map((textElement) => (
+              <div
+                key={textElement.id}
+                data-text-id={textElement.id}
+                className="create_box_text_element"
+                onClick={textElementClickHandler}
+                style={{
+                  color: textElement.color,
+                  fontSize: `${textElement.fontSize}px`,
+                  fontFamily: textElement.fontFamily,
+                  fontWeight: textElement.fontWeight,
+                  textAlign: textElement.textAlign as 'left' | 'center' | 'right',
+                }}
+              >
+                {textElement.text.split('\n').map((line, index) => (
+                  <div key={index}>
+                    {line}
+                    {index < textElement.text.split('\n').length - 1 && <br />}
+                  </div>
+                ))}
+              </div>
+            ))}
           </div>
         </div>
         <div className="create_box_menu">
@@ -306,6 +429,18 @@ export default function CreateClient() {
               <FiPlus />
             </i>
           </span>
+
+          {showTrashButton && (
+            <span
+              className="create_box_menu_item create_box_trash_button"
+              onClick={handleTrashClick}
+              title="선택된 요소 삭제"
+            >
+              <i className="create_box_menu_icon">
+                <FiTrash2 />
+              </i>
+            </span>
+          )}
           {menuActive ? (
             <>
               <span
@@ -319,28 +454,20 @@ export default function CreateClient() {
               </span>
               <span
                 className={clsx('create_box_menu_item', {
-                  'is-loading': ribbonMutation.isPending || isLoadingImages,
+                  'is-loading': isLoadingStickers || isLoadingImages,
                 })}
-                onClick={onClickRibbonHandler}
+                onClick={onClickStickersHandler}
                 style={{
-                  pointerEvents: ribbonMutation.isPending || isLoadingImages ? 'none' : 'auto',
-                }}
-              >
-                <i className="create_box_menu_icon">
-                  <FiGift />
-                </i>
-              </span>
-              <span
-                className={clsx('create_box_menu_item', {
-                  'is-loading': stickerMutation.isPending || isLoadingImages,
-                })}
-                onClick={onClickStickerHandler}
-                style={{
-                  pointerEvents: stickerMutation.isPending || isLoadingImages ? 'none' : 'auto',
+                  pointerEvents: isLoadingStickers || isLoadingImages ? 'none' : 'auto',
                 }}
               >
                 <i className="create_box_menu_icon">
                   <FiSmile />
+                </i>
+              </span>
+              <span className="create_box_menu_item" onClick={onClickTextHandler}>
+                <i className="create_box_menu_icon">
+                  <FiType />
                 </i>
               </span>
               <span className="create_box_menu_item" onClick={handleDownload}>
@@ -363,27 +490,22 @@ export default function CreateClient() {
         type="custom"
         title="스티커"
         closeButton={true}
-        imageList={stickerImageList}
+        imageList={stickersList}
         elementClick={(val: string) => {
           setMoveableElementImg([...moveableElementImg, val]);
         }}
         onClose={() => setModalStickerActive(false)}
         resizable={true}
         draggable={true}
+        onLoadMore={fetchNextPage}
+        hasNextPage={hasNextPage}
+        isFetchingNextPage={isFetchingNextPage}
       />
 
-      <Modal
-        open={modalRibbonActive}
-        type="custom"
-        title="리본"
-        closeButton={true}
-        imageList={ribbonImageList}
-        elementClick={(val: string) => {
-          setMoveableElementImg([...moveableElementImg, val]);
-        }}
-        onClose={() => setModalRibbonActive(false)}
-        resizable={true}
-        draggable={true}
+      <TextInputModal
+        isOpen={modalTextActive}
+        onClose={() => setModalTextActive(false)}
+        onAddText={addTextElement}
       />
 
       <UploadModal
