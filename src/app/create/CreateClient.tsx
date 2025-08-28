@@ -57,6 +57,26 @@ export default function CreateClient() {
   const targetRef = React.useRef<HTMLImageElement | null>(null);
   const elementWrapRef = React.useRef<HTMLDivElement>(null);
 
+  // Moveable 핸들 크기 계산 함수
+  const getHandleSize = (element: HTMLElement | SVGElement) => {
+    const rect = element.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+
+    // 요소의 크기에 따라 핸들 크기 조정
+    const minSize = Math.min(width, height);
+
+    if (minSize < 30) {
+      return 6; // 매우 작은 요소
+    } else if (minSize < 60) {
+      return 8; // 작은 요소
+    } else if (minSize < 100) {
+      return 10; // 중간 요소
+    } else {
+      return 12; // 큰 요소 (기본값)
+    }
+  };
+
   const getStickers = async (lastIndex?: number, direction: 'next' | 'prev' = 'next') => {
     const params = new URLSearchParams();
     params.append('limit', '20');
@@ -341,6 +361,34 @@ export default function CreateClient() {
               if (delta[0]) target!.style.width = `${width}px`;
               if (delta[1]) target!.style.height = `${height}px`;
 
+              const handleSize = getHandleSize(target);
+              const moveableElement = document.querySelector('.create_box_moveable');
+              if (moveableElement) {
+                const controls = moveableElement.querySelectorAll('.moveable-control');
+                controls.forEach((control) => {
+                  const element = control as HTMLElement;
+                  element.style.width = `${handleSize}px`;
+                  element.style.height = `${handleSize}px`;
+
+                  // 크기에 따른 클래스 추가
+                  element.classList.remove(
+                    'small-handle',
+                    'medium-handle',
+                    'large-handle',
+                    'default-handle',
+                  );
+                  if (handleSize <= 6) {
+                    element.classList.add('small-handle');
+                  } else if (handleSize <= 8) {
+                    element.classList.add('medium-handle');
+                  } else if (handleSize <= 10) {
+                    element.classList.add('large-handle');
+                  } else {
+                    element.classList.add('default-handle');
+                  }
+                });
+              }
+
               if (target!.classList.contains('create_box_text_element')) {
                 const textId = target!.getAttribute('data-text-id');
                 if (textId) {
@@ -374,6 +422,36 @@ export default function CreateClient() {
             pinchThreshold={0}
             pinchOutside={true}
             preventDefault={true}
+            onRender={({ target }) => {
+              // 렌더링 시 핸들 크기 조정
+              const handleSize = getHandleSize(target);
+              const moveableElement = document.querySelector('.create_box_moveable');
+              if (moveableElement) {
+                const controls = moveableElement.querySelectorAll('.moveable-control');
+                controls.forEach((control) => {
+                  const element = control as HTMLElement;
+                  element.style.width = `${handleSize}px`;
+                  element.style.height = `${handleSize}px`;
+
+                  // 크기에 따른 클래스 추가
+                  element.classList.remove(
+                    'small-handle',
+                    'medium-handle',
+                    'large-handle',
+                    'default-handle',
+                  );
+                  if (handleSize <= 6) {
+                    element.classList.add('small-handle');
+                  } else if (handleSize <= 8) {
+                    element.classList.add('medium-handle');
+                  } else if (handleSize <= 10) {
+                    element.classList.add('large-handle');
+                  } else {
+                    element.classList.add('default-handle');
+                  }
+                });
+              }
+            }}
           />
           <div className="create_box_element_wrap" ref={elementWrapRef}>
             {(() => {

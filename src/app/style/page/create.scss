@@ -1,6 +1,6 @@
 .create_page {
   width: 100vw;
-  height: 100svh;
+  height: 100dvh;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -233,6 +233,57 @@
 
     &.moveable-origin {
       border: 2px solid #f0f6fc !important;
+    }
+
+    // 작은 요소용 핸들
+    &.small-handle {
+      width: 6px !important;
+      height: 6px !important;
+      border-width: 1px !important;
+    }
+
+    // 중간 요소용 핸들
+    &.medium-handle {
+      width: 8px !important;
+      height: 8px !important;
+      border-width: 1.5px !important;
+    }
+
+    // 큰 요소용 핸들
+    &.large-handle {
+      width: 10px !important;
+      height: 10px !important;
+      border-width: 2px !important;
+    }
+
+    // 기본 핸들
+    &.default-handle {
+      width: 12px !important;
+      height: 12px !important;
+      border-width: 2px !important;
+    }
+  }
+
+  // 회전 컨트롤도 크기 조정
+  & .moveable-rotation-control {
+    &.small-handle {
+      width: 8px !important;
+      height: 8px !important;
+    }
+
+    &.medium-handle {
+      width: 10px !important;
+      height: 10px !important;
+    }
+
+    &.large-handle {
+      width: 12px !important;
+      height: 12px !important;
+    }
+
+    &.default-handle {
+      width: 14px !important;
+      height: 14px !important;
     }
   }
 }
