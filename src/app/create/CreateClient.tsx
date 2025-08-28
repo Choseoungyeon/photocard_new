@@ -2,7 +2,7 @@
 import React from 'react';
 import Dropzone from 'react-dropzone';
 import clsx from 'clsx';
-import Moveable, { OnDrag, OnResize, OnRotate } from 'react-moveable';
+import Moveable, { OnDrag, OnResize, OnRotate, OnRender } from 'react-moveable';
 import {
   FiUpload,
   FiPlus,
@@ -34,7 +34,6 @@ export default function CreateClient() {
       text: string;
       color: string;
       fontSize: number;
-      fontFamily: string;
       fontWeight: string;
       textAlign: string;
     }>
@@ -52,6 +51,7 @@ export default function CreateClient() {
     originalImage: string;
     stickers: string[];
   } | null>(null);
+  const [isRotating, setIsRotating] = React.useState(false);
 
   const createBoxRef = React.useRef<HTMLDivElement>(null);
   const targetRef = React.useRef<HTMLImageElement | null>(null);
@@ -208,7 +208,6 @@ export default function CreateClient() {
     text: string;
     color: string;
     fontSize: number;
-    fontFamily: string;
     fontWeight: string;
     textAlign: string;
   }) => {
@@ -266,6 +265,141 @@ export default function CreateClient() {
       setMoveableTarget([]);
     }
   }, [image, imageLoaded]);
+
+  // moveableTarget이 변경될 때 핸들 크기 조정
+  React.useEffect(() => {
+    if (moveableTarget.length > 0) {
+      const moveableElement = document.querySelector('.create_box_moveable');
+      if (moveableElement) {
+        const target = moveableTarget[0];
+        const handleSize = getHandleSize(target);
+        const controls = moveableElement.querySelectorAll('.moveable-control');
+        controls.forEach((control) => {
+          const element = control as HTMLElement;
+          element.style.width = `${handleSize}px`;
+          element.style.height = `${handleSize}px`;
+
+          // 크기에 따른 클래스 추가
+          element.classList.remove(
+            'small-handle',
+            'medium-handle',
+            'large-handle',
+            'default-handle',
+          );
+          if (handleSize <= 6) {
+            element.classList.add('small-handle');
+          } else if (handleSize <= 8) {
+            element.classList.add('medium-handle');
+          } else if (handleSize <= 10) {
+            element.classList.add('large-handle');
+          } else {
+            element.classList.add('default-handle');
+          }
+        });
+      }
+    }
+  }, [moveableTarget]);
+
+  // Moveable 이벤트 핸들러들
+  const handleDrag = ({ target, transform }: OnDrag) => {
+    target!.style.transform = transform;
+  };
+
+  const handleResize = ({ target, width, height, delta }: OnResize) => {
+    if (delta[0]) target!.style.width = `${width}px`;
+    if (delta[1]) target!.style.height = `${height}px`;
+
+    if (target!.classList.contains('create_box_text_element')) {
+      const textId = target!.getAttribute('data-text-id');
+      if (textId) {
+        const initialSize = textElementSizes[textId];
+        if (initialSize) {
+          const widthRatio = width / initialSize.width;
+          const heightRatio = height / initialSize.height;
+          const scaleRatio = Math.min(widthRatio, heightRatio);
+          const newFontSize = Math.round(initialSize.fontSize * scaleRatio);
+
+          // 폰트 크기가 12px 이하로 내려가지 않도록 제한
+          if (newFontSize < 12) {
+            // 폰트 크기를 12px로 고정하고, 요소 크기를 그에 맞게 조정
+            const minScaleRatio = 12 / initialSize.fontSize;
+            const adjustedWidth = Math.round(initialSize.width * minScaleRatio);
+            const adjustedHeight = Math.round(initialSize.height * minScaleRatio);
+
+            target!.style.width = `${adjustedWidth}px`;
+            target!.style.height = `${adjustedHeight}px`;
+
+            setTextElements((prev) =>
+              prev.map((textElement) => {
+                if (textElement.id === textId) {
+                  return {
+                    ...textElement,
+                    fontSize: 12,
+                  };
+                }
+                return textElement;
+              }),
+            );
+          } else {
+            setTextElements((prev) =>
+              prev.map((textElement) => {
+                if (textElement.id === textId) {
+                  return {
+                    ...textElement,
+                    fontSize: newFontSize,
+                  };
+                }
+                return textElement;
+              }),
+            );
+          }
+        }
+      }
+    }
+  };
+
+  const handleRotate = ({ target, transform }: OnRotate) => {
+    target!.style.transform = transform;
+  };
+
+  const handleRotateStart = () => {
+    setIsRotating(true);
+  };
+
+  const handleRotateEnd = () => {
+    setIsRotating(false);
+  };
+
+  const handleRender = ({ target }: OnRender) => {
+    // 회전 중일 때는 핸들 크기 조정 무시
+    if (isRotating) {
+      return;
+    }
+
+    // 렌더링 시 핸들 크기 조정
+    const handleSize = getHandleSize(target);
+    const moveableElement = document.querySelector('.create_box_moveable');
+    if (moveableElement) {
+      const controls = moveableElement.querySelectorAll('.moveable-control');
+      controls.forEach((control) => {
+        const element = control as HTMLElement;
+        element.style.width = `${handleSize}px`;
+        element.style.height = `${handleSize}px`;
+
+        // 크기에 따른 클래스 추가
+        element.classList.remove('small-handle', 'medium-handle', 'large-handle', 'default-handle');
+        if (handleSize <= 6) {
+          element.classList.add('small-handle');
+        } else if (handleSize <= 8) {
+          element.classList.add('medium-handle');
+        } else if (handleSize <= 10) {
+          element.classList.add('large-handle');
+        } else {
+          element.classList.add('default-handle');
+        }
+      });
+    }
+  };
 
   const handleSave = () => {
     const childrenArray = elementWrapRef.current?.children;
@@ -351,107 +485,21 @@ export default function CreateClient() {
             edge={false}
             draggable={true}
             throttleDrag={0}
-            onDrag={({ target, transform }: OnDrag) => {
-              target!.style.transform = transform;
-            }}
+            onDrag={handleDrag}
             keepRatio={true}
             resizable={true}
             throttleResize={0}
-            onResize={({ target, width, height, delta }: OnResize) => {
-              if (delta[0]) target!.style.width = `${width}px`;
-              if (delta[1]) target!.style.height = `${height}px`;
-
-              const handleSize = getHandleSize(target);
-              const moveableElement = document.querySelector('.create_box_moveable');
-              if (moveableElement) {
-                const controls = moveableElement.querySelectorAll('.moveable-control');
-                controls.forEach((control) => {
-                  const element = control as HTMLElement;
-                  element.style.width = `${handleSize}px`;
-                  element.style.height = `${handleSize}px`;
-
-                  // 크기에 따른 클래스 추가
-                  element.classList.remove(
-                    'small-handle',
-                    'medium-handle',
-                    'large-handle',
-                    'default-handle',
-                  );
-                  if (handleSize <= 6) {
-                    element.classList.add('small-handle');
-                  } else if (handleSize <= 8) {
-                    element.classList.add('medium-handle');
-                  } else if (handleSize <= 10) {
-                    element.classList.add('large-handle');
-                  } else {
-                    element.classList.add('default-handle');
-                  }
-                });
-              }
-
-              if (target!.classList.contains('create_box_text_element')) {
-                const textId = target!.getAttribute('data-text-id');
-                if (textId) {
-                  const initialSize = textElementSizes[textId];
-                  if (initialSize) {
-                    setTextElements((prev) =>
-                      prev.map((textElement) => {
-                        if (textElement.id === textId) {
-                          const widthRatio = width / initialSize.width;
-                          const heightRatio = height / initialSize.height;
-                          const scaleRatio = Math.min(widthRatio, heightRatio);
-
-                          return {
-                            ...textElement,
-                            fontSize: Math.max(12, Math.round(initialSize.fontSize * scaleRatio)),
-                          };
-                        }
-                        return textElement;
-                      }),
-                    );
-                  }
-                }
-              }
-            }}
+            onResize={handleResize}
             rotatable={true}
             throttleRotate={0}
-            onRotate={({ target, transform }: OnRotate) => {
-              target!.style.transform = transform;
-            }}
+            onRotate={handleRotate}
+            onRotateStart={handleRotateStart}
+            onRotateEnd={handleRotateEnd}
             pinchable={true}
             pinchThreshold={0}
             pinchOutside={true}
             preventDefault={true}
-            onRender={({ target }) => {
-              // 렌더링 시 핸들 크기 조정
-              const handleSize = getHandleSize(target);
-              const moveableElement = document.querySelector('.create_box_moveable');
-              if (moveableElement) {
-                const controls = moveableElement.querySelectorAll('.moveable-control');
-                controls.forEach((control) => {
-                  const element = control as HTMLElement;
-                  element.style.width = `${handleSize}px`;
-                  element.style.height = `${handleSize}px`;
-
-                  // 크기에 따른 클래스 추가
-                  element.classList.remove(
-                    'small-handle',
-                    'medium-handle',
-                    'large-handle',
-                    'default-handle',
-                  );
-                  if (handleSize <= 6) {
-                    element.classList.add('small-handle');
-                  } else if (handleSize <= 8) {
-                    element.classList.add('medium-handle');
-                  } else if (handleSize <= 10) {
-                    element.classList.add('large-handle');
-                  } else {
-                    element.classList.add('default-handle');
-                  }
-                });
-              }
-            }}
+            onRender={handleRender}
           />
           <div className="create_box_element_wrap" ref={elementWrapRef}>
             {(() => {
@@ -483,7 +531,6 @@ export default function CreateClient() {
                 style={{
                   color: textElement.color,
                   fontSize: `${textElement.fontSize}px`,
-                  fontFamily: textElement.fontFamily,
                   fontWeight: textElement.fontWeight,
                   textAlign: textElement.textAlign as 'left' | 'center' | 'right',
                 }}

@@ -519,11 +519,7 @@ function Modal(props: ModalProps) {
               </i>
             )}
           </div>
-          <div
-            className="modal_content"
-            onScroll={handleScroll}
-            style={{ overflowY: 'auto', maxHeight: '60vh' }}
-          >
+          <div className="modal_content" onScroll={handleScroll} style={{ overflowY: 'auto' }}>
             {renderContent()}
             {isFetchingNextPage && (
               <div style={{ textAlign: 'center', padding: '20px' }}>로딩 중...</div>

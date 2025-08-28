@@ -14,7 +14,6 @@ interface TextInputModalProps {
     text: string;
     color: string;
     fontSize: number;
-    fontFamily: string;
     fontWeight: string;
     textAlign: string;
   }) => void;
@@ -24,25 +23,13 @@ interface FormValues {
   text: string;
   color: string;
   fontSize: number;
-  fontFamily: string;
   fontWeight: string;
   textAlign: string;
 }
 
-const fontFamilies = [
-  { value: 'Arial, sans-serif', label: 'Arial' },
-  { value: 'Times New Roman, serif', label: 'Times New Roman' },
-  { value: 'Courier New, monospace', label: 'Courier New' },
-  { value: 'Georgia, serif', label: 'Georgia' },
-  { value: 'Verdana, sans-serif', label: 'Verdana' },
-  { value: 'Impact, sans-serif', label: 'Impact' },
-  { value: 'Comic Sans MS, cursive', label: 'Comic Sans MS' },
-];
-
 export default function TextInputModal({ isOpen, onClose, onAddText }: TextInputModalProps) {
   const [selectedColor, setSelectedColor] = useState('#FFFFFF');
   const [selectedFontSize, setSelectedFontSize] = useState(24);
-  const [selectedFontFamily, setSelectedFontFamily] = useState('Arial, sans-serif');
   const [selectedFontWeight, setSelectedFontWeight] = useState('bold');
   const [selectedTextAlign, setSelectedTextAlign] = useState('center');
 
@@ -56,7 +43,6 @@ export default function TextInputModal({ isOpen, onClose, onAddText }: TextInput
       text: '',
       color: '#FFFFFF',
       fontSize: 24,
-      fontFamily: 'Arial, sans-serif',
       fontWeight: 'bold',
       textAlign: 'center',
     },
@@ -67,7 +53,6 @@ export default function TextInputModal({ isOpen, onClose, onAddText }: TextInput
       text: data.text,
       color: selectedColor,
       fontSize: selectedFontSize,
-      fontFamily: selectedFontFamily,
       fontWeight: selectedFontWeight,
       textAlign: selectedTextAlign,
     });
@@ -75,7 +60,6 @@ export default function TextInputModal({ isOpen, onClose, onAddText }: TextInput
       text: data.text,
       color: selectedColor,
       fontSize: selectedFontSize,
-      fontFamily: selectedFontFamily,
       fontWeight: selectedFontWeight,
       textAlign: selectedTextAlign,
     });
@@ -142,21 +126,6 @@ export default function TextInputModal({ isOpen, onClose, onAddText }: TextInput
             </div>
 
             <div className="text_input_modal_field">
-              <label className="text_input_modal_label">폰트</label>
-              <select
-                value={selectedFontFamily}
-                onChange={(e) => setSelectedFontFamily(e.target.value)}
-                className="text_input_modal_font_select"
-              >
-                {fontFamilies.map((font) => (
-                  <option key={font.value} value={font.value}>
-                    {font.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="text_input_modal_field">
               <label className="text_input_modal_label">폰트 굵기</label>
               <select
                 value={selectedFontWeight}
@@ -188,7 +157,6 @@ export default function TextInputModal({ isOpen, onClose, onAddText }: TextInput
                 style={{
                   color: selectedColor,
                   fontSize: `${selectedFontSize}px`,
-                  fontFamily: selectedFontFamily,
                   fontWeight: selectedFontWeight,
                   textAlign: selectedTextAlign as 'left' | 'center' | 'right',
                 }}

@@ -201,13 +201,12 @@ export const loadImage = (src: string): Promise<HTMLImageElement> => {
   });
 };
 
-export function drawTextOnCanvas(
+export async function drawTextOnCanvas(
   ctx: CanvasRenderingContext2D,
   textElement: {
     text: string;
     color: string;
     fontSize: number;
-    fontFamily: string;
     fontWeight: string;
     textAlign: string;
   },
@@ -217,8 +216,11 @@ export function drawTextOnCanvas(
   originalCanvasWidth?: number,
   originalCanvasHeight?: number,
   createBoxRef?: React.RefObject<HTMLDivElement | null>,
-): void {
+): Promise<void> {
   try {
+    // 웹폰트 로딩 완료 대기
+    await document.fonts.ready;
+
     ctx.save();
 
     const computedStyle = window.getComputedStyle(element);
@@ -267,17 +269,15 @@ export function drawTextOnCanvas(
       scaledHeight = displayHeight * scaleY;
       scaledFontSize = textElement.fontSize * Math.min(scaleX, scaleY);
     }
-
     // 텍스트 스타일 설정
-    ctx.font = `${textElement.fontWeight} ${scaledFontSize}px ${textElement.fontFamily}`;
+    ctx.font = `${textElement.fontWeight} ${scaledFontSize}px "Noto Sans KR", sans-serif`;
     ctx.fillStyle = textElement.color;
     ctx.textAlign = textElement.textAlign as CanvasTextAlign;
-    ctx.textBaseline = 'top';
+    ctx.textBaseline = 'middle';
 
     // 텍스트 그리기 (줄바꿈 지원)
     const lines = textElement.text.split('\n');
-    const lineHeight = scaledFontSize * 1.2;
-    const totalHeight = lines.length * lineHeight;
+    const lineHeight = scaledFontSize * 1;
 
     if (transform && transform !== 'none' && !transform.includes('rotate')) {
       const match = transform.match(/matrix\(([^)]+)\)/);
@@ -299,9 +299,6 @@ export function drawTextOnCanvas(
         }
         ctx.rotate(angle);
 
-        // 회전된 상태에서는 textBaseline을 top으로 설정
-        ctx.textBaseline = 'top';
-
         // 회전된 상태에서 줄바꿈 텍스트 그리기
         lines.forEach((line, index) => {
           let textX = 0;
@@ -315,13 +312,14 @@ export function drawTextOnCanvas(
             textX = -scaledWidth / 2;
           }
 
-          // 전체 텍스트 블록의 중앙을 기준으로 각 줄의 위치 계산
+          // 블록 중심(0,0)을 기준으로 각 줄의 y 위치 계산
           const lineY = (index - (lines.length - 1) / 2) * lineHeight;
           ctx.fillText(line, textX, lineY);
         });
       }
     } else {
-      // 일반 상태에서 줄바꿈 텍스트 그리기
+      // 일반 상태에서 줄바꿈 텍스트 그리기 (flexbox center 정렬과 동일)
+      const centerY = scaledY + scaledHeight / 2;
       lines.forEach((line, index) => {
         let textX = scaledX;
 
@@ -332,8 +330,8 @@ export function drawTextOnCanvas(
           textX = scaledX + scaledWidth;
         }
 
-        // 텍스트 요소의 중앙에 텍스트 블록이 위치하도록 계산
-        const lineY = scaledY + (scaledHeight - totalHeight) / 2 + index * lineHeight;
+        // 각 줄의 y 위치 계산 (중심점 기준)
+        const lineY = centerY + (index - (lines.length - 1) / 2) * lineHeight;
         ctx.fillText(line, textX, lineY);
       });
     }
@@ -354,7 +352,6 @@ export const downloadClickHandler = async (
     text: string;
     color: string;
     fontSize: number;
-    fontFamily: string;
     fontWeight: string;
     textAlign: string;
   }>,
@@ -457,7 +454,7 @@ export const downloadClickHandler = async (
           `[data-text-id="${textElement.id}"]`,
         ) as HTMLElement;
         if (textDomElement) {
-          drawTextOnCanvas(
+          await drawTextOnCanvas(
             ctx,
             textElement,
             textDomElement,
@@ -502,7 +499,6 @@ export const saveClickHandler = async (
     text: string;
     color: string;
     fontSize: number;
-    fontFamily: string;
     fontWeight: string;
     textAlign: string;
   }>,
@@ -613,7 +609,7 @@ export const saveClickHandler = async (
           `[data-text-id="${textElement.id}"]`,
         ) as HTMLElement;
         if (textDomElement) {
-          drawTextOnCanvas(
+          await drawTextOnCanvas(
             ctx,
             textElement,
             textDomElement,

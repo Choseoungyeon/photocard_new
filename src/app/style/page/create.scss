@@ -240,6 +240,8 @@
       width: 6px !important;
       height: 6px !important;
       border-width: 1px !important;
+      margin-left: -3px !important;
+      margin-top: -3px !important;
     }
 
     // 중간 요소용 핸들
@@ -247,6 +249,8 @@
       width: 8px !important;
       height: 8px !important;
       border-width: 1.5px !important;
+      margin-left: -4px !important;
+      margin-top: -4px !important;
     }
 
     // 큰 요소용 핸들
@@ -254,6 +258,8 @@
       width: 10px !important;
       height: 10px !important;
       border-width: 2px !important;
+      margin-left: -5px !important;
+      margin-top: -5px !important;
     }
 
     // 기본 핸들
@@ -269,16 +275,22 @@
     &.small-handle {
       width: 8px !important;
       height: 8px !important;
+      margin-left: -4px !important;
+      margin-top: -4px !important;
     }
 
     &.medium-handle {
       width: 10px !important;
       height: 10px !important;
+      margin-left: -5px !important;
+      margin-top: -5px !important;
     }
 
     &.large-handle {
       width: 12px !important;
       height: 12px !important;
+      margin-left: -6px !important;
+      margin-top: -6px !important;
     }
 
     &.default-handle {
@@ -340,10 +352,11 @@
   -webkit-touch-callout: none;
   z-index: 1000;
   pointer-events: auto;
-  min-width: 50px;
-  min-height: 20px;
+  line-height: 1;
+  // min-width: 50px;
+  // min-height: 20px;
   text-wrap: nowrap;
-  box-sizing: border-box;
+  box-sizing: border-box; // 전역 폰트 설정을 무시하고 인라인 스타일의 폰트 패밀리를 우선 적용
 }
 .create_box_trash_button {
   position: absolute;
