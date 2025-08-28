@@ -228,9 +228,8 @@ export function drawTextOnCanvas(
     element.style.transform = 'none';
 
     const originalRect = element.getBoundingClientRect();
-    const parentRect =
-      createBoxRef?.current?.getBoundingClientRect() ||
-      element.parentElement?.getBoundingClientRect();
+    // createBoxRef를 부모로 사용
+    const parentRect = createBoxRef?.current?.getBoundingClientRect();
 
     element.style.transform = originalTransform;
 
@@ -239,11 +238,14 @@ export function drawTextOnCanvas(
       return;
     }
 
+    const displayWidth = originalRect.width;
+    const displayHeight = originalRect.height;
+
     const currentRect = element.getBoundingClientRect();
     let x = currentRect.left - parentRect.left;
     let y = currentRect.top - parentRect.top;
 
-    // targetImg의 경우 createBoxRef의 border를 고려
+    // createBoxRef의 border를 고려
     if (createBoxRef) {
       x -= 2; // 좌측 border 2px
       y -= 2; // 상단 border 2px
@@ -251,6 +253,8 @@ export function drawTextOnCanvas(
 
     let scaledX = x;
     let scaledY = y;
+    let scaledWidth = displayWidth;
+    let scaledHeight = displayHeight;
     let scaledFontSize = textElement.fontSize;
 
     if (finalWidth && finalHeight && originalCanvasWidth && originalCanvasHeight) {
@@ -259,6 +263,8 @@ export function drawTextOnCanvas(
 
       scaledX = x * scaleX;
       scaledY = y * scaleY;
+      scaledWidth = displayWidth * scaleX;
+      scaledHeight = displayHeight * scaleY;
       scaledFontSize = textElement.fontSize * Math.min(scaleX, scaleY);
     }
 
@@ -266,13 +272,12 @@ export function drawTextOnCanvas(
     ctx.font = `${textElement.fontWeight} ${scaledFontSize}px ${textElement.fontFamily}`;
     ctx.fillStyle = textElement.color;
     ctx.textAlign = textElement.textAlign as CanvasTextAlign;
-    ctx.textBaseline = 'middle';
+    ctx.textBaseline = 'top';
 
-    // 텍스트 그림자 효과
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
-    ctx.shadowBlur = 4;
-    ctx.shadowOffsetX = 2;
-    ctx.shadowOffsetY = 2;
+    // 텍스트 그리기 (줄바꿈 지원)
+    const lines = textElement.text.split('\n');
+    const lineHeight = scaledFontSize * 1.2;
+    const totalHeight = lines.length * lineHeight;
 
     if (transform && transform !== 'none' && !transform.includes('rotate')) {
       const match = transform.match(/matrix\(([^)]+)\)/);
@@ -294,10 +299,43 @@ export function drawTextOnCanvas(
         }
         ctx.rotate(angle);
 
-        ctx.fillText(textElement.text, 0, 0);
+        // 회전된 상태에서는 textBaseline을 top으로 설정
+        ctx.textBaseline = 'top';
+
+        // 회전된 상태에서 줄바꿈 텍스트 그리기
+        lines.forEach((line, index) => {
+          let textX = 0;
+
+          // textAlign에 따라 x 위치 조정
+          if (textElement.textAlign === 'center') {
+            textX = 0; // 회전된 상태에서는 중심점이 이미 0으로 설정됨
+          } else if (textElement.textAlign === 'right') {
+            textX = scaledWidth / 2;
+          } else if (textElement.textAlign === 'left') {
+            textX = -scaledWidth / 2;
+          }
+
+          // 전체 텍스트 블록의 중앙을 기준으로 각 줄의 위치 계산
+          const lineY = (index - (lines.length - 1) / 2) * lineHeight;
+          ctx.fillText(line, textX, lineY);
+        });
       }
     } else {
-      ctx.fillText(textElement.text, scaledX, scaledY);
+      // 일반 상태에서 줄바꿈 텍스트 그리기
+      lines.forEach((line, index) => {
+        let textX = scaledX;
+
+        // textAlign에 따라 x 위치 조정
+        if (textElement.textAlign === 'center') {
+          textX = scaledX + scaledWidth / 2;
+        } else if (textElement.textAlign === 'right') {
+          textX = scaledX + scaledWidth;
+        }
+
+        // 텍스트 요소의 중앙에 텍스트 블록이 위치하도록 계산
+        const lineY = scaledY + (scaledHeight - totalHeight) / 2 + index * lineHeight;
+        ctx.fillText(line, textX, lineY);
+      });
     }
 
     ctx.restore();
