@@ -1,5 +1,5 @@
 import React from 'react';
-import { FiEdit3, FiTrash2 } from 'react-icons/fi';
+import { FiEdit3, FiTrash2, FiDownload } from 'react-icons/fi';
 import Card from './Card';
 import Button from './Button';
 import { formatDate } from '../gallery/utils';
@@ -39,6 +39,23 @@ export default function PhotocardCard({
   isDeleting = false,
   variant = 'gallery',
 }: PhotocardCardProps) {
+  const handleDownload = async () => {
+    try {
+      const response = await fetch(card.images.main);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${card.title || 'photocard'}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('다운로드 중 오류가 발생했습니다:', error);
+    }
+  };
+
   return (
     <Card className={`photocard-card ${className}`}>
       <div className="photocard-image">
@@ -62,6 +79,14 @@ export default function PhotocardCard({
 
       {showActions && (
         <div className="photocard-actions">
+          <Button
+            size="small"
+            onClick={handleDownload}
+            className="photocard-download"
+            disabled={isDeleting}
+          >
+            <FiDownload />
+          </Button>
           <Button
             size="small"
             onClick={() => onEdit?.(card)}

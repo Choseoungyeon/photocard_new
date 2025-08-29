@@ -22,9 +22,9 @@ export default function Home() {
             </div>
 
             <h1 className="hero__title">
-              PhotoCard는 추억을 담는
+              소중한 순간을 담아내는
               <br />
-              <span className="hero__title-highlight">포토카드</span> 제작 플랫폼입니다
+              <span className="hero__title-highlight">나만의 포토카드</span>를 만들어보세요
             </h1>
 
             <p className="hero__subtitle">
@@ -118,9 +118,10 @@ export default function Home() {
       <section className="features">
         <div className="features__container">
           <div className="features__header">
-            <h2 className="features__title">모든 팀을 위한 완벽한 도구</h2>
+            <h2 className="features__title">누구나 쉽게 만들 수 있는 포토카드</h2>
             <p className="features__subtitle">
-              PhotoCard는 개인부터 기업까지, 모든 규모의 팀이 사용할 수 있도록 설계되었습니다.
+              PhotoCard는 누구나 쉽고 재미있게 사용할 수 있도록 설계되었습니다. 반려동물의 일상부터
+              소중한 순간까지, 특별한 기록을 아름다운 포토카드로 남겨보세요.
             </p>
           </div>
 
@@ -146,7 +147,7 @@ export default function Home() {
 
             <div className="feature">
               <div className="feature__icon">
-                <div className="feature__icon-bg feature__icon-bg--speed"></div>
+                <div className="feature__icon-bg feature__icon-bg--diary"></div>
                 <svg
                   className="feature__icon-svg"
                   width="24"
@@ -154,12 +155,12 @@ export default function Home() {
                   viewBox="0 0 24 24"
                   fill="currentColor"
                 >
-                  <path d="M13 2.05v3.03c3.39.49 6 3.39 6 6.92 0 .9-.18 1.75-.5 2.54l2.6 1.53c.56-1.24.9-2.62.9-4.07 0-5.18-3.95-9.45-9-9.95zM12 19c-3.87 0-7-3.13-7-7 0-3.53 2.61-6.43 6-6.92V2.05c-5.05.5-9 4.76-9 9.95 0 5.52 4.47 10 9.99 10 3.31 0 6.24-1.61 8.06-4.09l-2.6-1.53C16.17 17.98 14.21 19 12 19z" />
+                  <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" />
                 </svg>
               </div>
-              <h3 className="feature__title">빠른 성능</h3>
+              <h3 className="feature__title">특별한 기록</h3>
               <p className="feature__description">
-                최적화된 렌더링 엔진으로 지연 없이 부드럽게 편집할 수 있습니다.
+                반려동물의 일상, 여행의 추억, 소중한 순간들을 아름다운 포토카드로 기록하세요.
               </p>
             </div>
 

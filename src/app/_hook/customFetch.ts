@@ -14,6 +14,23 @@ type ExtendedRequestInit = Omit<RequestInit, 'body'> & {
   body?: object | string | FormData | null;
 };
 
+const processBody = (body: any, headers?: HeadersInit) => {
+  if (body instanceof FormData) {
+    const processedHeaders = { ...headers };
+    if ('Content-Type' in processedHeaders) {
+      delete (processedHeaders as any)['Content-Type'];
+    }
+    return { body, headers: processedHeaders };
+  } else if (typeof body === 'object') {
+    return {
+      body: JSON.stringify(body),
+      headers: { ...headers, 'Content-Type': 'application/json' },
+    };
+  } else {
+    return { body, headers };
+  }
+};
+
 const customFetch = {
   async fetch<T = any>(url: string, init?: RequestInit): Promise<CustomFetchResponse<T>> {
     const option = { ...init };
@@ -75,25 +92,9 @@ const customFetch = {
     };
 
     if (init.body) {
-      if (init.body instanceof FormData) {
-        ExtendInit.body = init.body;
-        if (init.headers) {
-          const headers = { ...init.headers };
-          if ('Content-Type' in headers) {
-            delete (headers as any)['Content-Type'];
-          }
-          ExtendInit.headers = headers;
-        }
-      } else if (typeof init.body === 'object') {
-        ExtendInit.body = JSON.stringify(init.body);
-        ExtendInit.headers = {
-          ...init.headers,
-          'Content-Type': 'application/json',
-        };
-      } else {
-        ExtendInit.body = init.body;
-        ExtendInit.headers = init.headers;
-      }
+      const { body, headers } = processBody(init.body, init.headers);
+      ExtendInit.body = body;
+      ExtendInit.headers = headers;
     }
 
     return this.fetch<T>(resource, ExtendInit);
@@ -108,25 +109,9 @@ const customFetch = {
     };
 
     if (init.body) {
-      if (init.body instanceof FormData) {
-        ExtendInit.body = init.body;
-        if (init.headers) {
-          const headers = { ...init.headers };
-          if ('Content-Type' in headers) {
-            delete (headers as any)['Content-Type'];
-          }
-          ExtendInit.headers = headers;
-        }
-      } else if (typeof init.body === 'object') {
-        ExtendInit.body = JSON.stringify(init.body);
-        ExtendInit.headers = {
-          ...init.headers,
-          'Content-Type': 'application/json',
-        };
-      } else {
-        ExtendInit.body = init.body;
-        ExtendInit.headers = init.headers;
-      }
+      const { body, headers } = processBody(init.body, init.headers);
+      ExtendInit.body = body;
+      ExtendInit.headers = headers;
     }
 
     return this.fetch<T>(resource, ExtendInit);

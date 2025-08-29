@@ -33,7 +33,6 @@ export function drawImageOnCanvas(
           element.style.transform = 'none';
 
           const originalRect = element.getBoundingClientRect();
-          // targetImg의 경우 createBoxRef를 부모로 사용, 그 외에는 element.parentElement 사용
           const parentRect =
             createBoxRef?.current?.getBoundingClientRect() ||
             element.parentElement?.getBoundingClientRect();
@@ -56,10 +55,9 @@ export function drawImageOnCanvas(
           let x = currentRect.left - parentRect.left;
           let y = currentRect.top - parentRect.top;
 
-          // targetImg의 경우 createBoxRef의 border를 고려
           if (createBoxRef) {
-            x -= 2; // 좌측 border 2px
-            y -= 2; // 상단 border 2px
+            x -= 2;
+            y -= 2;
           }
 
           let scaledX = x;
@@ -218,7 +216,6 @@ export async function drawTextOnCanvas(
   createBoxRef?: React.RefObject<HTMLDivElement | null>,
 ): Promise<void> {
   try {
-    // 웹폰트 로딩 완료 대기
     await document.fonts.ready;
 
     ctx.save();
@@ -230,7 +227,7 @@ export async function drawTextOnCanvas(
     element.style.transform = 'none';
 
     const originalRect = element.getBoundingClientRect();
-    // createBoxRef를 부모로 사용
+
     const parentRect = createBoxRef?.current?.getBoundingClientRect();
 
     element.style.transform = originalTransform;
@@ -247,10 +244,9 @@ export async function drawTextOnCanvas(
     let x = currentRect.left - parentRect.left;
     let y = currentRect.top - parentRect.top;
 
-    // createBoxRef의 border를 고려
     if (createBoxRef) {
-      x -= 2; // 좌측 border 2px
-      y -= 2; // 상단 border 2px
+      x -= 2;
+      y -= 2;
     }
 
     let scaledX = x;
@@ -269,13 +265,11 @@ export async function drawTextOnCanvas(
       scaledHeight = displayHeight * scaleY;
       scaledFontSize = textElement.fontSize * Math.min(scaleX, scaleY);
     }
-    // 텍스트 스타일 설정
     ctx.font = `${textElement.fontWeight} ${scaledFontSize}px "Noto Sans KR", sans-serif`;
     ctx.fillStyle = textElement.color;
     ctx.textAlign = textElement.textAlign as CanvasTextAlign;
     ctx.textBaseline = 'middle';
 
-    // 텍스트 그리기 (줄바꿈 지원)
     const lines = textElement.text.split('\n');
     const lineHeight = scaledFontSize * 1;
 
@@ -299,38 +293,32 @@ export async function drawTextOnCanvas(
         }
         ctx.rotate(angle);
 
-        // 회전된 상태에서 줄바꿈 텍스트 그리기
         lines.forEach((line, index) => {
           let textX = 0;
 
-          // textAlign에 따라 x 위치 조정
           if (textElement.textAlign === 'center') {
-            textX = 0; // 회전된 상태에서는 중심점이 이미 0으로 설정됨
+            textX = 0;
           } else if (textElement.textAlign === 'right') {
             textX = scaledWidth / 2;
           } else if (textElement.textAlign === 'left') {
             textX = -scaledWidth / 2;
           }
 
-          // 블록 중심(0,0)을 기준으로 각 줄의 y 위치 계산
           const lineY = (index - (lines.length - 1) / 2) * lineHeight;
           ctx.fillText(line, textX, lineY);
         });
       }
     } else {
-      // 일반 상태에서 줄바꿈 텍스트 그리기 (flexbox center 정렬과 동일)
       const centerY = scaledY + scaledHeight / 2;
       lines.forEach((line, index) => {
         let textX = scaledX;
 
-        // textAlign에 따라 x 위치 조정
         if (textElement.textAlign === 'center') {
           textX = scaledX + scaledWidth / 2;
         } else if (textElement.textAlign === 'right') {
           textX = scaledX + scaledWidth;
         }
 
-        // 각 줄의 y 위치 계산 (중심점 기준)
         const lineY = centerY + (index - (lines.length - 1) / 2) * lineHeight;
         ctx.fillText(line, textX, lineY);
       });
@@ -388,9 +376,8 @@ export const downloadClickHandler = async (
 
     const canvas = document.createElement('canvas');
 
-    // border 2px 제외
-    const originalWidth = creatBoxBoundingBox.width - 4; // 좌우 border 2px씩
-    const originalHeight = creatBoxBoundingBox.height - 4; // 상하 border 2px씩
+    const originalWidth = creatBoxBoundingBox.width - 4;
+    const originalHeight = creatBoxBoundingBox.height - 4;
 
     canvas.width = finalWidth;
     canvas.height = finalHeight;
@@ -446,10 +433,8 @@ export const downloadClickHandler = async (
       }
     }
 
-    // 텍스트 요소 그리기
     if (textElements && textElements.length > 0) {
       for (const textElement of textElements) {
-        // 텍스트 요소의 DOM 요소를 찾기
         const textDomElement = document.querySelector(
           `[data-text-id="${textElement.id}"]`,
         ) as HTMLElement;
@@ -543,9 +528,8 @@ export const saveClickHandler = async (
 
     const canvas = document.createElement('canvas');
 
-    // border 2px 제외
-    const originalWidth = creatBoxBoundingBox.width - 4; // 좌우 border 2px씩
-    const originalHeight = creatBoxBoundingBox.height - 4; // 상하 border 2px씩
+    const originalWidth = creatBoxBoundingBox.width - 4;
+    const originalHeight = creatBoxBoundingBox.height - 4;
 
     canvas.width = finalWidth;
     canvas.height = finalHeight;
@@ -601,10 +585,8 @@ export const saveClickHandler = async (
       }
     }
 
-    // 텍스트 요소 그리기
     if (textElements && textElements.length > 0) {
       for (const textElement of textElements) {
-        // 텍스트 요소의 DOM 요소를 찾기
         const textDomElement = document.querySelector(
           `[data-text-id="${textElement.id}"]`,
         ) as HTMLElement;

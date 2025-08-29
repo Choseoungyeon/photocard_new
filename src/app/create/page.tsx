@@ -2,7 +2,7 @@
 import React from 'react';
 import Dropzone from 'react-dropzone';
 import clsx from 'clsx';
-import Moveable, { OnDrag, OnResize, OnRotate, OnRender } from 'react-moveable';
+
 import {
   FiUpload,
   FiPlus,
@@ -20,6 +20,8 @@ import TextInputModal from '../_component/TextInputModal';
 import { downloadClickHandler, saveClickHandler } from './utils';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import customFetch from '@/app/_hook/customFetch';
+import MoveableComponent from './_component/MoveableComponent';
+import { TextElement, TextElementSize, UploadData } from './types';
 import '@/app/style/page/create.scss';
 
 export default function CreateClient() {
@@ -28,68 +30,22 @@ export default function CreateClient() {
   const [menuActive, setMenuActive] = React.useState(false);
   const [moveableTarget, setMoveableTarget] = React.useState<HTMLElement[]>([]);
   const [moveableElementImg, setMoveableElementImg] = React.useState<string[]>([]);
-  const [textElements, setTextElements] = React.useState<
-    Array<{
-      id: string;
-      text: string;
-      color: string;
-      fontSize: number;
-      fontWeight: string;
-      textAlign: string;
-    }>
-  >([]);
-
-  const [textElementSizes, setTextElementSizes] = React.useState<
-    Record<string, { width: number; height: number; fontSize: number }>
-  >({});
+  const [textElements, setTextElements] = React.useState<TextElement[]>([]);
   const [showTrashButton, setShowTrashButton] = React.useState(false);
   const [modalStickerActive, setModalStickerActive] = React.useState(false);
   const [modalTextActive, setModalTextActive] = React.useState(false);
   const [uploadModalOpen, setUploadModalOpen] = React.useState(false);
-  const [uploadData, setUploadData] = React.useState<{
-    imageData: string;
-    originalImage: string;
-    stickers: string[];
-  } | null>(null);
+  const [uploadData, setUploadData] = React.useState<UploadData | null>(null);
   const [isRotating, setIsRotating] = React.useState(false);
+  const [imageLoaded, setImageLoaded] = React.useState(false);
+  const [isLoadingImages, setIsLoadingImages] = React.useState(false);
+  const [textElementSizes, setTextElementSizes] = React.useState<Record<string, TextElementSize>>(
+    {},
+  );
 
   const createBoxRef = React.useRef<HTMLDivElement>(null);
   const targetRef = React.useRef<HTMLImageElement | null>(null);
   const elementWrapRef = React.useRef<HTMLDivElement>(null);
-
-  // Moveable 핸들 크기 계산 함수
-  const getHandleSize = (element: HTMLElement | SVGElement) => {
-    const rect = element.getBoundingClientRect();
-    const width = rect.width;
-    const height = rect.height;
-
-    // 요소의 크기에 따라 핸들 크기 조정
-    const minSize = Math.min(width, height);
-
-    if (minSize < 30) {
-      return 6; // 매우 작은 요소
-    } else if (minSize < 60) {
-      return 8; // 작은 요소
-    } else if (minSize < 100) {
-      return 10; // 중간 요소
-    } else {
-      return 12; // 큰 요소 (기본값)
-    }
-  };
-
-  const getStickers = async (lastIndex?: number, direction: 'next' | 'prev' = 'next') => {
-    const params = new URLSearchParams();
-    params.append('limit', '20');
-
-    if (lastIndex !== undefined) {
-      params.append('last_index', lastIndex.toString());
-      params.append('direction', direction);
-    }
-
-    const url = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/image?${params.toString()}`;
-    const res = await customFetch.get(url);
-    return res.data;
-  };
 
   const {
     data: stickersData,
@@ -115,6 +71,20 @@ export default function CreateClient() {
     },
     staleTime: 5 * 60 * 1000,
   });
+
+  const getStickers = async (lastIndex?: number, direction: 'next' | 'prev' = 'next') => {
+    const params = new URLSearchParams();
+    params.append('limit', '20');
+
+    if (lastIndex !== undefined) {
+      params.append('last_index', lastIndex.toString());
+      params.append('direction', direction);
+    }
+
+    const url = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/image?${params.toString()}`;
+    const res = await customFetch.get(url);
+    return res.data;
+  };
 
   const stickersList = React.useMemo(() => {
     return stickersData?.pages.flatMap((page) => page.images) || [];
@@ -200,10 +170,6 @@ export default function CreateClient() {
     }
   };
 
-  const onClickTextHandler = () => {
-    setModalTextActive(true);
-  };
-
   const addTextElement = (textData: {
     text: string;
     color: string;
@@ -237,9 +203,6 @@ export default function CreateClient() {
     setModalTextActive(false);
   };
 
-  const [imageLoaded, setImageLoaded] = React.useState(false);
-  const [isLoadingImages, setIsLoadingImages] = React.useState(false);
-
   const changeImageHandler = () => {
     if (image) {
       setMoveableElementImg([]);
@@ -265,141 +228,6 @@ export default function CreateClient() {
       setMoveableTarget([]);
     }
   }, [image, imageLoaded]);
-
-  // moveableTarget이 변경될 때 핸들 크기 조정
-  React.useEffect(() => {
-    if (moveableTarget.length > 0) {
-      const moveableElement = document.querySelector('.create_box_moveable');
-      if (moveableElement) {
-        const target = moveableTarget[0];
-        const handleSize = getHandleSize(target);
-        const controls = moveableElement.querySelectorAll('.moveable-control');
-        controls.forEach((control) => {
-          const element = control as HTMLElement;
-          element.style.width = `${handleSize}px`;
-          element.style.height = `${handleSize}px`;
-
-          // 크기에 따른 클래스 추가
-          element.classList.remove(
-            'small-handle',
-            'medium-handle',
-            'large-handle',
-            'default-handle',
-          );
-          if (handleSize <= 6) {
-            element.classList.add('small-handle');
-          } else if (handleSize <= 8) {
-            element.classList.add('medium-handle');
-          } else if (handleSize <= 10) {
-            element.classList.add('large-handle');
-          } else {
-            element.classList.add('default-handle');
-          }
-        });
-      }
-    }
-  }, [moveableTarget]);
-
-  // Moveable 이벤트 핸들러들
-  const handleDrag = ({ target, transform }: OnDrag) => {
-    target!.style.transform = transform;
-  };
-
-  const handleResize = ({ target, width, height, delta }: OnResize) => {
-    if (delta[0]) target!.style.width = `${width}px`;
-    if (delta[1]) target!.style.height = `${height}px`;
-
-    if (target!.classList.contains('create_box_text_element')) {
-      const textId = target!.getAttribute('data-text-id');
-      if (textId) {
-        const initialSize = textElementSizes[textId];
-        if (initialSize) {
-          const widthRatio = width / initialSize.width;
-          const heightRatio = height / initialSize.height;
-          const scaleRatio = Math.min(widthRatio, heightRatio);
-          const newFontSize = Math.round(initialSize.fontSize * scaleRatio);
-
-          // 폰트 크기가 12px 이하로 내려가지 않도록 제한
-          if (newFontSize < 12) {
-            // 폰트 크기를 12px로 고정하고, 요소 크기를 그에 맞게 조정
-            const minScaleRatio = 12 / initialSize.fontSize;
-            const adjustedWidth = Math.round(initialSize.width * minScaleRatio);
-            const adjustedHeight = Math.round(initialSize.height * minScaleRatio);
-
-            target!.style.width = `${adjustedWidth}px`;
-            target!.style.height = `${adjustedHeight}px`;
-
-            setTextElements((prev) =>
-              prev.map((textElement) => {
-                if (textElement.id === textId) {
-                  return {
-                    ...textElement,
-                    fontSize: 12,
-                  };
-                }
-                return textElement;
-              }),
-            );
-          } else {
-            setTextElements((prev) =>
-              prev.map((textElement) => {
-                if (textElement.id === textId) {
-                  return {
-                    ...textElement,
-                    fontSize: newFontSize,
-                  };
-                }
-                return textElement;
-              }),
-            );
-          }
-        }
-      }
-    }
-  };
-
-  const handleRotate = ({ target, transform }: OnRotate) => {
-    target!.style.transform = transform;
-  };
-
-  const handleRotateStart = () => {
-    setIsRotating(true);
-  };
-
-  const handleRotateEnd = () => {
-    setIsRotating(false);
-  };
-
-  const handleRender = ({ target }: OnRender) => {
-    // 회전 중일 때는 핸들 크기 조정 무시
-    if (isRotating) {
-      return;
-    }
-
-    // 렌더링 시 핸들 크기 조정
-    const handleSize = getHandleSize(target);
-    const moveableElement = document.querySelector('.create_box_moveable');
-    if (moveableElement) {
-      const controls = moveableElement.querySelectorAll('.moveable-control');
-      controls.forEach((control) => {
-        const element = control as HTMLElement;
-        element.style.width = `${handleSize}px`;
-        element.style.height = `${handleSize}px`;
-
-        // 크기에 따른 클래스 추가
-        element.classList.remove('small-handle', 'medium-handle', 'large-handle', 'default-handle');
-        if (handleSize <= 6) {
-          element.classList.add('small-handle');
-        } else if (handleSize <= 8) {
-          element.classList.add('medium-handle');
-        } else if (handleSize <= 10) {
-          element.classList.add('large-handle');
-        } else {
-          element.classList.add('default-handle');
-        }
-      });
-    }
-  };
 
   const handleSave = () => {
     const childrenArray = elementWrapRef.current?.children;
@@ -477,29 +305,12 @@ export default function CreateClient() {
               )}
             </Dropzone>
           )}
-          <Moveable
-            target={moveableTarget}
-            className="create_box_moveable"
-            container={null}
-            origin={true}
-            edge={false}
-            draggable={true}
-            throttleDrag={0}
-            onDrag={handleDrag}
-            keepRatio={true}
-            resizable={true}
-            throttleResize={0}
-            onResize={handleResize}
-            rotatable={true}
-            throttleRotate={0}
-            onRotate={handleRotate}
-            onRotateStart={handleRotateStart}
-            onRotateEnd={handleRotateEnd}
-            pinchable={true}
-            pinchThreshold={0}
-            pinchOutside={true}
-            preventDefault={true}
-            onRender={handleRender}
+          <MoveableComponent
+            moveableTarget={moveableTarget}
+            isRotating={isRotating}
+            setIsRotating={setIsRotating}
+            textElementSizes={textElementSizes}
+            setTextElements={setTextElements}
           />
           <div className="create_box_element_wrap" ref={elementWrapRef}>
             {(() => {
@@ -590,7 +401,7 @@ export default function CreateClient() {
                   <FiSmile />
                 </i>
               </span>
-              <span className="create_box_menu_item" onClick={onClickTextHandler}>
+              <span className="create_box_menu_item" onClick={() => setModalTextActive(true)}>
                 <i className="create_box_menu_icon">
                   <FiType />
                 </i>
