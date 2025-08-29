@@ -7,3 +7,21 @@ export function formatDate(dateString: string): string {
 
   return `${year}. ${month}. ${day}.`;
 }
+
+export function ensureHttps(url: string): string {
+  if (!url) return url;
+
+  if (url.startsWith('https://')) {
+    return url;
+  }
+
+  if (url.startsWith('http://')) {
+    return url.replace('http://', 'https://');
+  }
+
+  if (url.startsWith('//')) {
+    return `https:${url}`;
+  }
+
+  return url;
+}

@@ -2,7 +2,7 @@ import React from 'react';
 import { FiEdit3, FiTrash2, FiDownload } from 'react-icons/fi';
 import Card from './Card';
 import Button from './Button';
-import { formatDate } from '../gallery/utils';
+import { formatDate, ensureHttps } from '../gallery/utils';
 import '../style/ui/photocard-card.scss';
 
 interface Photocard {
@@ -41,7 +41,8 @@ export default function PhotocardCard({
 }: PhotocardCardProps) {
   const handleDownload = async () => {
     try {
-      const response = await fetch(card.images.main);
+      const httpsUrl = ensureHttps(card.images.main);
+      const response = await fetch(httpsUrl);
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
