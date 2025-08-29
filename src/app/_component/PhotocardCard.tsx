@@ -42,7 +42,15 @@ export default function PhotocardCard({
   const handleDownload = async () => {
     try {
       const httpsUrl = ensureHttps(card.images.main);
-      const response = await fetch(httpsUrl);
+      const response = await fetch(httpsUrl, {
+        mode: 'cors',
+        credentials: 'omit',
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -54,13 +62,20 @@ export default function PhotocardCard({
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error('다운로드 중 오류가 발생했습니다:', error);
+      // fallback: 직접 링크로 다운로드 시도
+      try {
+        const httpsUrl = ensureHttps(card.images.main);
+        window.open(httpsUrl, '_blank');
+      } catch (fallbackError) {
+        console.error('fallback 다운로드도 실패했습니다:', fallbackError);
+      }
     }
   };
 
   return (
     <Card className={`photocard-card ${className}`}>
       <div className="photocard-image">
-        <img src={card.images.main} alt={card.title} />
+        <img src={ensureHttps(card.images.main)} alt={card.title} />
         {isDeleting && (
           <div className="photocard-overlay">
             <div className="photocard-loading">
