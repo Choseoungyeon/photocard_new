@@ -33,7 +33,9 @@ export default function CreateClient() {
   const [image, setImage] = React.useState<string | null>(null);
   const [menuActive, setMenuActive] = React.useState(false);
   const [moveableTarget, setMoveableTarget] = React.useState<HTMLElement[]>([]);
-  const [moveableElementImg, setMoveableElementImg] = React.useState<string[]>([]);
+  const [moveableElementImg, setMoveableElementImg] = React.useState<
+    Array<{ id: string; src: string }>
+  >([]);
   const [textElements, setTextElements] = React.useState<TextElement[]>([]);
   const [showTrashButton, setShowTrashButton] = React.useState(false);
   const [modalStickerActive, setModalStickerActive] = React.useState(false);
@@ -209,10 +211,6 @@ export default function CreateClient() {
   };
 
   const changeImageHandler = () => {
-    if (image) {
-      setMoveableElementImg([]);
-      setMoveableTarget([]);
-    }
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
     fileInput.accept = 'image/*';
@@ -264,9 +262,9 @@ export default function CreateClient() {
           });
         }
       } else if (selectedElement.classList.contains('create_box_element')) {
-        const src = selectedElement.getAttribute('src');
-        if (src) {
-          setMoveableElementImg((prev) => prev.filter((item) => item !== src));
+        const elementId = selectedElement.getAttribute('data-element-id');
+        if (elementId) {
+          setMoveableElementImg((prev) => prev.filter((item) => item.id !== elementId));
         }
       }
 
@@ -321,12 +319,13 @@ export default function CreateClient() {
             {(() => {
               return null;
             })()}
-            {moveableElementImg.map((item, idx) => {
+            {moveableElementImg.map((item) => {
               return (
                 <img
-                  src={item}
-                  alt={`moveable_element_${idx}`}
-                  key={`${item}_${idx}`}
+                  src={item.src}
+                  alt={`moveable_element_${item.id}`}
+                  key={item.id}
+                  data-element-id={item.id}
                   className="create_box_element"
                   onClick={moveableElementClickHandler}
                   style={{
@@ -431,7 +430,10 @@ export default function CreateClient() {
         isOpen={modalStickerActive}
         onClose={() => setModalStickerActive(false)}
         onSelectSticker={(stickerUrl: string) => {
-          setMoveableElementImg([...moveableElementImg, stickerUrl]);
+          setMoveableElementImg([
+            ...moveableElementImg,
+            { id: `sticker-${Date.now()}`, src: stickerUrl },
+          ]);
         }}
         imageList={stickersList}
         onLoadMore={fetchNextPage}

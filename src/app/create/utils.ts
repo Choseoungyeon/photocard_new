@@ -480,7 +480,7 @@ export const saveClickHandler = async (
   childrenArray: HTMLCollection | undefined,
   createBoxRef: React.RefObject<HTMLDivElement | null>,
   targetRef: React.RefObject<HTMLImageElement | null>,
-  moveableElementImg: string[],
+  moveableElementImg: Array<{ id: string; src: string }>,
   textElements: Array<{
     id: string;
     text: string;
@@ -624,7 +624,7 @@ export const saveClickHandler = async (
       const newUploadData = {
         imageData: imageUrl,
         originalImage: image,
-        stickers: moveableElementImg,
+        stickers: moveableElementImg.map((item) => item.src),
       };
 
       setUploadData(newUploadData);
