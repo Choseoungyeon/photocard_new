@@ -75,6 +75,12 @@
         }
       }
 
+      // Pinch outside를 위한 터치 이벤트 활성화
+      touch-action: manipulation;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+
       & .create_box_icon_wrap {
         width: 16%;
         height: auto;

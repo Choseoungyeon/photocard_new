@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import Moveable, { OnDrag, OnResize, OnRotate, OnRender } from 'react-moveable';
+import Moveable, { OnDrag, OnResize, OnRotate, OnRender, OnPinch } from 'react-moveable';
 import { TextElement, TextElementSize } from '../types';
 
 interface MoveableComponentProps {
@@ -134,6 +134,7 @@ export default function MoveableComponent({
     <Moveable
       target={moveableTarget}
       className="create_box_moveable"
+      container={document.body}
       draggable={true}
       onDrag={handleDrag}
       keepRatio={true}
@@ -143,9 +144,9 @@ export default function MoveableComponent({
       onRotate={handleRotate}
       onRotateStart={() => setIsRotating(true)}
       onRotateEnd={() => setIsRotating(false)}
-      pinchable={true}
-      pinchThreshold={0}
+      pinchable={['resizable', 'rotatable']}
       pinchOutside={true}
+      pinchThreshold={0}
       onRender={handleRender}
     />
   );

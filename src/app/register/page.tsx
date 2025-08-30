@@ -24,7 +24,6 @@ type FormValues = {
 };
 
 export default function NextAuth() {
-  const router = useRouter();
   const { passwordRules, nameRules } = useRulesContext();
 
   const useFormReturn = useForm<FormValues>({
@@ -57,7 +56,7 @@ export default function NextAuth() {
       if (response?.error) {
         throw new Error(response?.code);
       } else {
-        router.push('/');
+        window.location.href = '/';
       }
     },
   });
@@ -97,7 +96,9 @@ export default function NextAuth() {
               rules={passwordRules}
             />
 
-            <Button type="submit">회원가입하기</Button>
+            <Button type="submit" loading={mutation.isPending}>
+              회원가입하기
+            </Button>
             {mutation.error ? <ErrorMessage>{mutation.error.message}</ErrorMessage> : null}
           </form>
         </div>
