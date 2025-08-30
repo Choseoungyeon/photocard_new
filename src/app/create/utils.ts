@@ -241,13 +241,13 @@ export async function drawTextOnCanvas(
     const displayHeight = originalRect.height;
 
     const currentRect = element.getBoundingClientRect();
-    const x = currentRect.left - parentRect.left;
-    const y = currentRect.top - parentRect.top;
+    let x = currentRect.left - parentRect.left;
+    let y = currentRect.top - parentRect.top;
 
-    // if (createBoxRef) {
-    //   x -= 2;
-    //   y -= 2;
-    // }
+    if (createBoxRef) {
+      x -= 2;
+      y -= 2;
+    }
 
     let scaledX = x;
     let scaledY = y;
