@@ -241,8 +241,8 @@ export async function drawTextOnCanvas(
     const displayHeight = originalRect.height;
 
     const currentRect = element.getBoundingClientRect();
-    let x = currentRect.left - parentRect.left;
-    let y = currentRect.top - parentRect.top;
+    const x = currentRect.left - parentRect.left;
+    const y = currentRect.top - parentRect.top;
 
     // if (createBoxRef) {
     //   x -= 2;
