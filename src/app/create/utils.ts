@@ -244,10 +244,10 @@ export async function drawTextOnCanvas(
     let x = currentRect.left - parentRect.left;
     let y = currentRect.top - parentRect.top;
 
-    if (createBoxRef) {
-      x -= 2;
-      y -= 2;
-    }
+    // if (createBoxRef) {
+    //   x -= 2;
+    //   y -= 2;
+    // }
 
     let scaledX = x;
     let scaledY = y;
@@ -268,7 +268,7 @@ export async function drawTextOnCanvas(
     ctx.font = `${textElement.fontWeight} ${scaledFontSize}px "Noto Sans KR", sans-serif`;
     ctx.fillStyle = textElement.color;
     ctx.textAlign = textElement.textAlign as CanvasTextAlign;
-    ctx.textBaseline = 'bottom';
+    ctx.textBaseline = 'middle';
 
     const lines = textElement.text.split('\n');
     const lineHeight = scaledFontSize * 1;
