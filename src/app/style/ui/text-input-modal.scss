@@ -106,6 +106,31 @@
     appearance: none;
     -webkit-appearance: none;
 
+    &::-webkit-slider-track {
+      background: linear-gradient(
+        to right,
+        #5e6ad2 0%,
+        #5e6ad2 var(--progress, 0%),
+        #30363d var(--progress, 0%),
+        #30363d 100%
+      );
+      border-radius: 4px;
+      height: 8px;
+    }
+
+    &::-moz-range-track {
+      background: linear-gradient(
+        to right,
+        #5e6ad2 0%,
+        #5e6ad2 var(--progress, 0%),
+        #30363d var(--progress, 0%),
+        #30363d 100%
+      );
+      border-radius: 4px;
+      height: 8px;
+      border: none;
+    }
+
     &::-webkit-slider-thumb {
       appearance: none;
       -webkit-appearance: none;
@@ -146,19 +171,6 @@
       &:active {
         transform: scale(1.05);
       }
-    }
-
-    &::-webkit-slider-track {
-      background: #30363d;
-      border-radius: 4px;
-      height: 8px;
-    }
-
-    &::-moz-range-track {
-      background: #30363d;
-      border-radius: 4px;
-      height: 8px;
-      border: none;
     }
 
     &:focus {

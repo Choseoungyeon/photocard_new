@@ -207,6 +207,7 @@ export async function drawTextOnCanvas(
     fontSize: number;
     fontWeight: string;
     textAlign: string;
+    lineHeight: number;
   },
   element: HTMLElement,
   finalWidth?: number,
@@ -271,7 +272,7 @@ export async function drawTextOnCanvas(
     ctx.textBaseline = 'middle';
 
     const lines = textElement.text.split('\n');
-    const lineHeight = scaledFontSize * 1;
+    const lineHeight = scaledFontSize * textElement.lineHeight;
 
     if (transform && transform !== 'none' && !transform.includes('rotate')) {
       const match = transform.match(/matrix\(([^)]+)\)/);
@@ -342,6 +343,7 @@ export const downloadClickHandler = async (
     fontSize: number;
     fontWeight: string;
     textAlign: string;
+    lineHeight: number;
   }>,
   showModal: ReturnType<typeof useModal>['showModal'],
 ) => {
@@ -486,6 +488,7 @@ export const saveClickHandler = async (
     fontSize: number;
     fontWeight: string;
     textAlign: string;
+    lineHeight: number;
   }>,
   showModal: ReturnType<typeof useModal>['showModal'],
   setUploadData: (

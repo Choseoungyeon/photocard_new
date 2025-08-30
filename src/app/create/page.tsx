@@ -1,8 +1,9 @@
 'use client';
+
 import React from 'react';
 import Dropzone from 'react-dropzone';
 import clsx from 'clsx';
-
+import { useInfiniteQuery } from '@tanstack/react-query';
 import {
   FiUpload,
   FiPlus,
@@ -13,15 +14,18 @@ import {
   FiType,
   FiTrash2,
 } from 'react-icons/fi';
-import { useModal } from '../_context/ModalContext';
-import Modal from '../_component/Modal';
-import UploadModal from '../_component/UploadModal';
-import TextInputModal from '../_component/TextInputModal';
-import { downloadClickHandler, saveClickHandler } from './utils';
-import { useInfiniteQuery } from '@tanstack/react-query';
+
+import { useModal } from '@/app/_context/ModalContext';
+import { UploadModal } from '@/app/_component';
 import customFetch from '@/app/_hook/customFetch';
+
+import TextInputModal from './_component/TextInputModal';
+import StickerModal from './_component/StickerModal';
 import MoveableComponent from './_component/MoveableComponent';
+
+import { downloadClickHandler, saveClickHandler } from './utils';
 import { TextElement, TextElementSize, UploadData } from './types';
+
 import '@/app/style/page/create.scss';
 
 export default function CreateClient() {
@@ -176,6 +180,7 @@ export default function CreateClient() {
     fontSize: number;
     fontWeight: string;
     textAlign: string;
+    lineHeight: number;
   }) => {
     const newTextElement = {
       id: `text-${Date.now()}`,
@@ -344,6 +349,7 @@ export default function CreateClient() {
                   fontSize: `${textElement.fontSize}px`,
                   fontWeight: textElement.fontWeight,
                   textAlign: textElement.textAlign as 'left' | 'center' | 'right',
+                  lineHeight: textElement.lineHeight,
                 }}
               >
                 {textElement.text.split('\n').map((line, index) => (
@@ -421,18 +427,13 @@ export default function CreateClient() {
         </div>
       </div>
 
-      <Modal
-        open={modalStickerActive}
-        type="custom"
-        title="스티커"
-        closeButton={true}
-        imageList={stickersList}
-        elementClick={(val: string) => {
-          setMoveableElementImg([...moveableElementImg, val]);
-        }}
+      <StickerModal
+        isOpen={modalStickerActive}
         onClose={() => setModalStickerActive(false)}
-        resizable={true}
-        draggable={true}
+        onSelectSticker={(stickerUrl: string) => {
+          setMoveableElementImg([...moveableElementImg, stickerUrl]);
+        }}
+        imageList={stickersList}
         onLoadMore={fetchNextPage}
         hasNextPage={hasNextPage}
         isFetchingNextPage={isFetchingNextPage}

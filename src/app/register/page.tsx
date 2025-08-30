@@ -1,16 +1,19 @@
 'use client';
+
 import React from 'react';
-import { registerUser } from '@/app/_hook/fetch';
 import { useMutation } from '@tanstack/react-query';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
-import VerifyModule from './_component/VerifyModule';
+
+import { registerUser } from '@/app/_hook/fetch';
 import { useRulesContext } from '@/app/_context/RulesProviper';
-import Input from '../_component/Input';
+import Input from '@/app/_component/Input';
 import Button from '@/app/_component/Button';
-import ErrorMessage from '../_component/ErrorMessage';
-import { MyContext } from '../_context/MyContext';
+import ErrorMessage from '@/app/_component/ErrorMessage';
+import { MyContext } from '@/app/_context/MyContext';
+import VerifyModule from './_component/VerifyModule';
+
 import '@/app/style/page/register.scss';
 
 type FormValues = {

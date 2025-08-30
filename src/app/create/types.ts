@@ -5,6 +5,7 @@ export interface TextElement {
   fontSize: number;
   fontWeight: string;
   textAlign: string;
+  lineHeight: number;
 }
 
 export interface TextElementSize {

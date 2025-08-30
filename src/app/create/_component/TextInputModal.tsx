@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
-import Modal from './Modal';
-import Input from './Input';
-import Button from './Button';
+import React, { useState, useMemo, useEffect } from 'react';
+import Modal from '@/app/_component/Modal';
+import Input from '@/app/_component/Input';
+import Button from '@/app/_component/Button';
 import { useForm } from 'react-hook-form';
 import '@/app/style/ui/text-input-modal.scss';
 
@@ -16,6 +16,7 @@ interface TextInputModalProps {
     fontSize: number;
     fontWeight: string;
     textAlign: string;
+    lineHeight: number;
   }) => void;
 }
 
@@ -25,6 +26,7 @@ interface FormValues {
   fontSize: number;
   fontWeight: string;
   textAlign: string;
+  lineHeight: number;
 }
 
 export default function TextInputModal({ isOpen, onClose, onAddText }: TextInputModalProps) {
@@ -32,6 +34,17 @@ export default function TextInputModal({ isOpen, onClose, onAddText }: TextInput
   const [selectedFontSize, setSelectedFontSize] = useState(24);
   const [selectedFontWeight, setSelectedFontWeight] = useState('bold');
   const [selectedTextAlign, setSelectedTextAlign] = useState('center');
+  const [selectedLineHeight, setSelectedLineHeight] = useState(1);
+
+  const progressBackground = useMemo(() => {
+    const percentage = ((selectedFontSize - 12) / (72 - 12)) * 100;
+    return `linear-gradient(to right, #5e6ad2 0%, #5e6ad2 ${percentage}%, #30363d ${percentage}%, #30363d 100%)`;
+  }, [selectedFontSize]);
+
+  const lineHeightProgressBackground = useMemo(() => {
+    const percentage = ((selectedLineHeight - 0.8) / (3 - 0.8)) * 100;
+    return `linear-gradient(to right, #5e6ad2 0%, #5e6ad2 ${percentage}%, #30363d ${percentage}%, #30363d 100%)`;
+  }, [selectedLineHeight]);
 
   const {
     handleSubmit,
@@ -45,23 +58,29 @@ export default function TextInputModal({ isOpen, onClose, onAddText }: TextInput
       fontSize: 24,
       fontWeight: 'bold',
       textAlign: 'center',
+      lineHeight: 1,
     },
   });
 
+  useEffect(() => {
+    if (isOpen) {
+      setSelectedColor('#FFFFFF');
+      setSelectedFontSize(24);
+      setSelectedFontWeight('bold');
+      setSelectedTextAlign('center');
+      setSelectedLineHeight(1);
+      reset();
+    }
+  }, [isOpen, reset]);
+
   const onSubmit = (data: FormValues) => {
-    console.log('텍스트 추가:', {
-      text: data.text,
-      color: selectedColor,
-      fontSize: selectedFontSize,
-      fontWeight: selectedFontWeight,
-      textAlign: selectedTextAlign,
-    });
     onAddText({
       text: data.text,
       color: selectedColor,
       fontSize: selectedFontSize,
       fontWeight: selectedFontWeight,
       textAlign: selectedTextAlign,
+      lineHeight: selectedLineHeight,
     });
     reset();
   };
@@ -122,6 +141,25 @@ export default function TextInputModal({ isOpen, onClose, onAddText }: TextInput
                 value={selectedFontSize}
                 onChange={(e) => setSelectedFontSize(Number(e.target.value))}
                 className="text_input_modal_font_size_slider"
+                style={{
+                  background: progressBackground,
+                }}
+              />
+            </div>
+
+            <div className="text_input_modal_field">
+              <label className="text_input_modal_label">줄 간격: {selectedLineHeight}</label>
+              <input
+                type="range"
+                min="0.8"
+                max="3"
+                step="0.1"
+                value={selectedLineHeight}
+                onChange={(e) => setSelectedLineHeight(Number(e.target.value))}
+                className="text_input_modal_font_size_slider"
+                style={{
+                  background: lineHeightProgressBackground,
+                }}
               />
             </div>
 
@@ -159,6 +197,7 @@ export default function TextInputModal({ isOpen, onClose, onAddText }: TextInput
                   fontSize: `${selectedFontSize}px`,
                   fontWeight: selectedFontWeight,
                   textAlign: selectedTextAlign as 'left' | 'center' | 'right',
+                  lineHeight: selectedLineHeight,
                 }}
               >
                 미리보기 텍스트

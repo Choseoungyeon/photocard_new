@@ -3,11 +3,13 @@ import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { useMutation } from '@tanstack/react-query';
-import { useRulesContext } from '@/app/_context/RulesProviper';
 import Link from 'next/link';
-import Input from '../_component/Input';
-import Button from '../_component/Button';
-import ErrorMessage from '../_component/ErrorMessage';
+
+import { useRulesContext } from '@/app/_context/RulesProviper';
+import Input from '@/app/_component/Input';
+import Button from '@/app/_component/Button';
+import ErrorMessage from '@/app/_component/ErrorMessage';
+
 import '@/app/style/page/login.scss';
 
 type FormValues = {
@@ -16,7 +18,6 @@ type FormValues = {
 };
 
 export default function NextAuth() {
-  const router = useRouter();
   const { emailRules, passwordRules } = useRulesContext();
 
   const {
@@ -31,53 +32,36 @@ export default function NextAuth() {
     mode: 'onChange',
   });
 
+  const handleSignIn = async (email: string, password: string) => {
+    const response = await signIn('credentials', {
+      email,
+      password,
+      redirect: false,
+    });
+
+    if (response?.error) {
+      const errorMessage = response?.code || '잘못된 접근입니다. 잠시 후 다시한번 시도해주세요';
+      throw new Error(errorMessage);
+    }
+
+    return response;
+  };
+
   const mutation = useMutation({
-    mutationFn: async (data: FormValues) => {
-      const response = await signIn('credentials', {
-        email: data.email,
-        password: data.password,
-        redirect: false,
-      });
-
-      if (response?.error) {
-        let errorMessage = response?.code;
-        if (response?.code == null) {
-          errorMessage = '잘못된 접근입니다. 잠시 후 다시한번 시도해주세요';
-        }
-        throw new Error(errorMessage);
-      }
-
-      return response;
-    },
+    mutationFn: (data: FormValues) => handleSignIn(data.email, data.password),
     onSuccess: () => {
       window.location.href = '/';
     },
   });
 
   const testLoginMutation = useMutation({
-    mutationFn: async () => {
-      const response = await signIn('credentials', {
-        email: 'test01@test.com',
-        password: '111111',
-        redirect: false,
-      });
-
-      if (response?.error) {
-        let errorMessage = response?.code;
-        if (response?.code == null) {
-          errorMessage = '잘못된 접근입니다. 잠시 후 다시한번 시도해주세요';
-        }
-        throw new Error(errorMessage);
-      }
-
-      return response;
-    },
+    mutationFn: () => handleSignIn('test01@test.com', '111111'),
     onSuccess: () => {
       window.location.href = '/';
     },
   });
 
-  const submitForm = async (data: FormValues) => {
+  const submitForm = (data: FormValues) => {
     if (!mutation.isPending) mutation.mutate(data);
   };
 
@@ -85,7 +69,7 @@ export default function NextAuth() {
     if (!testLoginMutation.isPending) testLoginMutation.mutate();
   };
 
-  const resetFun = () => {
+  const resetErrors = () => {
     if (mutation.isError) mutation.reset();
     if (testLoginMutation.isError) testLoginMutation.reset();
   };
@@ -103,7 +87,7 @@ export default function NextAuth() {
                 label="email"
                 name="email"
                 placeholder="test01@gmail.com"
-                onChange={resetFun}
+                onChange={resetErrors}
               />
             </div>
             <div>
@@ -112,7 +96,7 @@ export default function NextAuth() {
                 rules={passwordRules}
                 error={errors.password?.message}
                 showPassword={true}
-                onChange={resetFun}
+                onChange={resetErrors}
                 label="password"
                 name="password"
                 placeholder="password"

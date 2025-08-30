@@ -6,39 +6,36 @@ import { TextElement, TextElementSize } from '../types';
 interface MoveableComponentProps {
   moveableTarget: HTMLElement[];
   isRotating: boolean;
-  setIsRotating: (isRotating: boolean) => void;
   textElementSizes: Record<string, TextElementSize>;
+  setIsRotating: (isRotating: boolean) => void;
   setTextElements: React.Dispatch<React.SetStateAction<TextElement[]>>;
 }
 
 export default function MoveableComponent({
   moveableTarget,
   isRotating,
-  setIsRotating,
   textElementSizes,
+  setIsRotating,
   setTextElements,
 }: MoveableComponentProps) {
-  // 핸들 크기 계산 함수
   const getHandleSize = (element: HTMLElement | SVGElement) => {
     const rect = element.getBoundingClientRect();
     const width = rect.width;
     const height = rect.height;
 
-    // 요소의 크기에 따라 핸들 크기 조정
     const minSize = Math.min(width, height);
 
     if (minSize < 30) {
-      return 6; // 매우 작은 요소
+      return 6;
     } else if (minSize < 60) {
-      return 8; // 작은 요소
+      return 8;
     } else if (minSize < 100) {
-      return 10; // 중간 요소
+      return 10;
     } else {
-      return 12; // 큰 요소 (기본값)
+      return 12;
     }
   };
 
-  // 핸들 크기 조정 함수
   const adjustHandleSize = (target: HTMLElement | SVGElement) => {
     const moveableElement = document.querySelector('.create_box_moveable');
     if (moveableElement) {
@@ -49,7 +46,6 @@ export default function MoveableComponent({
         element.style.width = `${handleSize}px`;
         element.style.height = `${handleSize}px`;
 
-        // 크기에 따른 클래스 추가
         element.classList.remove('small-handle', 'medium-handle', 'large-handle', 'default-handle');
         if (handleSize <= 6) {
           element.classList.add('small-handle');

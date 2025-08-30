@@ -1,14 +1,16 @@
 'use client';
 import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import customFetch from '@/app/_hook/customFetch';
 import { useForm } from 'react-hook-form';
-import Input from '../_component/Input';
-import Button from '../_component/Button';
-import ErrorMessage from '../_component/ErrorMessage';
-import { useRulesContext } from '../_context/RulesProviper';
-import '@/app/style/page/set-total-user.scss';
 import { useRouter } from 'next/navigation';
+
+import customFetch from '@/app/_hook/customFetch';
+import Input from '@/app/_component/Input';
+import Button from '@/app/_component/Button';
+import ErrorMessage from '@/app/_component/ErrorMessage';
+import { useRulesContext } from '@/app/_context/RulesProviper';
+
+import '@/app/style/page/set-total-user.scss';
 
 type Props = {
   email: string;

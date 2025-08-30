@@ -11,3 +11,4 @@ export { default as LoadingBar } from './LodaingBar';
 export { default as Modal } from './Modal';
 export { default as NavMenu } from './NavMenu';
 export { default as Skeleton } from './Skeleton';
+export { default as UploadModal } from './UploadModal';

@@ -63,7 +63,7 @@ export default function NavMenu() {
   }
 
   return (
-    <nav className="navWrap">
+    <nav className={`navWrap ${visibleMenu ? 'is-active' : ''}`}>
       <div className="wrap">
         <div className="logo" onClick={() => handleClick('/')}>
           <Image
@@ -98,7 +98,7 @@ export default function NavMenu() {
       </div>
 
       {visibleMenu && (
-        <div className="overlay" onClick={() => setVisibleMenu(false)} style={{ zIndex: 10000 }}>
+        <div className="overlay" onClick={() => setVisibleMenu(false)} style={{ zIndex: 100000 }}>
           <div className="menuContainer" onClick={(e) => e.stopPropagation()}>
             <button
               className="closeButton"

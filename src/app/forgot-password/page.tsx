@@ -3,12 +3,14 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { useMutation } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
+import { FiCheckCircle } from 'react-icons/fi';
+
 import { useRulesContext } from '@/app/_context/RulesProviper';
 import customFetch from '@/app/_hook/customFetch';
 import Input from '@/app/_component/Input';
 import Button from '@/app/_component/Button';
-import ErrorMessage from '../_component/ErrorMessage';
-import { FiCheckCircle } from 'react-icons/fi';
+import ErrorMessage from '@/app/_component/ErrorMessage';
+
 import '@/app/style/page/forgot-password.scss';
 
 type FormValues = {

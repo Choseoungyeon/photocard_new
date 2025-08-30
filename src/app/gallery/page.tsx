@@ -4,12 +4,14 @@ import React from 'react';
 import { useInfiniteQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { FiPlus, FiSearch, FiGrid } from 'react-icons/fi';
-import Button from '../_component/Button';
-import PhotocardCard from '../_component/PhotocardCard';
-import Skeleton from '../_component/Skeleton';
-import { useModal } from '../_context/ModalContext';
-import UploadModal from '../_component/UploadModal';
-import customFetch from '../_hook/customFetch';
+
+import Button from '@/app/_component/Button';
+import PhotocardCard from '@/app/_component/PhotocardCard';
+import Skeleton from '@/app/_component/Skeleton';
+import UploadModal from '@/app/_component/UploadModal';
+import { useModal } from '@/app/_context/ModalContext';
+import customFetch from '@/app/_hook/customFetch';
+
 import '../style/page/gallery.scss';
 
 interface Photocard {
@@ -31,9 +33,11 @@ export default function GalleryClient() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { showModal } = useModal();
+
   const [titleSearch, setTitleSearch] = React.useState('');
   const [editModalOpen, setEditModalOpen] = React.useState(false);
   const [editingCard, setEditingCard] = React.useState<Photocard | null>(null);
+  const [gridColumns, setGridColumns] = React.useState(3);
 
   const preloadImages = React.useCallback(async (imageUrls: string[]): Promise<void> => {
     if (imageUrls.length === 0) return;
@@ -90,9 +94,6 @@ export default function GalleryClient() {
     });
 
   const photocards = data?.pages.flatMap((page) => page.data) || [];
-
-  const filteredPhotocards = photocards || [];
-
   const totalCount = React.useMemo(() => {
     return data?.pages[0]?.totalCount || 0;
   }, [data]);
@@ -113,11 +114,6 @@ export default function GalleryClient() {
       fetchNextPage();
     }
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
-
-  React.useEffect(() => {
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [handleScroll]);
 
   const deleteMutation = useMutation({
     mutationFn: async (cardId: string) => {
@@ -209,15 +205,11 @@ export default function GalleryClient() {
     });
   };
 
-  const [gridColumns, setGridColumns] = React.useState(3);
-
   React.useEffect(() => {
     const calculateGridColumns = () => {
       const cardWidth = 280;
       const gap = 24;
-
       const containerWidth = Math.min(window.innerWidth - 64, 1200);
-
       const columns = Math.max(1, Math.floor((containerWidth + gap) / (cardWidth + gap)));
       setGridColumns(columns);
     };
@@ -227,19 +219,22 @@ export default function GalleryClient() {
     return () => window.removeEventListener('resize', calculateGridColumns);
   }, []);
 
+  React.useEffect(() => {
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [handleScroll]);
+
   const calculateSkeletonCount = (currentCardCount: number, columns: number) => {
     if (currentCardCount === 0) {
       return Math.min(6, columns * 2);
     }
 
     const cardsInLastRow = currentCardCount % columns;
-
     const skeletonCount = cardsInLastRow === 0 ? columns : columns - cardsInLastRow + columns;
-
     return skeletonCount;
   };
 
-  const skeletonCount = calculateSkeletonCount(filteredPhotocards.length, gridColumns);
+  const skeletonCount = calculateSkeletonCount(photocards.length, gridColumns);
   const skeletonCards = Array.from({ length: skeletonCount }).map((_, index) => (
     <div key={`skeleton-${index}`} className="gallery__card-wrapper gallery__skeleton">
       <Skeleton className="gallery__card" />
@@ -292,7 +287,7 @@ export default function GalleryClient() {
           </div>
         ) : isLoading ? (
           <div className="gallery__grid">{skeletonCards}</div>
-        ) : filteredPhotocards.length === 0 ? (
+        ) : photocards.length === 0 ? (
           <div className="gallery__empty">
             <div className="gallery__empty-icon">
               <FiGrid />
@@ -316,7 +311,7 @@ export default function GalleryClient() {
           </div>
         ) : (
           <div className="gallery__grid">
-            {filteredPhotocards.map((card: Photocard) => (
+            {photocards.map((card: Photocard) => (
               <div
                 key={card._id}
                 className={`gallery__card-wrapper ${
@@ -336,7 +331,7 @@ export default function GalleryClient() {
               </div>
             ))}
 
-            {(isFetchingNextPage || (hasNextPage && !isLoading && filteredPhotocards.length > 0)) &&
+            {(isFetchingNextPage || (hasNextPage && !isLoading && photocards.length > 0)) &&
               skeletonCards}
           </div>
         )}

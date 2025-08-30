@@ -1,8 +1,9 @@
 'use server';
 
-import '@/app/style/page/set-total-user.scss';
-import SetTotalUser from './setTotalUser';
 import { auth } from '@/auth';
+import SetTotalUser from './setTotalUser';
+
+import '@/app/style/page/set-total-user.scss';
 
 export default async function NextAuth() {
   const session = await auth();

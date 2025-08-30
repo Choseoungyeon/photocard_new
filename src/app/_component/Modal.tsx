@@ -1,10 +1,13 @@
 'use client';
+
 import React, { useCallback } from 'react';
-import { FiX, FiMenu, FiAlertCircle, FiCheckCircle, FiInfo } from 'react-icons/fi';
-import '@/app/style/ui/Modal.scss';
 import clsx from 'clsx';
 import { gsap } from 'gsap';
+import { FiX, FiMenu, FiAlertCircle, FiCheckCircle, FiInfo } from 'react-icons/fi';
+
 import Button from './Button';
+
+import '@/app/style/ui/Modal.scss';
 
 interface ModalProps {
   className?: string;
@@ -13,29 +16,16 @@ interface ModalProps {
   type?: 'alert' | 'confirm' | 'custom' | 'error' | 'success' | 'info';
   message?: string;
   content?: React.ReactNode;
-  imageList?: { public_id: string; url: string }[];
-  isError?: boolean;
-  errorMessage?: string;
   closeButton?: boolean;
-  onConfirm?: () => void;
-  onCancel?: () => void;
-  onClose?: () => void;
-  elementClick?: (val: string) => void;
   confirmText?: string;
   cancelText?: string;
   draggable?: boolean;
   resizable?: boolean;
-  onLoadMore?: () => void;
-  hasNextPage?: boolean;
-  isFetchingNextPage?: boolean;
-}
-
-function splitImagesToColumns(images: string[], columnCount: number) {
-  const columns: string[][] = Array.from({ length: columnCount }, () => []);
-  images.forEach((img, idx) => {
-    columns[idx % columnCount].push(img);
-  });
-  return columns;
+  onResize?: (width: number, height: number) => void;
+  onContentScroll?: (e: React.UIEvent<HTMLDivElement>) => void;
+  onConfirm?: () => void;
+  onCancel?: () => void;
+  onClose?: () => void;
 }
 
 function Modal(props: ModalProps) {
@@ -45,28 +35,23 @@ function Modal(props: ModalProps) {
     type = 'alert',
     message,
     content,
-    imageList,
     className,
-    isError,
-    errorMessage,
-    elementClick,
-    onConfirm,
-    onCancel,
-    onClose,
     confirmText = '확인',
     cancelText = '취소',
     draggable = true,
     resizable = false,
     closeButton = false,
-    onLoadMore,
-    hasNextPage,
-    isFetchingNextPage,
+    onConfirm,
+    onCancel,
+    onClose,
+    onResize,
+    onContentScroll,
   } = props;
 
   const expandIconRef = React.useRef<HTMLElement | null>(null);
   const modalRef = React.useRef<HTMLDivElement | null>(null);
-  const [isMobileSize, setIsMobileSize] = React.useState(false);
 
+  const [isMobileSize, setIsMobileSize] = React.useState(false);
   const [isExpandDragging, setIsExpandDragging] = React.useState(false);
   const [isModalDragging, setIsModalDragging] = React.useState(false);
   const [offset, setOffset] = React.useState({ x: 0, y: 0 });
@@ -75,7 +60,21 @@ function Modal(props: ModalProps) {
     undefined | 'up' | 'down'
   >(undefined);
   const [isModalOpen, setIsModalOpen] = React.useState(open);
-  const [columnCount, setColumnCount] = React.useState(3);
+
+  const getIconAndColor = () => {
+    switch (type) {
+      case 'error':
+        return { icon: <FiAlertCircle />, color: '#da3633' };
+      case 'success':
+        return { icon: <FiCheckCircle />, color: '#3fb950' };
+      case 'info':
+        return { icon: <FiInfo />, color: '#5e6ad2' };
+      default:
+        return { icon: <FiAlertCircle />, color: '#8b949e' };
+    }
+  };
+
+  const { icon, color } = getIconAndColor();
 
   const setActiveModal = React.useCallback(() => {
     const allModals = document.querySelectorAll('.modal_wrap');
@@ -101,60 +100,11 @@ function Modal(props: ModalProps) {
     }
   }, []);
 
-  const columnCountFun = (width: number) => {
-    if (width >= 350) setColumnCount(4);
-    else if (width >= 250) setColumnCount(3);
-    else if (width >= 200) setColumnCount(2);
-    else setColumnCount(2);
-  };
-
-  const columns = React.useMemo(() => {
-    if (imageList && imageList.length > 0) {
-      return splitImagesToColumns(
-        imageList.map((item) => item.url),
-        columnCount,
-      );
-    } else {
-      return [];
-    }
-  }, [imageList, columnCount]);
-
-  const getIconAndColor = () => {
-    switch (type) {
-      case 'error':
-        return { icon: <FiAlertCircle />, color: '#da3633' };
-      case 'success':
-        return { icon: <FiCheckCircle />, color: '#3fb950' };
-      case 'info':
-        return { icon: <FiInfo />, color: '#5e6ad2' };
-      default:
-        return { icon: <FiAlertCircle />, color: '#8b949e' };
-    }
-  };
-
-  const { icon, color } = getIconAndColor();
-
   const handleExpandMouseDown = (e: React.MouseEvent) => {
-    if (!resizable) return;
+    if (!resizable || type !== 'custom') return;
     e.stopPropagation();
     setIsExpandDragging(true);
   };
-
-  const handleScroll = useCallback(
-    (e: React.UIEvent<HTMLDivElement>) => {
-      const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
-
-      if (
-        scrollHeight - scrollTop <= clientHeight * 1.5 &&
-        hasNextPage &&
-        !isFetchingNextPage &&
-        onLoadMore
-      ) {
-        onLoadMore();
-      }
-    },
-    [hasNextPage, isFetchingNextPage, onLoadMore],
-  );
 
   const handleModalDraggingMouseDown = (e: React.MouseEvent | React.TouchEvent) => {
     if (!draggable || type !== 'custom') return;
@@ -188,7 +138,7 @@ function Modal(props: ModalProps) {
 
   const handleExpandMouseMove = React.useCallback(
     (e: MouseEvent | TouchEvent) => {
-      if (!resizable) return;
+      if (!resizable || type !== 'custom') return;
 
       const x = 'clientX' in e ? e.clientX : e.touches[0].clientX;
       const y = 'clientY' in e ? e.clientY : e.touches[0].clientY;
@@ -197,13 +147,17 @@ function Modal(props: ModalProps) {
         if (modalRef.current) {
           const modal = modalRef.current.getBoundingClientRect();
           const modalWidth = Math.min(Math.max(x - modal.x + 10, 200), 320);
+          const modalHeight = y - modal.y + 10;
           modalRef.current.style.width = `${modalWidth}px`;
-          modalRef.current.style.height = `${y - modal.y + 10}px`;
-          columnCountFun(modalWidth);
+          modalRef.current.style.height = `${modalHeight}px`;
+
+          if (onResize) {
+            onResize(modalWidth, modalHeight);
+          }
         }
       }
     },
-    [isExpandDragging, modalRef, resizable],
+    [isExpandDragging, modalRef, resizable, onResize],
   );
 
   const handleModalDraggingMouseMove = React.useCallback(
@@ -267,7 +221,7 @@ function Modal(props: ModalProps) {
     ],
   );
 
-  const hanldeExpandMouseUp = () => {
+  const handleExpandMouseUp = () => {
     setIsExpandDragging(false);
   };
 
@@ -331,7 +285,6 @@ function Modal(props: ModalProps) {
   };
 
   const handleResize = useCallback(() => {
-    columnCountFun(modalRef.current?.clientWidth || 0);
     if (window.innerWidth < 600) {
       if (isMobileSize) return;
       setIsMobileSize(true);
@@ -345,29 +298,28 @@ function Modal(props: ModalProps) {
   }, [onClose, isMobileSize]);
 
   const isDim = React.useMemo(() => {
-    if (isError && open) return true;
     if (isMobileSize && open) return true;
     return false;
-  }, [isError, open, isMobileSize]);
+  }, [open, isMobileSize]);
 
   React.useEffect(() => {
     if (isExpandDragging && !isModalDragging) {
       document.addEventListener('touchmove', handleExpandMouseMove);
-      document.addEventListener('touchend', hanldeExpandMouseUp);
+      document.addEventListener('touchend', handleExpandMouseUp);
       document.addEventListener('mousemove', handleExpandMouseMove);
-      document.addEventListener('mouseup', hanldeExpandMouseUp);
+      document.addEventListener('mouseup', handleExpandMouseUp);
     } else {
       document.removeEventListener('touchmove', handleExpandMouseMove);
-      document.removeEventListener('touchend', hanldeExpandMouseUp);
+      document.removeEventListener('touchend', handleExpandMouseUp);
       document.removeEventListener('mousemove', handleExpandMouseMove);
-      document.removeEventListener('mouseup', hanldeExpandMouseUp);
+      document.removeEventListener('mouseup', handleExpandMouseUp);
     }
 
     return () => {
       document.removeEventListener('touchmove', handleExpandMouseMove);
-      document.removeEventListener('touchend', hanldeExpandMouseUp);
+      document.removeEventListener('touchend', handleExpandMouseUp);
       document.removeEventListener('mousemove', handleExpandMouseMove);
-      document.removeEventListener('mouseup', hanldeExpandMouseUp);
+      document.removeEventListener('mouseup', handleExpandMouseUp);
     };
   }, [isExpandDragging, isModalDragging, handleExpandMouseMove]);
 
@@ -404,10 +356,8 @@ function Modal(props: ModalProps) {
     if (open) {
       if (window.innerWidth < 600) {
         setIsMobileSize(true);
-        columnCountFun(window.innerWidth);
       } else {
         setIsMobileSize(false);
-        setColumnCount(3);
       }
     }
     setIsModalOpen(open);
@@ -415,39 +365,10 @@ function Modal(props: ModalProps) {
   }, [open, setActiveModal]);
 
   const renderContent = () => {
-    if (isError) {
+    if (type === 'custom' && content) {
       return (
         <>
-          <p className="modal_error">
-            <FiAlertCircle />
-            {errorMessage}
-          </p>
-          <Button variant="primary" onClick={closeButtonClick}>
-            {confirmText}
-          </Button>
-        </>
-      );
-    }
-
-    if (imageList && imageList.length > 0) {
-      return (
-        <>
-          <div className="modal_element_wrap">
-            {columns.map((col, colIdx) => (
-              <div className="modal_element_column" key={colIdx}>
-                {col.map((item, idx) => (
-                  <button
-                    className="modal_element"
-                    key={`modal_element_${colIdx}_${idx}`}
-                    onClick={() => elementClick && elementClick(item)}
-                  >
-                    <img src={item} alt="" />
-                  </button>
-                ))}
-              </div>
-            ))}
-          </div>
-
+          {content}
           {resizable && (
             <i
               className="modal_icon_wrap modal_icon_expand"
@@ -488,17 +409,13 @@ function Modal(props: ModalProps) {
       );
     }
 
-    if (type === 'custom' && content) {
-      return content;
-    }
-
     return null;
   };
 
   return isModalOpen ? (
     <div
       className={clsx('modal_wrap', 'is-active', className, {
-        ['is-error']: isError || type === 'error',
+        ['is-error']: type === 'error',
         ['is-alert']: type === 'alert',
         ['is-confirm']: type === 'confirm',
         ['is-success']: type === 'success',
@@ -519,11 +436,8 @@ function Modal(props: ModalProps) {
               </i>
             )}
           </div>
-          <div className="modal_content" onScroll={handleScroll} style={{ overflowY: 'auto' }}>
+          <div className="modal_content" style={{ overflowY: 'auto' }} onScroll={onContentScroll}>
             {renderContent()}
-            {isFetchingNextPage && (
-              <div style={{ textAlign: 'center', padding: '20px' }}>로딩 중...</div>
-            )}
           </div>
         </>
       </div>

@@ -1,14 +1,17 @@
 'use client';
+
 import React from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { FiUser, FiMail, FiLock, FiGrid, FiArrowRight } from 'react-icons/fi';
-import Button from '../_component/Button';
-import PhotocardCard from '../_component/PhotocardCard';
-import Skeleton from '../_component/Skeleton';
-import customFetch from '../_hook/customFetch';
-import '../style/page/mypage.scss';
+
+import Button from '@/app/_component/Button';
+import PhotocardCard from '@/app/_component/PhotocardCard';
+import Skeleton from '@/app/_component/Skeleton';
+import customFetch from '@/app/_hook/customFetch';
+
+import '@/app/style/page/mypage.scss';
 
 interface Photocard {
   _id: string;
