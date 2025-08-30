@@ -268,7 +268,7 @@ export async function drawTextOnCanvas(
     ctx.font = `${textElement.fontWeight} ${scaledFontSize}px "Noto Sans KR", sans-serif`;
     ctx.fillStyle = textElement.color;
     ctx.textAlign = textElement.textAlign as CanvasTextAlign;
-    ctx.textBaseline = 'middle';
+    ctx.textBaseline = 'bottom';
 
     const lines = textElement.text.split('\n');
     const lineHeight = scaledFontSize * 1;
