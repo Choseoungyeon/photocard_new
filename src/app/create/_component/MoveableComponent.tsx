@@ -4,7 +4,6 @@ import Moveable, { OnDrag, OnResize, OnRotate, OnRender, OnPinch } from 'react-m
 import { TextElement, TextElementSize } from '../types';
 
 interface MoveableComponentProps {
-  container: HTMLElement;
   moveableTarget: HTMLElement[];
   isRotating: boolean;
   textElementSizes: Record<string, TextElementSize>;
@@ -13,7 +12,6 @@ interface MoveableComponentProps {
 }
 
 export default function MoveableComponent({
-  container,
   moveableTarget,
   isRotating,
   textElementSizes,
@@ -157,7 +155,6 @@ export default function MoveableComponent({
   return (
     <Moveable
       target={moveableTarget}
-      container={container}
       className="create_box_moveable"
       draggable={true}
       onDrag={handleDrag}
@@ -172,6 +169,7 @@ export default function MoveableComponent({
       pinchOutside={true}
       pinchThreshold={0}
       onRender={handleRender}
+      renderDirections={['nw', 'ne', 'sw', 'se']}
     />
   );
 }
