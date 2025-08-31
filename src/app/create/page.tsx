@@ -52,6 +52,7 @@ export default function CreateClient() {
   const createBoxRef = React.useRef<HTMLDivElement>(null);
   const targetRef = React.useRef<HTMLImageElement | null>(null);
   const elementWrapRef = React.useRef<HTMLDivElement>(null);
+  const createBodyRef = React.useRef<HTMLDivElement>(null);
 
   const {
     data: stickersData,
@@ -283,7 +284,7 @@ export default function CreateClient() {
   }, []);
 
   return (
-    <div className="create_page" onClick={blurHandler}>
+    <div className="create_page" onClick={blurHandler} ref={createBodyRef}>
       <div className="create_box_wrap">
         <div className="create_box" ref={createBoxRef}>
           {image ? (
@@ -309,6 +310,7 @@ export default function CreateClient() {
             </Dropzone>
           )}
           <MoveableComponent
+            container={createBodyRef.current as HTMLElement}
             moveableTarget={moveableTarget}
             isRotating={isRotating}
             setIsRotating={setIsRotating}
