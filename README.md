@@ -41,14 +41,30 @@ react-moveable를 사용해 사용자가 직접 스티커를 화면상에서 조
 react-dropzone을 사용하여 업로드 아이콘을 클릭하면 포토카드 모양의 틀에 원하는 사진을 삽입할 수 있습니다. 삽입되어진 사진의 크기가 위치가 맘에 들지 않는 경우, 다시 한번 클릭하여 사진의
 사이즈를 조정하거나 위치를 조정할 수 있습니다.
 
-그 후에 오른쪽의 상자에서 원하는 스티커를 클릭하면 클릭한 모양의 스티커가 똑같이 쪽의 포토카드의 오른쪽 상단에 나타납니다.
+그 후에 오른쪽의 상자에서 원하는 스티커를 클릭하면 클릭한 모양의 스티커가 똑같이 쪽의 포토카드의 오른쪽 상단에 나타납니다. 해당 모달은 PC 사이즈와 모바일 사이즈 모두 다르게 작업을 하였습니다.
+
+<br />
+<img width="2918" height="1756" alt="photocard-new vercel app_" src="https://github.com/user-attachments/assets/888174a8-29b9-47be-9e97-d3f85c666b17" />
+
+<br />
+<br />
+
+PC 사이즈에선 좀더 자유로운 사용자 경험을 위해 창을 늘이거나 줄일수 있으며 사용자가 자유롭게 위치를 조정할수도 있습니다.
+
+<br />
+<img width="372" height="500" alt="photocard-new vercel app_create (1)" src="https://github.com/user-attachments/assets/5ab13e1d-5aec-45fb-8bc2-5788e086eaaf" />
+
+<br />
+<br />
+
+Mobile 사이즈에선 스티커를 꾸미는 공간을 확보하기 위해 슬라이드 방식으로 변경하였습니다.
+
 왼쪽에 나타난 스티커를 클릭하면 스티커를 원하는대로 수정할 수 있는 moveable박스가 생성됩니다. 클릭한 스티커만 moveable박스가 나타나도록 코딩했습니다.
 사용자는 moveable박스를 이용해 해당 스티커의 사이즈를 수정하거나 원하는 위치에 이동시키거나 rotate시킬 수 있습니다.
 모바일 환경에서는 두손가락으로 스티커의 사이즈를 수정하거나 rotate시킬수 있도록 했습니다.
 
 또한 텍스트 추가 기능을 통해 포토카드에 다양한 텍스트를 삽입할 수 있습니다. 텍스트 버튼을 클릭하면 텍스트 입력 모달이 열리고,
-사용자는 원하는 텍스트를 입력하고 색상, 폰트 크기(12px~72px), 폰트 굵기(보통/굵게), 텍스트 정렬(왼쪽/가운데/오른쪽),
-줄 간격(0.8~3.0) 등을 자유롭게 설정할 수 있습니다. 텍스트는 줄바꿈이 가능하며, 실시간 미리보기를 통해 설정한 스타일을
+사용자는 원하는 텍스트를 입력하고 색상, 폰트 크기, 폰트 굵기, 텍스트 정렬, 줄 간격 등을 자유롭게 설정할 수 있습니다. 텍스트는 줄바꿈이 가능하며, 실시간 미리보기를 통해 설정한 스타일을
 미리 확인할 수 있습니다. 추가된 텍스트도 스티커와 마찬가지로 moveable박스를 통해 크기 조정, 위치 이동, 회전이 가능합니다.
 
 포토카드 꾸미기가 완료되었다면, 오른쪽 상자아래의 완성버튼을 눌러주세요. 해당 포토카드를 편집한 날짜와 함께, 꾸민 포토카드는 갤러리에 저장됩니다. Canvas API를 이용하여
@@ -98,7 +114,7 @@ NextAuth를 이용해 인증 시스템을 만들었습니다. 테스트 로그�
 
 <br />
 
-<img width="2736" height="1688" alt="photocard-new vercel app_ (4)" src="https://github.com/user-attachments/assets/1544a399-e68d-46dd-aa5c-5c349bdcc041" />
+<img width="2918" height="1756" alt="photocard-new vercel app_create" src="https://github.com/user-attachments/assets/f1538e4e-ede4-4646-8d66-fcfb81b82f55" />
 
 <br />
 <br />
@@ -116,7 +132,7 @@ NextAuth를 이용해 인증 시스템을 만들었습니다. 테스트 로그�
 
 <br />
 
-<img width="2736" height="1688" alt="photocard-new vercel app_ (5)" src="https://github.com/user-attachments/assets/4babe208-ea62-47c4-98f0-8b9e909e09fc" />
+<img width="2918" height="1756" alt="photocard-new vercel app_mypage" src="https://github.com/user-attachments/assets/1f7f6844-dcce-41b3-bfb2-62dcc691d2ab" />
 
 <br />
 <br />
