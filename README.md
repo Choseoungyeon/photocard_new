@@ -32,7 +32,7 @@ react-moveable를 사용해 사용자가 직접 스티커를 화면상에서 조
 <br />
 
 시연영상 :
-https://github.com/user-attachments/assets/32774e4d-92fa-491b-ab9e-332fe7a107d8
+https://github.com/user-attachments/assets/a61b2bcb-cf90-4a1f-91a8-8b4b9ec650b8
 
 <br />
 <br />
