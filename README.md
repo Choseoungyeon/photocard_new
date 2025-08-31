@@ -2,7 +2,7 @@
 
 <br />
 
-<img width="2646" height="1580" alt="image" src="https://github.com/user-attachments/assets/b51ac649-5b0a-40c1-aefc-6d558714963c" />
+<img width="2646" height="1580" alt="photocard-new vercel app_login (2)" src="https://github.com/user-attachments/assets/2124d4f3-4c6a-4cfb-93c5-55245aae161d" />
 
 <br />
 <br />
@@ -27,13 +27,13 @@ react-moveable를 사용해 사용자가 직접 스티커를 화면상에서 조
 
 <br />
 
-<img width="2646" height="1580" alt="image" src="https://github.com/user-attachments/assets/14b26007-0b38-4218-b872-7a00810b228f" />
+<img width="2646" height="1580" alt="photocard-new vercel app_login (3)" src="https://github.com/user-attachments/assets/1be0bf9a-5b84-4146-8793-2b01501b7544" />
 
 <br />
 <br />
 
 사용자는 회원가입을 통해 유저정보를 생성할 수 있고 로그인을 통해 갤러리 페이지에 들어갈 수 있습니다. 저장했던 포토카드를 불러올수 있고 그것을 갤러리에서 확인할 수 있습니다.
-NextAuth를 이용해 인증 시스템을 만들었습니다.
+NextAuth를 이용해 인증 시스템을 만들었습니다. 테스트 로그인 버튼을 통해 일시적으로 서비스를 이용할수 있습니다.
 
 <br />
 <br />
@@ -56,22 +56,11 @@ NextAuth를 이용해 인증 시스템을 만들었습니다.
 <br />
 <br />
 
-### 3. 갤러리 기능
-
-만들고 저장했던 포토카드를 불러올수 있습니다. 무한 스크롤을 통해 더 많은 포토카드를 로드할 수 있습니다. 갤러리에서 사용자는 만들었던 포토카드를 확인할 수 있습니다. 포토카드 제목을 기준으로 실시간 검색이 가능하며, 화면 크기에 따라 자동으로 카드 배치가 조정되는 반응형 그리드 레이아웃을 제공합니다. 각 포토카드에 대해 편집, 삭제, 다운로드 기능을 제공하여 사용자가 포토카드를 관리할 수 있습니다. 기존 포토카드의 제목과 설명을 수정할 수 있고, 확인 모달과 함께 안전한 삭제 기능을 제공하며, 포토카드를 PNG 파일로 다운로드할 수 있습니다.
+### 3. 포토카드 만들기 기능
 
 <br />
 
-> Using Skills : TanStack Query, Infinite Scroll, React Hook Form, Modal System
-
-<br />
-<br />
-
-### 4. 포토카드 만들기 기능
-
-<br />
-
-<img width="2646" height="1580" alt="image" src="https://github.com/user-attachments/assets/48447f25-183d-44cf-8278-6962a233024e" />
+<img width="2736" height="1688" alt="photocard-new vercel app_ (6)" src="https://github.com/user-attachments/assets/717b887d-e17b-4ab8-95f8-3b171feedbd8" />
 
 <br />
 <br />
@@ -101,7 +90,32 @@ react-dropzone을 사용하여 업로드 아이콘을 클릭하면 포토카드 
 <br />
 <br />
 
+### 4. 갤러리 기능
+
+<br />
+
+<img width="2736" height="1688" alt="photocard-new vercel app_ (4)" src="https://github.com/user-attachments/assets/1544a399-e68d-46dd-aa5c-5c349bdcc041" />
+
+<br />
+<br />
+
+만들고 저장했던 포토카드를 불러올수 있습니다. 무한 스크롤을 통해 더 많은 포토카드를 로드할 수 있습니다. 갤러리에서 사용자는 만들었던 포토카드를 확인할 수 있습니다. 포토카드 제목을 기준으로 실시간 검색이 가능하며, 화면 크기에 따라 자동으로 카드 배치가 조정되는 반응형 그리드 레이아웃을 제공합니다. 각 포토카드에 대해 편집, 삭제, 다운로드 기능을 제공하여 사용자가 포토카드를 관리할 수 있습니다. 기존 포토카드의 제목과 설명을 수정할 수 있고, 확인 모달과 함께 안전한 삭제 기능을 제공하며, 포토카드를 PNG 파일로 다운로드할 수 있습니다.
+
+<br />
+
+> Using Skills : TanStack Query, Infinite Scroll, React Hook Form, Modal System
+
+<br />
+<br />
+
 ### 5. 마이페이지 기능
+
+<br />
+
+<img width="2736" height="1688" alt="photocard-new vercel app_ (5)" src="https://github.com/user-attachments/assets/4babe208-ea62-47c4-98f0-8b9e909e09fc" />
+
+<br />
+<br />
 
 사용자의 프로필 정보를 확인하고 관리할 수 있습니다. 로그인한 사용자의 정보를 표시하고, 필요에 따라 비밀번호를 재설정할수 있습니다.
 
