@@ -124,12 +124,6 @@ export default function MoveableComponent({
     adjustHandleSize(target);
   };
 
-  const [container, setContainer] = React.useState<HTMLElement | null>(null);
-
-  React.useEffect(() => {
-    setContainer(document.body);
-  }, []);
-
   React.useEffect(() => {
     if (moveableTarget.length > 0) {
       adjustHandleSize(moveableTarget[0]);
@@ -140,7 +134,6 @@ export default function MoveableComponent({
     <Moveable
       target={moveableTarget}
       className="create_box_moveable"
-      container={container}
       draggable={true}
       onDrag={handleDrag}
       keepRatio={true}
