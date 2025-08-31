@@ -301,6 +301,32 @@
   }
 }
 
+// 모바일에서 moveable 컨트롤러 터치 영역 확장
+.create_box_moveable.mobile-mode .moveable-control {
+  // 터치 영역을 시각적 크기보다 8px씩 확장 (투명한 영역)
+  &::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: -8px;
+    right: -8px;
+    bottom: -8px;
+    background: transparent;
+    z-index: -1;
+    pointer-events: auto;
+  }
+
+  // 시각적으로는 원래 크기 유지하되 터치 영역만 확장
+  width: 12px !important;
+  height: 12px !important;
+  margin-left: -6px !important;
+  margin-top: -6px !important;
+
+  // 터치 액션 최적화
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
 // @media (hover: none) and (pointer: coarse) {
 //   .create_box_menu_item:hover {
 //     background: rgba(22, 27, 34, 0.8) !important;

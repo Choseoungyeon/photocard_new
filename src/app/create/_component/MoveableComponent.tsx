@@ -18,6 +18,21 @@ export default function MoveableComponent({
   setIsRotating,
   setTextElements,
 }: MoveableComponentProps) {
+  const [isMobile, setIsMobile] = React.useState(false);
+
+  // 모바일 환경 감지
+  React.useEffect(() => {
+    const checkMobile = () => {
+      const mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent,
+      );
+      setIsMobile(mobile);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   const getHandleSize = (element: HTMLElement | SVGElement) => {
     const rect = element.getBoundingClientRect();
     const width = rect.width;
@@ -155,7 +170,7 @@ export default function MoveableComponent({
   return (
     <Moveable
       target={moveableTarget}
-      className="create_box_moveable"
+      className={`create_box_moveable ${isMobile ? 'mobile-mode' : ''}`}
       draggable={true}
       onDrag={handleDrag}
       keepRatio={true}
