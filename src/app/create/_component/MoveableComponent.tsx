@@ -43,20 +43,42 @@ export default function MoveableComponent({
     if (moveableElement) {
       const handleSize = getHandleSize(target);
       const controls = moveableElement.querySelectorAll('.moveable-control');
+
+      // 모바일 환경 체크
+      const isMobile =
+        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+          navigator.userAgent,
+        ) || window.innerWidth <= 768;
+
       controls.forEach((control) => {
         const element = control as HTMLElement;
-        element.style.width = `${handleSize}px`;
-        element.style.height = `${handleSize}px`;
+
+        // 모바일에서는 최소 크기 보장
+        const finalHandleSize = isMobile ? Math.max(handleSize, 12) : handleSize;
+
+        element.style.width = `${finalHandleSize}px`;
+        element.style.height = `${finalHandleSize}px`;
 
         element.classList.remove('small-handle', 'medium-handle', 'large-handle', 'default-handle');
-        if (handleSize <= 6) {
-          element.classList.add('small-handle');
-        } else if (handleSize <= 8) {
-          element.classList.add('medium-handle');
-        } else if (handleSize <= 10) {
-          element.classList.add('large-handle');
+
+        if (isMobile) {
+          // 모바일에서는 large와 default만 사용
+          if (finalHandleSize <= 12) {
+            element.classList.add('large-handle');
+          } else {
+            element.classList.add('default-handle');
+          }
         } else {
-          element.classList.add('default-handle');
+          // 데스크톱에서는 모든 사이즈 사용
+          if (handleSize <= 6) {
+            element.classList.add('small-handle');
+          } else if (handleSize <= 8) {
+            element.classList.add('medium-handle');
+          } else if (handleSize <= 10) {
+            element.classList.add('large-handle');
+          } else {
+            element.classList.add('default-handle');
+          }
         }
       });
     }
