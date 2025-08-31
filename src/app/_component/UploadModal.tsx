@@ -113,8 +113,8 @@ function UploadModal({
   const uploadMutation = useMutation({
     mutationFn: uploadPhotocard,
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['photocards'] });
-      queryClient.invalidateQueries({ queryKey: ['my-photocards'] });
+      queryClient.refetchQueries({ queryKey: ['photocards'] });
+      queryClient.refetchQueries({ queryKey: ['my-photocards'] });
 
       onClose();
 
