@@ -31,8 +31,7 @@ react-moveable를 사용해 사용자가 직접 스티커를 화면상에서 조
 
 <br />
 
-시연영상 :
-https://github.com/user-attachments/assets/a61b2bcb-cf90-4a1f-91a8-8b4b9ec650b8
+<video src="https://github.com/user-attachments/assets/a61b2bcb-cf90-4a1f-91a8-8b4b9ec650b8" alt="photocard_시연영상" controls="controls" muted="muted" style="max-height:640px; min-height: 200px"></video>
 
 <br />
 <br />
