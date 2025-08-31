@@ -62,7 +62,6 @@ export default function PhotocardCard({
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error('다운로드 중 오류가 발생했습니다:', error);
-      // fallback: 직접 링크로 다운로드 시도
       try {
         const httpsUrl = ensureHttps(card.images.main);
         window.open(httpsUrl, '_blank');

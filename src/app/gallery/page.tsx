@@ -196,13 +196,6 @@ export default function GalleryClient() {
 
     setEditModalOpen(false);
     setEditingCard(null);
-
-    showModal({
-      type: 'success',
-      title: '수정 완료',
-      message: '포토카드가 성공적으로 수정되었습니다.',
-      confirmText: '확인',
-    });
   };
 
   React.useEffect(() => {

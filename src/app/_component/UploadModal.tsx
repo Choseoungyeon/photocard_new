@@ -1,12 +1,13 @@
 'use client';
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { FiArrowLeft, FiUpload, FiX } from 'react-icons/fi';
 import Input from '@/app/_component/Input';
 import Button from '@/app/_component/Button';
 import customFetch from '@/app/_hook/customFetch';
+import { useModal } from '@/app/_context/ModalContext';
 import '@/app/style/page/upload.scss';
 
 type FormValues = {
@@ -42,6 +43,8 @@ function UploadModal({
   onEditComplete,
 }: UploadModalProps) {
   const { data: session } = useSession();
+  const queryClient = useQueryClient();
+  const { showModal } = useModal();
   const [generalError, setGeneralError] = React.useState('');
 
   const {
@@ -110,7 +113,20 @@ function UploadModal({
   const uploadMutation = useMutation({
     mutationFn: uploadPhotocard,
     onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['photocards'] });
+      queryClient.invalidateQueries({ queryKey: ['my-photocards'] });
+
       onClose();
+
+      // 성공 모달 표시
+      showModal({
+        type: 'success',
+        title: isEditMode ? '수정 완료' : '업로드 완료',
+        message: isEditMode
+          ? '포토카드가 성공적으로 수정되었습니다.'
+          : '포토카드가 성공적으로 업로드되었습니다.',
+        confirmText: '확인',
+      });
 
       if (isEditMode && onEditComplete) {
         onEditComplete(data);
