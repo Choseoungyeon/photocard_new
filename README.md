@@ -23,44 +23,16 @@ react-moveable를 사용해 사용자가 직접 스티커를 화면상에서 조
 
 # Features
 
-### 1. 로그인 회원가입 기능
-
-<br />
-
-<img width="2646" height="1580" alt="photocard-new vercel app_login (3)" src="https://github.com/user-attachments/assets/1be0bf9a-5b84-4146-8793-2b01501b7544" />
-
-<br />
-<br />
-
-사용자는 회원가입을 통해 유저정보를 생성할 수 있고 로그인을 통해 갤러리 페이지에 들어갈 수 있습니다. 저장했던 포토카드를 불러올수 있고 그것을 갤러리에서 확인할 수 있습니다.
-NextAuth를 이용해 인증 시스템을 만들었습니다. 테스트 로그인 버튼을 통해 일시적으로 서비스를 이용할수 있습니다.
-
-<br />
-<br />
-
-> Using Skills : NextAuth, MongoDB, Mongoose, Node.js
-
-<br />
-<br />
-
-### 2. 비밀번호 찾기 및 재설정 기능
-
-사용자가 비밀번호를 잊어버렸을 때 이메일을 통해 비밀번호 재설정 링크를 받을 수 있습니다.
-비밀번호 찾기 페이지에서 이메일을 입력하면 인증 이메일이 전송되고, 이메일의 링크를 통해 새로운 비밀번호를 설정할 수 있습니다.
-보안을 위해 토큰 기반 인증 시스템을 구현했습니다.
-
-<br />
-
-> Using Skills : Email Service, Token-based Authentication, React Hook Form
-
-<br />
-<br />
-
-### 3. 포토카드 만들기 기능
+### 1. 포토카드 만들기 기능
 
 <br />
 
 <img width="2736" height="1688" alt="photocard-new vercel app_ (6)" src="https://github.com/user-attachments/assets/717b887d-e17b-4ab8-95f8-3b171feedbd8" />
+
+<br />
+
+시연영상 :
+https://github.com/user-attachments/assets/32774e4d-92fa-491b-ab9e-332fe7a107d8
 
 <br />
 <br />
@@ -86,6 +58,39 @@ react-dropzone을 사용하여 업로드 아이콘을 클릭하면 포토카드 
 <br />
 
 > Using Skills : react-moveable, react-dropzone, Canvas API, cloudinary, React Hook Form
+
+<br />
+<br />
+
+### 2. 로그인 회원가입 기능
+
+<br />
+
+<img width="2646" height="1580" alt="photocard-new vercel app_login (3)" src="https://github.com/user-attachments/assets/1be0bf9a-5b84-4146-8793-2b01501b7544" />
+
+<br />
+<br />
+
+사용자는 회원가입을 통해 유저정보를 생성할 수 있고 로그인을 통해 갤러리 페이지에 들어갈 수 있습니다. 저장했던 포토카드를 불러올수 있고 그것을 갤러리에서 확인할 수 있습니다.
+NextAuth를 이용해 인증 시스템을 만들었습니다. 테스트 로그인 버튼을 통해 일시적으로 서비스를 이용할수 있습니다.
+
+<br />
+<br />
+
+> Using Skills : NextAuth, MongoDB, Mongoose, Node.js
+
+<br />
+<br />
+
+### 3. 비밀번호 찾기 및 재설정 기능
+
+사용자가 비밀번호를 잊어버렸을 때 이메일을 통해 비밀번호 재설정 링크를 받을 수 있습니다.
+비밀번호 찾기 페이지에서 이메일을 입력하면 인증 이메일이 전송되고, 이메일의 링크를 통해 새로운 비밀번호를 설정할 수 있습니다.
+보안을 위해 토큰 기반 인증 시스템을 구현했습니다.
+
+<br />
+
+> Using Skills : Email Service, Token-based Authentication, React Hook Form
 
 <br />
 <br />
