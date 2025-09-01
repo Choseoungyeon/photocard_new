@@ -17,7 +17,7 @@ export async function middleware(req: NextRequest, event: NextFetchEvent) {
   }
 
   // 인증이 필요한 경로들
-  const protectedRoutes = ['/create', '/gallery', '/mypage'];
+  const protectedRoutes = ['/gallery', '/mypage'];
 
   for (const path of protectedRoutes) {
     if (pathname.startsWith(path)) {

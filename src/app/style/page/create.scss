@@ -307,10 +307,10 @@
   &::before {
     content: '';
     position: absolute;
-    top: -8px;
-    left: -8px;
-    right: -8px;
-    bottom: -8px;
+    // top: -2px;
+    // left: -2px;
+    // right: -2px;
+    // bottom: -2px;
     background: transparent;
     z-index: -1;
     pointer-events: auto;
@@ -327,6 +327,43 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+.create_box_moveable.mobile-mode .moveable-rotation-control {
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  width: 8px;
+  height: 8px;
+}
+
+// 각 모서리별로 바깥쪽 터치 영역 설정
+.create_box_moveable.mobile-mode .moveable-control[data-direction='nw']::before {
+  top: -2px;
+  left: -2px;
+  width: 8px;
+  height: 8px;
+}
+
+.create_box_moveable.mobile-mode .moveable-control[data-direction='ne']::before {
+  top: -2px;
+  right: -2px;
+  width: 8px;
+  height: 8px;
+}
+
+.create_box_moveable.mobile-mode .moveable-control[data-direction='sw']::before {
+  bottom: -2px;
+  left: -2px;
+  width: 8px;
+  height: 8px;
+}
+
+.create_box_moveable.mobile-mode .moveable-control[data-direction='se']::before {
+  bottom: -2px;
+  right: -2px;
+  width: 8px;
+  height: 8px;
+}
 // @media (hover: none) and (pointer: coarse) {
 //   .create_box_menu_item:hover {
 //     background: rgba(22, 27, 34, 0.8) !important;
