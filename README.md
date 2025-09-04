@@ -237,7 +237,7 @@ Project Link: [https://github.com/Choseoungyeon/photocard_new](https://github.co
 
 **Progress**: 95%
 
-**Last Updated**: 2025.01.27
+**Last Updated**: 2025.09.01
 
 **Planned Features**:
 
