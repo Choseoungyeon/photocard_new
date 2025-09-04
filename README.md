@@ -34,7 +34,6 @@ react-moveable를 사용해 사용자가 직접 스티커를 화면상에서 조
 <video src="https://github.com/user-attachments/assets/a61b2bcb-cf90-4a1f-91a8-8b4b9ec650b8" alt="photocard_시연영상" controls="controls" muted="muted" style="max-height:640px; min-height: 200px"></video>
 
 <br />
-<br />
 
 해당 페이지는 포토카드를 꾸밀수 있는 공간과 포토카드를 꾸밀 수 있는 스티커를 선택하거나 포토카드를 저장하거나 다운로드할수 있는 메뉴로 나누어져 있습니다.
 react-dropzone을 사용하여 업로드 아이콘을 클릭하면 포토카드 모양의 틀에 원하는 사진을 삽입할 수 있습니다. 삽입되어진 사진의 크기가 위치가 맘에 들지 않는 경우, 다시 한번 클릭하여 사진의 사이즈를 조정하거나 위치를 조정할 수 있습니다.
